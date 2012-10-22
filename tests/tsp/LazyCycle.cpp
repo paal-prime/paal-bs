@@ -12,18 +12,37 @@
 
 using namespace tsp;
 
+typedef tsp::LazyCycle<int> LC;
+
 template<typename Cycle> void identity(Cycle &cycle, size_t n)
 {
 	cycle.resize(n);
 	for(size_t i=0; i<n; ++i) cycle[i] = i;
 }
 
-typedef tsp::LazyCycle<int> LC;
+template<typename Array> void assert_cycle(const LC &cycle, const Array &A)
+{
+	for(size_t i=0; i<cycle.size(); ++i) if(cycle[i]!=A[i])
+	{
+		std::stringstream ss;
+		ss << '\n'; for(size_t j=0; j<cycle.size(); ++j) ss << cycle[j] << ' ';
+		ss << '\n'; for(size_t j=0; j<cycle.size(); ++j) ss << A[j] << ' ';
+		throw std::runtime_error(ss.str());
+	}
+}
 
 TEST(LazyCycle,constructor)
 {
 	LC cycle;
 	EXPECT_FALSE(cycle.size());
+}
+
+TEST(LazyCycle,operator_assign)
+{
+	LC c1,c2;
+	identity(c1,10);
+	c2 = c1;
+	assert_cycle(c1,c2);	
 }
 
 TEST(LazyCycle,resize)
@@ -37,17 +56,6 @@ TEST(LazyCycle,resize)
 	{
 		cycle.resize(i);
 		EXPECT_EQ(cycle.size(),i);
-	}
-}
-
-void assert_cycle(LC &cycle, int A[])
-{
-	for(size_t i=0; i<cycle.size(); ++i) if(cycle[i]!=A[i])
-	{
-		std::stringstream ss;
-		ss << '\n'; for(size_t j=0; j<cycle.size(); ++j) ss << cycle[j] << ' ';
-		ss << '\n'; for(size_t j=0; j<cycle.size(); ++j) ss << A[j] << ' ';
-		throw std::runtime_error(ss.str());
 	}
 }
 

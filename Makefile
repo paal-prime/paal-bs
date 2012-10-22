@@ -1,21 +1,26 @@
 #Grzegorz Prusak
-OBJ = TSP_gen.o
-FLAGS = -g --std=c++0x -Wall -Wshadow -pedantic #-D_XOPEN_SOURCE=600 -g
+OBJ =
+FLAGS = -I. -g --std=c++0x -Wall -Wshadow -pedantic #-D_XOPEN_SOURCE=600 -g
+
+TEST_OBJ = tests/tsp/LazyCycle.o
+TEST_FLAGS = -lgtest -lgtest_main -lpthread
 
 NO_COLOR = "\033[0m"
 INFO_COLOR = "\033[96m"
 WARNING_COLOR = "\033[93m"
 OK_COLOR = "\033[92m"
 
-all: $(OBJ)
-	g++ TSP_gen.o -o gen
+all: $(OBJ) test
 
 clean:
-	rm -f $(OBJ) *.d
+	rm -f $(OBJ) $(TEST_OBJ) *.d
 
 rebuild: clean all
 
 .PHONY: all clean rebuild
+
+test: $(TEST_OBJ)
+	g++ $^ $(TEST_FLAGS) -o test
 
 %.o: %.cpp
 	@echo $(INFO_COLOR)"compiling " $< $(NO_COLOR)

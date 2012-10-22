@@ -19,10 +19,18 @@ namespace tsp
 			data_size(0), segments_size(0), segments_capacity(0)
 		{ *this = cycle; }
 
+		LazyCycle & operator=(const LazyCycle &cycle)
+		{
+			resize(cycle.size());
+			for(size_t i=0; i<data_size; ++i) data_[i] = cycle[i];
+			return *this;
+		}
+
 		void resize(size_t n)
 		{
 			if(n==data_size) return;
 			data_.reset(new value_type[data_size = n]);
+			//badalloc below will invalidate the object
 			segments_.reset(new Segment[segments_capacity = 2*sqrt(n)+1]);
 			segments_size = 1;
 			segments_[0] = Segment(0,n);

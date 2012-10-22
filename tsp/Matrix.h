@@ -44,15 +44,18 @@ namespace tsp
 		const value_type & operator()(size_t i, size_t j) const
 		{ return data_[i][j]; }
 
-		void resize(size_t _size)
-		{ assert(_size<=N); size_ = _size; }	
+		void resize(size_t _size, size_t _size2)
+		{
+			assert(_size==_size2 && _size<=N);
+			size_ = _size;
+		}
 
 		size_t size1() const { return size_; }
 		size_t size2() const { return size_; }
 
 		size_t size_;
 		value_type data_[N][N];
-	};
+	};	
 }
 
 #endif
