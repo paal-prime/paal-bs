@@ -1,11 +1,9 @@
 //Grzegorz Prusak
-#include <cstdio>
-#include <cassert>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "tsp/util.h"
 #include "tsp/LazyCycle.h"

@@ -2,7 +2,7 @@
 OBJ =
 FLAGS = -I. -g --std=c++0x -Wall -Wshadow -pedantic #-D_XOPEN_SOURCE=600 -g
 
-TEST_OBJ = tests/tsp/LazyCycle.o
+TEST_OBJ = tests/tsp/LazyCycle.o tests/tsp/TSPLIB.o
 TEST_FLAGS = -lgtest -lgtest_main -lpthread
 
 NO_COLOR = "\033[0m"
@@ -26,5 +26,5 @@ test: $(TEST_OBJ)
 	@echo $(INFO_COLOR)"compiling " $< $(NO_COLOR)
 	g++ -c -MMD $(FLAGS) $< -o $@
 
--include $(OBJ:.o=.d)
+-include $(OBJ:.o=.d) $(TEST_OBJ:.o=.d)
 
