@@ -18,13 +18,13 @@ namespace tsp
 	}
 
 	//generates a random cycle from values [0,n)
-	template<typename Cycle, typename Gen>
-		void cycle_shuffle(Cycle &cycle, Gen &gen, size_t n)
+	template<typename Cycle, typename Random>
+		void cycle_shuffle(Cycle &cycle, size_t n, Random &random)
 	{
 		cycle.resize(n);
 		for(size_t i=0; i<n; ++i)
 		{
-			size_t j = gen()%(i+1);
+			size_t j = random()%(i+1);
 			cycle[i] = cycle[j];
 			cycle[j] = i;
 		}

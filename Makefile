@@ -1,6 +1,6 @@
 #Grzegorz Prusak
-OBJ =
-FLAGS = -I. -g --std=c++0x -Wall -Wshadow -pedantic #-D_XOPEN_SOURCE=600 -g
+OBJ = walker_test.o
+FLAGS = -I. -O2 --std=c++0x -Wall -Wshadow -pedantic #-D_XOPEN_SOURCE=600 -g
 
 TEST_OBJ = tests/tsp/LazyCycle.o tests/tsp/TSPLIB.o
 TEST_FLAGS = -lgtest -lgtest_main -lpthread
@@ -11,6 +11,7 @@ WARNING_COLOR = "\033[93m"
 OK_COLOR = "\033[92m"
 
 all: $(OBJ) test
+	g++ walker_test.o -lrt -o walker_test
 
 clean:
 	rm -f $(OBJ) $(TEST_OBJ) *.d

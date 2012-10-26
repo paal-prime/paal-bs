@@ -15,11 +15,14 @@ namespace tsp
 		typedef T value_type;
 		
 		LazyCycle() : data_size(0), segments_size(0), segments_capacity(0) {}
-		LazyCycle(const LazyCycle &cycle) :
+		template<typename Cycle> LazyCycle(const Cycle &cycle) :
 			data_size(0), segments_size(0), segments_capacity(0)
 		{ *this = cycle; }
 
-		LazyCycle & operator=(const LazyCycle &cycle)
+		LazyCycle & operator=(LazyCycle &cycle)
+		{ return *this = (const LazyCycle&)cycle; }
+
+		template<typename Cycle> LazyCycle & operator=(const Cycle &cycle)
 		{
 			resize(cycle.size());
 			for(size_t i=0; i<data_size; ++i) data_[i] = cycle[i];
@@ -109,6 +112,7 @@ namespace tsp
 		std::unique_ptr<value_type[]> data_;
 
 	};
+
 }
 
 #endif

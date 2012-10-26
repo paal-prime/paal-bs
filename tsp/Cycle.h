@@ -2,6 +2,8 @@
 #ifndef tsp_Cycle_h
 #define tsp_Cycle_h
 
+#include <memory>
+
 namespace tsp
 {
 	struct DynCycle
@@ -12,8 +14,11 @@ namespace tsp
 		
 		operator value_type*(){ return data_.get(); }
 		operator const value_type*() const { return data_.get(); }
+	
+		DynCycle & operator=(DynCycle &cycle)
+		{ return *this = (const DynCycle&)cycle; }
 		
-		DynCycle & operator=(const DynCycle &cycle)
+		template<typename Cycle> DynCycle & operator=(const Cycle &cycle)
 		{
 			resize(cycle.size());
 			for(size_t i=0; i<size_; ++i) data_[i] = cycle[i];
