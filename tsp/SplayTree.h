@@ -22,20 +22,24 @@ namespace tsp {
         return parent_;
       }
       node_type *left() {
-        return children_[left_index()];
+        normalize();
+        return left_;
       }
       void set_left(node_type *node) {
-        children_[left_index()] = node;
-        update_payload();
+        left_ = node;
+        update_size();
       }
       node_type *right() {
-        return children_[left_index() ^ 1];
+        normalize();
+        return right_;
       }
       void set_right(node_type *node) {
-        children_[left_index() ^ 1] = node;
-        update_payload();
+        right_ = node;
+        update_size();
       }
+
       node_type *next() {
+        normalize_root_path();
         node_type *node = right();
         if (node != NULL) {
           return node->subtree_min();
@@ -54,6 +58,7 @@ namespace tsp {
         }
       }
       node_type *prev() {
+        normalize_root_path();
         node_type *node = left();
         if (node != NULL) {
           return node->subtree_max();
@@ -85,22 +90,7 @@ namespace tsp {
         }
         return node;
       }
-      template<typename S> void print_tree(S &s) { // NOLINT
-        s << '(';
-        node_type *ln = left();
-        if (ln != NULL) {
-          ln->print_tree(s);
-        }
-        s << val_;
-        if (kDefLeft != left_index()) {
-          s << '*';
-        }
-        node_type *lr = right();
-        if (lr != NULL) {
-          lr->print_tree(s);
-        }
-        s << ')';
-      }
+
       size_t size() {
         return size_;
       }
@@ -108,20 +98,23 @@ namespace tsp {
         reversed_ ^= 1;
       }
       void normalize() {
-        node_type *ln = left(), *rn = right();
         if (reversed_) {
-          std::swap(children_[0], children_[1]);
-          if (children_[0] != NULL) {
-            children_[0]->subtree_reverse();
+          std::swap(left_, right_);
+          if (left_ != NULL) {
+            left_->subtree_reverse();
           }
-          if (children_[1] != NULL) {
-            children_[1]->subtree_reverse();
+          if (right_ != NULL) {
+            right_->subtree_reverse();
           }
           reversed_ = false;
         }
-        assert(ln == left());
-        assert(rn == right());
-        assert(!reversed_);
+      }
+      void normalize_root_path() {
+        node_type *node = parent();
+        if (node != NULL) {
+          node->normalize_root_path();
+        }
+        normalize();
       }
 
       value_type val_;
@@ -141,13 +134,12 @@ namespace tsp {
         }
         return (index % 2);
       }
-      void update_payload() {
-        node_type *l = left(), *r = right();
-        size_ = 1 + ((l != NULL) ? l->size_ : 0)
-                + ((r != NULL) ? r->size_ : 0);
+      void update_size() {
+        size_ = 1 + ((left_ != NULL) ? left_->size_ : 0)
+                + ((right_ != NULL) ? right_->size_ : 0);
       }
 
-      node_type *children_[2] = {NULL, NULL};
+      node_type *left_ = NULL, *right_ = NULL;
       node_type *parent_ = NULL;
       bool reversed_ = false;
       size_t size_ = 1;
@@ -235,12 +227,11 @@ namespace tsp {
         return find(i)->val_;
       }
       node_type *splay(size_t i) {
-        splay(find(i));
+        splay_internal(find(i));
         return root_;
       }
       SplayTree<value_type> split_higher(size_t i) {
         splay(i);
-        root_->normalize();
         node_type *new_root = root_->right();
         if (new_root != NULL) {
           new_root->set_parent(NULL);
@@ -250,7 +241,6 @@ namespace tsp {
       }
       SplayTree<value_type> split_lower(size_t i) {
         splay(i);
-        root_->normalize();
         node_type *new_root = root_->left();
         if (new_root != NULL) {
           new_root->set_parent(NULL);
@@ -262,9 +252,8 @@ namespace tsp {
         if (other.root_ == NULL) {
           return;
         }
-        splay(root_->subtree_max());
+        splay(root_->size() - 1);
         assert(root_->right() == NULL);
-        root_->normalize();
         root_->set_right(other.root_);
         other.root_->set_parent(root_);
         other.root_ = NULL;
@@ -273,9 +262,8 @@ namespace tsp {
         if (other.root_ == NULL) {
           return;
         }
-        splay(root_->subtree_min());
+        splay(0);
         assert(root_->left() == NULL);
-        root_->normalize();
         root_->set_left(other.root_);
         other.root_->set_parent(root_);
         other.root_ = NULL;
@@ -296,7 +284,7 @@ namespace tsp {
     private:
       explicit SplayTree(node_type *root) : root_(root) {
       }
-      void splay(node_type *const node) {
+      void splay_internal(node_type *const node) {
         node_type *const parent = node->parent();
         if (node == root_) {
           return;
@@ -322,12 +310,10 @@ namespace tsp {
             rotate_left(grand);
           }
         }
-        splay(node);
+        splay_internal(node);
       }
       void rotate_right(node_type *parent) {
-        parent->normalize();
         node_type *node = parent->left();
-        node->normalize();
         parent->set_left(node->right());
         if (node->right() != NULL) {
           node->right()->parent() = parent;
@@ -347,9 +333,7 @@ namespace tsp {
         }
       }
       void rotate_left(node_type *parent) {
-        parent->normalize();
         node_type *node = parent->right();
-        node->normalize();
         parent->set_right(node->left());
         if (node->left() != NULL) {
           node->left()->parent() = parent;
