@@ -8,6 +8,10 @@
 
 namespace tsp {
 
+  template<typename N> inline size_t node_size(N node) {
+    return (node == NULL) ? 0 : node->size();
+  }
+
   template<typename V> class Node {
     public:
       typedef V value_type;
@@ -27,11 +31,14 @@ namespace tsp {
       }
       void set_left(node_type *node) {
         normalize();
+        set_left_internal(node);
+        update_size();
+      }
+      void set_left_internal(node_type *node) {
         left_ = node;
         if (node != NULL) {
           node->parent_ = this;
         }
-        update_size();
       }
       node_type *right() {
         normalize();
@@ -39,11 +46,18 @@ namespace tsp {
       }
       void set_right(node_type *node) {
         normalize();
+        set_right_internal(node);
+        update_size();
+      }
+      void set_right_internal(node_type *node) {
         right_ = node;
         if (node != NULL) {
           node->parent_ = this;
         }
-        update_size();
+      }
+      void update_size() {
+        size_ = 1 + ((left_ != NULL) ? left_->size_ : 0)
+                + ((right_ != NULL) ? right_->size_ : 0);
       }
 
       node_type *next() {
@@ -133,7 +147,6 @@ namespace tsp {
       bool left_index() {
         int index = kDefLeft;
         node_type *el = this;
-        // TODO(stupaq): caching
         while (el != NULL) {
           if (el->reversed_) {
             ++index;
@@ -141,10 +154,6 @@ namespace tsp {
           el = el->parent();
         }
         return (index % 2);
-      }
-      void update_size() {
-        size_ = 1 + ((left_ != NULL) ? left_->size_ : 0)
-                + ((right_ != NULL) ? right_->size_ : 0);
       }
 
       node_type *left_ = NULL, *right_ = NULL;
@@ -235,7 +244,7 @@ namespace tsp {
         return find(i)->val_;
       }
       node_type *splay(size_t i) {
-        splay_internal(find(i));
+        root_ = splay_down(i);
         return root_;
       }
       SplayTree<value_type> split_higher(size_t i) {
@@ -317,6 +326,54 @@ namespace tsp {
           }
         }
         splay_internal(node);
+      }
+      node_type *splay_down(size_t i) {
+        node_type *parent = root_;
+        node_type second_tree(-1);
+        node_type *l = &second_tree, *r = &second_tree;
+
+        for (;;) {
+          size_t left_size = node_size(parent->left());
+          if (left_size == i) {
+            break;
+          } else if (left_size > i) {
+            node_type *node = parent->left();
+            node->make_root();
+
+            r->set_left_internal(parent);
+            r = parent;
+
+            parent = node;
+          } else {
+            node_type *node = parent->right();
+            node->make_root();
+
+            l->set_right_internal(parent);
+            l = parent;
+
+            parent = node;
+            i -= left_size + 1;
+          }
+        }
+
+        r->set_left_internal(parent->right());
+        l->set_right_internal(parent->left());
+
+        parent->set_left_internal(second_tree.right());
+        parent->set_right_internal(second_tree.left());
+
+        parent->make_root();
+
+        while (r != NULL) {
+          r->update_size();
+          r = r->parent();
+        }
+        while (l != NULL) {
+          l->update_size();
+          l = l->parent();
+        }
+
+        return parent;
       }
       void rotate_right(node_type *parent) {
         node_type *const node = parent->left(),
