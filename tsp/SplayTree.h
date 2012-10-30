@@ -15,18 +15,22 @@ namespace tsp {
 
       explicit Node(const value_type &val) : val_(val) {
       }
-      void set_parent(node_type *node) {
-        parent_ = node;
-      }
-      node_type *&parent() {
+      node_type *parent() {
         return parent_;
+      }
+      void make_root() {
+        parent_ = NULL;
       }
       node_type *left() {
         normalize();
         return left_;
       }
       void set_left(node_type *node) {
+        normalize();
         left_ = node;
+        if (node != NULL) {
+          node->parent_ = this;
+        }
         update_size();
       }
       node_type *right() {
@@ -34,7 +38,11 @@ namespace tsp {
         return right_;
       }
       void set_right(node_type *node) {
+        normalize();
         right_ = node;
+        if (node != NULL) {
+          node->parent_ = this;
+        }
         update_size();
       }
 
@@ -199,7 +207,7 @@ namespace tsp {
 
       SplayTree() {}
       template<typename I> SplayTree(const I begin, const I end) {
-        root_ = build_tree(NULL, begin, end);
+        root_ = build_tree(begin, end);
       }
       ~SplayTree() {
         dispose_tree(root_);
@@ -234,7 +242,7 @@ namespace tsp {
         splay(i);
         node_type *new_root = root_->right();
         if (new_root != NULL) {
-          new_root->set_parent(NULL);
+          new_root->make_root();
           root_->set_right(NULL);
         }
         return SplayTree(new_root);
@@ -243,7 +251,7 @@ namespace tsp {
         splay(i);
         node_type *new_root = root_->left();
         if (new_root != NULL) {
-          new_root->set_parent(NULL);
+          new_root->make_root();
           root_->set_left(NULL);
         }
         return SplayTree(new_root);
@@ -255,7 +263,6 @@ namespace tsp {
         splay(root_->size() - 1);
         assert(root_->right() == NULL);
         root_->set_right(other.root_);
-        other.root_->set_parent(root_);
         other.root_ = NULL;
       }
       void merge_left(SplayTree<value_type> &other) {  // NOLINT
@@ -265,7 +272,6 @@ namespace tsp {
         splay(0);
         assert(root_->left() == NULL);
         root_->set_left(other.root_);
-        other.root_->set_parent(root_);
         other.root_ = NULL;
       }
       void reverse(size_t i, size_t j) {
@@ -313,55 +319,47 @@ namespace tsp {
         splay_internal(node);
       }
       void rotate_right(node_type *parent) {
-        node_type *node = parent->left();
+        node_type *const node = parent->left(),
+                  *const grand = parent->parent();
         parent->set_left(node->right());
-        if (node->right() != NULL) {
-          node->right()->parent() = parent;
-        }
-        node->set_right(parent);
-        if (parent->parent() != NULL) {
-          if (parent == parent->parent()->right()) {
-            parent->parent()->set_right(node);
+        if (grand != NULL) {
+          if (parent == grand->right()) {
+            grand->set_right(node);
           } else {
-            parent->parent()->set_left(node);
+            grand->set_left(node);
           }
         }
-        node->parent() = parent->parent();
-        parent->parent() = node;
+        node->set_right(parent);
         if (parent == root_) {
           root_ = node;
+          node->make_root();
         }
       }
       void rotate_left(node_type *parent) {
-        node_type *node = parent->right();
+        node_type *const node = parent->right(),
+                  *const grand = parent->parent();
         parent->set_right(node->left());
-        if (node->left() != NULL) {
-          node->left()->parent() = parent;
-        }
-        node->set_left(parent);
-        if (parent->parent() != NULL) {
-          if (parent == parent->parent()->left()) {
-            parent->parent()->set_left(node);
+        if (grand != NULL) {
+          if (parent == grand->left()) {
+            grand->set_left(node);
           } else {
-            parent->parent()->set_right(node);
+            grand->set_right(node);
           }
         }
-        node->parent() = parent->parent();
-        parent->parent() = node;
+        node->set_left(parent);
         if (parent == root_) {
           root_ = node;
+          node->make_root();
         }
       }
-      template<typename I> node_type *build_tree(node_type *parent,
-          const I begin, const I end) {
+      template<typename I> node_type *build_tree(const I begin, const I end) {
         if (begin >= end) {
           return NULL;
         }
         ssize_t m = (end - begin) / 2;
         node_type *node = new node_type(*(begin + m));
-        node->set_parent(parent);
-        node->set_left(build_tree(node, begin, begin + m));
-        node->set_right(build_tree(node, begin + m + 1, end));
+        node->set_left(build_tree(begin, begin + m));
+        node->set_right(build_tree(begin + m + 1, end));
         return node;
       }
       void dispose_tree(node_type *node) {
