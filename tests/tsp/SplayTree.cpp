@@ -4,6 +4,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <climits>
 #include <algorithm>
+#include <utility>
 
 #include "tsp/SplayTree.h"
 
@@ -47,12 +48,6 @@ template<typename I> void fill_range(I begin, I end) {
     *iter = i;
     i++;
   }
-}
-
-template<typename T, typename I> void reverse_range(T &t, I begin, // NOLINT
-    size_t rbegin, size_t rend) {
-  std::reverse(begin + rbegin, begin + rend + 1);
-  t.reverse(rbegin, rend);
 }
 
 TEST(SplayTree, CreateEmpty) {
@@ -155,34 +150,50 @@ TEST(SplayTree, Reverse) {
   for (int i = 0; i < kM; i++) {
     int a = rand() % kN; // NOLINT
     int b = (a < kN) ? rand() % (kN - a) : 0; // NOLINT
-    reverse_range(t, input, a, a + b);
+    std::reverse(input + a, input + a + b + 1);
+    t.reverse(a, a + b);
     ASSERT_TRUE(check_random_splay(t, input, input + kN, kL));
   }
 }
 
-TEST(SplayTree, ReversePerformance) {
-  srand(123433);
-  const int kN = 104729, kM = 26669, kP = 5;
-  int input[kN];
-  int *end = input + kN;
-  fill_range(input, end);
-  SplayTree<int> t(input, end);
-  boost::random::mt19937 gen;
-  boost::random::uniform_int_distribution<> dist(0, kN - 1);
-  for (int i = 0, lp = 0; i < kM; i++) {
-    int a = dist(gen);
-    int b = (a < kN) ? dist(gen) % (kN - a) : 0;
-    reverse_range(t, input, a, a + b);
-    if (kP) {
-      int cp = (100 * i) / kM;
-      if (cp >= lp) {
-        std::cerr << cp << "%\n";
-        lp += kP;
-      }
+class SplayTreePerformance : public ::testing::Test {
+  public:
+    static const int kN = 104729, kM = 26669;
+    const uint32_t seed = 331u;
+
+    boost::random::mt19937 gen;
+    boost::random::uniform_int_distribution<int> dist;
+    int input[kN];
+    SplayTree<int> *tree = NULL;
+
+    SplayTreePerformance() :
+      dist(boost::random::uniform_int_distribution<int>(0, kN - 1)) {
     }
+
+  protected:
+    std::pair<int, int> rand_reverse() {
+      int a = dist(gen);
+      int b = (a < kN) ? dist(gen) % (kN - a) : 0;
+      return std::make_pair(a, a + b);
+    }
+    virtual void SetUp() {
+      gen.seed(seed);
+      auto end = input + kN;
+      fill_range(input, end);
+      tree = new SplayTree<int>(input, end);
+    }
+};
+
+TEST_F(SplayTreePerformance, ReverseVector) {
+  for (int i = 0; i < kM; i++) {
+    auto p = rand_reverse();
+    std::reverse(input + p.first, input + p.second + 1);
   }
-  if (kP) {
-    std::cerr << "100%\n";
+}
+
+TEST_F(SplayTreePerformance, ReverseSplay) {
+  for (int i = 0; i < kM; i++) {
+    auto p = rand_reverse();
+    tree->reverse(p.first, p.second);
   }
-  ASSERT_TRUE(check_content(t, input, end));
 }
