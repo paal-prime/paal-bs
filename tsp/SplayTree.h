@@ -337,17 +337,30 @@ namespace tsp {
           if (left_size == i) {
             break;
           } else if (left_size > i) {
+            if (node_size(parent->left()->left()) > i) {
+              node_type *node = parent->left();
+              parent->set_left(node->right());
+              node->set_right_internal(parent);
+              node->make_root();
+              parent = node;
+            }
             node_type *node = parent->left();
             node->make_root();
-
             r->set_left_internal(parent);
             r = parent;
 
             parent = node;
           } else {
+            if (left_size + 1 + node_size(parent->right()->left()) < i) {
+              node_type *node = parent->right();
+              parent->set_right(node->left());
+              node->set_left_internal(parent);
+              node->make_root();
+              left_size = parent->size();
+              parent = node;
+            }
             node_type *node = parent->right();
             node->make_root();
-
             l->set_right_internal(parent);
             l = parent;
 
