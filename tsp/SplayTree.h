@@ -66,14 +66,14 @@ namespace tsp {
         if (node != NULL) {
           return node->subtree_min();
         } else {
-          node_type *prev = NULL;
+          node_type *last = NULL;
           node = this;
           for (;;) {
-            prev = node;
+            last = node;
             node = node->parent();
             if (node == NULL) {
               return NULL;
-            } else if (node->left() == prev) {
+            } else if (node->left() == last) {
               return node;
             }
           }
@@ -85,14 +85,14 @@ namespace tsp {
         if (node != NULL) {
           return node->subtree_max();
         } else {
-          node_type *prev = NULL;
+          node_type *last = NULL;
           node = this;
           for (;;) {
-            prev = node;
+            last = node;
             node = node->parent();
             if (node == NULL) {
               return NULL;
-            } else if (node->right() == prev) {
+            } else if (node->right() == last) {
               return node;
             }
           }
@@ -163,11 +163,11 @@ namespace tsp {
   };
 
   template<typename V, bool IsForward> class Iterator
-    : public boost::iterator_facade<
+    : public boost::iterator_facade <
     Iterator<V, IsForward>,
     Node<V>*,
     boost::bidirectional_traversal_tag,
-      V&> {
+      V& > {
     public:
       typedef V value_type;
       typedef Node<value_type> node_type;
@@ -205,7 +205,14 @@ namespace tsp {
       node_type* current_;
   };
 
-  template<typename T> class SplayTree {
+  enum SplayImplEnum {
+    kTopDownUnbalanced,
+    kTopDown,
+    kBottomUp
+  };
+
+  template<typename T, enum SplayImplEnum SplayImpl = kTopDownUnbalanced>
+  class SplayTree {
     public:
       typedef T value_type;
       typedef Node<value_type> node_type;
@@ -215,8 +222,11 @@ namespace tsp {
       typedef const Iterator<value_type, false> const_reverse_iterator;
 
       SplayTree() {}
-      template<typename I> SplayTree(const I begin, const I end) {
-        root_ = build_tree(begin, end);
+      template<typename I> SplayTree(const I b, const I e) {
+        root_ = build_tree(b, e);
+      }
+      template<typename A> explicit SplayTree(const A &array) {
+        root_ = build_tree(array, 0, array.size());
       }
       ~SplayTree() {
         dispose_tree(root_);
@@ -234,18 +244,25 @@ namespace tsp {
       reverse_iterator rend() {
         return reverse_iterator();
       }
-      size_t size() {
+      size_t size() const {
         return (root_ == NULL) ? 0 : root_->size();
       }
       bool empty() {
         return (root_ == NULL);
       }
-      value_type& operator[](size_t i) {
+      value_type& operator[](size_t i) const {
         return find(i)->val_;
       }
       node_type *splay(size_t i) {
-        root_ = splay_down(i);
-        return root_;
+        switch (SplayImpl) {
+          case kTopDownUnbalanced:
+          case kTopDown:
+            root_ = splay_down(i);
+            return root_;
+          case kBottomUp:
+            splay_internal(find(i));
+            return root_;
+        }
       }
       SplayTree<value_type> split_higher(size_t i) {
         splay(i);
@@ -337,12 +354,14 @@ namespace tsp {
           if (left_size == i) {
             break;
           } else if (left_size > i) {
-            if (node_size(parent->left()->left()) > i) {
-              node_type *node = parent->left();
-              parent->set_left(node->right());
-              node->set_right_internal(parent);
-              node->make_root();
-              parent = node;
+            if (SplayImpl != kTopDownUnbalanced) {
+              if (node_size(parent->left()->left()) > i) {
+                node_type *node = parent->left();
+                parent->set_left(node->right());
+                node->set_right_internal(parent);
+                node->make_root();
+                parent = node;
+              }
             }
             node_type *node = parent->left();
             node->make_root();
@@ -351,13 +370,15 @@ namespace tsp {
 
             parent = node;
           } else {
-            if (left_size + 1 + node_size(parent->right()->left()) < i) {
-              node_type *node = parent->right();
-              parent->set_right(node->left());
-              node->set_left_internal(parent);
-              node->make_root();
-              left_size = parent->size();
-              parent = node;
+            if (SplayImpl != kTopDownUnbalanced) {
+              if (left_size + 1 + node_size(parent->right()->left()) < i) {
+                node_type *node = parent->right();
+                parent->set_right(node->left());
+                node->set_left_internal(parent);
+                node->make_root();
+                left_size = parent->size();
+                parent = node;
+              }
             }
             node_type *node = parent->right();
             node->make_root();
@@ -390,7 +411,7 @@ namespace tsp {
       }
       void rotate_right(node_type *parent) {
         node_type *const node = parent->left(),
-                  *const grand = parent->parent();
+                         *const grand = parent->parent();
         parent->set_left(node->right());
         if (grand != NULL) {
           if (parent == grand->right()) {
@@ -407,7 +428,7 @@ namespace tsp {
       }
       void rotate_left(node_type *parent) {
         node_type *const node = parent->right(),
-                  *const grand = parent->parent();
+                         *const grand = parent->parent();
         parent->set_right(node->left());
         if (grand != NULL) {
           if (parent == grand->left()) {
@@ -422,14 +443,25 @@ namespace tsp {
           node->make_root();
         }
       }
-      template<typename I> node_type *build_tree(const I begin, const I end) {
-        if (begin >= end) {
+      template<typename I> node_type *build_tree(const I b, const I e) {
+        if (b >= e) {
           return NULL;
         }
-        ssize_t m = (end - begin) / 2;
-        node_type *node = new node_type(*(begin + m));
-        node->set_left(build_tree(begin, begin + m));
-        node->set_right(build_tree(begin + m + 1, end));
+        ssize_t m = (e - b) / 2;
+        node_type *node = new node_type(*(b + m));
+        node->set_left(build_tree(b, b + m));
+        node->set_right(build_tree(b + m + 1, e));
+        return node;
+      }
+      template<typename A> node_type *build_tree(const A &array,
+          const size_t b, const size_t e) {
+        if (b >= e) {
+          return NULL;
+        }
+        ssize_t m = (e + b) / 2;
+        node_type *node = new node_type(array[m]);
+        node->set_left(build_tree(array, b, m));
+        node->set_right(build_tree(array, m + 1, e));
         return node;
       }
       void dispose_tree(node_type *node) {
@@ -440,7 +472,7 @@ namespace tsp {
         dispose_tree(node->right());
         delete node;
       }
-      node_type *find(size_t i) {
+      node_type *find(size_t i) const {
         node_type *node = root_;
         for (;;) {
           if (node == NULL) {

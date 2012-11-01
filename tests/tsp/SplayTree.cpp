@@ -5,6 +5,7 @@
 #include <climits>
 #include <algorithm>
 #include <utility>
+#include <vector>
 
 #include "tsp/SplayTree.h"
 
@@ -60,10 +61,13 @@ TEST(SplayTree, CreateEmpty) {
 
 TEST(SplayTree, CreateFromRange) {
   const int kN = 101;
-  int input[kN];
-  fill_range(input, input + kN);
-  SplayTree<int> t(input, input + kN);
-  ASSERT_TRUE(check_content(t, input, input + kN));
+  std::vector<int> input(kN);
+  input.resize(kN);
+  fill_range(input.begin(), input.end());
+  SplayTree<int> t(input.begin(), input.end());
+  SplayTree<int> t1(input);
+  ASSERT_TRUE(check_content(t, input.begin(), input.end()));
+  ASSERT_TRUE(check_content(t1, input.begin(), input.end()));
 }
 
 TEST(SplayTree, Find) {
