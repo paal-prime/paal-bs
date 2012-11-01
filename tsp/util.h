@@ -66,6 +66,26 @@ namespace tsp
 		if(cycle.size()>1 && cycle[1]>cycle[cycle.size()-1])
 			cycle_reverse(cycle,1,cycle.size()); 
 	}
+
+	struct Split
+	{
+		uint32_t begin, end;
+
+		//splits cycle [0,n) into 2 intervals of length at least 2.
+		//resulting parts are [begin,end) and [end,begin)
+		//begin < end
+		//distribution is uniform
+
+		//expected length = n/3:
+		//int x(1-x) / int x = 1/3
+		template<typename Random> void generate(uint32_t n, Random &random)
+		{
+			assert(n>3);
+			begin = random()%n;
+			end = begin+random()%(n-3)+2;
+			if(end>n) std::swap(begin, end -= n);
+		}
+	};
 }
 
 #endif

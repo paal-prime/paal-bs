@@ -1,5 +1,5 @@
 #Grzegorz Prusak
-OBJ = walker_test.o
+OBJ = walker_test.o performance/tsp/Cycle.o performance/tsp/annealing.o
 FLAGS = -I. -O2 --std=c++0x -Wall -Wshadow -pedantic #-D_XOPEN_SOURCE=600 -g
 
 TEST_OBJ = tests/tsp/LazyCycle.o tests/tsp/TSPLIB.o
@@ -12,6 +12,8 @@ OK_COLOR = "\033[92m"
 
 all: $(OBJ) test
 	g++ walker_test.o -lrt -o walker_test
+	g++ performance/tsp/Cycle.o -lrt -o cycle_test
+	g++ performance/tsp/annealing.o -o annealing_test
 
 clean:
 	rm -f $(OBJ) $(TEST_OBJ) *.d

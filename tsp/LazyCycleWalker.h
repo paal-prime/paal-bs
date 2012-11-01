@@ -45,7 +45,7 @@ namespace tsp
 				best_fitness = new_fitness;
 				//O(n*sqrt(n))
 				//best = next;
-				cycle_reverse(best,l_,r_);
+				//cycle_reverse(best,l_,r_);
 			}
 		}
 

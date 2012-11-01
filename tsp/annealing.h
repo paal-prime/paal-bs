@@ -11,14 +11,15 @@ namespace tsp
 	//steps left / steps overall is the temperature
 	//http://pl.wikipedia.org/wiki/Rozk%C5%82ad_Boltzmanna
 	{
-		BoltzmannDistr(double _temp, double _temp_step, Random &_random) :
-			temp(_temp), temp_step(_temp_step), random(_random) {}
-		double temp, temp_step;
+		BoltzmannDistr(double _temp, double _alpha, Random &_random) :
+			temp(_temp), alpha(_alpha), random(_random) {}
+		double temp, alpha;
 		Random &random;
 		bool operator()(double df)
 		{
+			//if(!(random()%10000)) std::cout << temp << ' ' << std::endl;
 			//std::cout << df << " | " << exp(-df/temp) << '\n';
-			return double(random())/random.max() <= exp(-df/(temp-=temp_step));
+			return double(random())/random.max() <= exp(-df/(temp*=alpha));
 		}
 	};
 
