@@ -264,25 +264,26 @@ namespace tsp {
             return root_;
         }
       }
-      SplayTree<value_type> split_higher(size_t i) {
+      SplayTree<value_type, SplayImpl> split_higher(size_t i) {
         splay(i);
         node_type *new_root = root_->right();
         if (new_root != NULL) {
           new_root->make_root();
           root_->set_right(NULL);
         }
-        return SplayTree(new_root);
+        return SplayTree<value_type, SplayImpl>(new_root);
       }
-      SplayTree<value_type> split_lower(size_t i) {
+      SplayTree<value_type, SplayImpl> split_lower(size_t i) {
         splay(i);
         node_type *new_root = root_->left();
         if (new_root != NULL) {
           new_root->make_root();
           root_->set_left(NULL);
         }
-        return SplayTree(new_root);
+        return SplayTree<value_type, SplayImpl>(new_root);
       }
-      void merge_right(SplayTree<value_type> &other) {  // NOLINT
+      template<enum SplayImplEnum S> void merge_right(
+          SplayTree<value_type, S> &other) {  // NOLINT
         if (other.root_ == NULL) {
           return;
         }
@@ -291,7 +292,8 @@ namespace tsp {
         root_->set_right(other.root_);
         other.root_ = NULL;
       }
-      void merge_left(SplayTree<value_type> &other) {  // NOLINT
+      template<enum SplayImplEnum S> void merge_left(
+          SplayTree<value_type, S> &other) {  // NOLINT
         if (other.root_ == NULL) {
           return;
         }
@@ -303,9 +305,9 @@ namespace tsp {
       void reverse(size_t i, size_t j) {
         assert(i <= j);
         // split lower
-        SplayTree<value_type> ltree = split_lower(i);
+        SplayTree<value_type, SplayImpl> ltree = split_lower(i);
         // split higher
-        SplayTree<value_type> rtree = split_higher(j - i);
+        SplayTree<value_type, SplayImpl> rtree = split_higher(j - i);
         // reverse
         root_->subtree_reverse();
         // merge
@@ -490,13 +492,13 @@ namespace tsp {
           }
         }
       }
-      template<typename S, typename V> friend S& operator<<(
-        S &s, SplayTree<V> &tree);
+      template<typename S, typename V, enum SplayImplEnum I> friend S& operator<<(
+        S &s, SplayTree<V, I> &tree);
 
       node_type *root_ = NULL;
   };
 
-  template<typename S, typename T> S& operator<<(S &s, SplayTree<T> &tree) {
+  template<typename S, typename T, enum SplayImplEnum I> S& operator<<(S &s, SplayTree<T, I> &tree) {
     tree.root_->print_tree(s);
     return s;
   }

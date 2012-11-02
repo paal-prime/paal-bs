@@ -10,6 +10,7 @@
 #include "tsp/SplayTree.h"
 
 using tsp::SplayTree;
+using tsp::SplayImplEnum;
 
 template<typename T, typename I> bool check_content(T &t, I begin, I end) { // NOLINT
   if (!std::equal(begin, end, t.begin())) {
@@ -127,7 +128,7 @@ TEST(SplayTree, SplitLower) {
   SplayTree<int> t3 = t.split_lower(k3);
   ASSERT_TRUE(check_random_splay(t, input + k1 + k2 + k3, input + kN, kL));
   ASSERT_TRUE(check_random_splay(t3, input + k1 + k2,
-                                 input + k1 + k2 + k3, kL));
+      input + k1 + k2 + k3, kL));
 }
 
 TEST(SplayTree, Merge) {
@@ -162,13 +163,15 @@ TEST(SplayTree, Reverse) {
 
 class SplayTreePerformance : public ::testing::Test {
   public:
+    static const enum SplayImplEnum splay_impl = tsp::kTopDownUnbalanced;
+
     static const int kN = 104729, kM = 26669;
     const uint32_t seed = 331u;
 
     boost::random::mt19937 gen;
     boost::random::uniform_int_distribution<int> dist;
     int input[kN];
-    SplayTree<int> *tree = NULL;
+    SplayTree<int, splay_impl> *tree = NULL;
 
     SplayTreePerformance() :
       dist(boost::random::uniform_int_distribution<int>(0, kN - 1)) {
@@ -184,7 +187,7 @@ class SplayTreePerformance : public ::testing::Test {
       gen.seed(seed);
       auto end = input + kN;
       fill_range(input, end);
-      tree = new SplayTree<int>(input, end);
+      tree = new SplayTree<int, splay_impl>(input, end);
     }
 };
 

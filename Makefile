@@ -1,6 +1,6 @@
 #Grzegorz Prusak
 OBJ =
-FLAGS = -I. -g -Wshadow --std=c++0x -Wall -Wextra -pedantic #-D_XOPEN_SOURCE=600 -g
+FLAGS = -I. --std=c++0x -Wall -Wextra -Wshadow -pedantic -O2
 
 TEST_OBJ = tests/tsp/SplayTree.o
 TEST_FLAGS = -lgtest -lgtest_main -lpthread
