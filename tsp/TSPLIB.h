@@ -141,7 +141,7 @@ namespace tsp
 					for(double &y : Y) y = geo_rad(y);
 					m.resize(n,n);
 					for(size_t i=0; i<n; ++i) for(size_t j=i; j<n; ++j)
-						m.mtx(i,j) = m.mtx(j,i) = geo_dist(X[i],Y[i],X[j],Y[j]);
+						m.mtx(i,j) = m.mtx(j,i) = geo_dist(Y[i],X[i],Y[j],X[j]);
 				}
 				else
 				{
