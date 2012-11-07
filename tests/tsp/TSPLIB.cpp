@@ -37,9 +37,9 @@ TEST(TSPLIB_Directory,dist)
 	tsp::TSPLIB_Directory dir(path);
 	tsp::TSPLIB_Matrix mtx;
 	for(auto &g : dir.graphs) for(int i=0; i<3; ++i)
-		if(path + filenames[i] == g.filename)
+		if(path + filenames[i] == g.second.filename)
 	{
-		g.load(mtx);
+		g.second.load(mtx);
 		int fitness = 0;
 		for(size_t j=0; j<mtx.size1(); ++j)
 			fitness += mtx(j,(j+1)%mtx.size1());
@@ -55,7 +55,7 @@ TEST(TSPLIB,triange_inequality)
 	tsp::TSPLIB_Matrix mtx;
 	for(auto &g : dir.graphs)
 	{
-		g.load(mtx);
+		g.second.load(mtx);
 		if(mtx.dist_) continue;
 		bool ok = 1;
 		for(size_t i=0; i<mtx.size1(); ++i)
@@ -63,6 +63,6 @@ TEST(TSPLIB,triange_inequality)
 				for(size_t k=0; k<mtx.size1(); ++k)
 					if(mtx(i,j)>mtx(i,k)+mtx(k,j))
 					{ i = j = k = mtx.size1(); ok = 0; }
-		std::cout << format("% %",g.filename,ok?"OK":"INVALID") << std::endl;
+		std::cout << format("% %",g.second.filename,ok?"OK":"INVALID") << std::endl;
 	}
 }

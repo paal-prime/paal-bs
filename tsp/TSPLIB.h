@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "tsp/Matrix.h"
 
@@ -71,8 +72,7 @@ namespace tsp
 			double optimal_fitness;
 			std::string header;
 			while(get_header(index,header) >> optimal_fitness)
-				graphs.push_back(
-					Graph(dir+"/"+header+".tsp", optimal_fitness));
+				graphs[header] = Graph(dir+"/"+header+".tsp", optimal_fitness);
 		}
 
 		struct Graph
@@ -84,16 +84,14 @@ namespace tsp
 			double optimal_fitness;
 
 			//http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/TSPFAQ.html
-			static double geo_rad(double x)
-			{
+			static double geo_rad(double x) {
 				const double PI = 3.141592;
 				int deg = x;
 				return PI * (int(deg) + 5*(x-deg)/3) / 180; 
 			}
 
 			static double geo_dist(double longitude1, double latitude1,
-				double longitude2, double latitude2)
-			{
+				double longitude2, double latitude2) {
 			 	const double RRR = 6378.388;
 
 				double q1 = cos(longitude1 - longitude2); 
@@ -102,7 +100,7 @@ namespace tsp
 				return int(RRR * acos(.5*((1.+q1)*q2 - (1.-q1)*q3)) + 1.0);
 			}
 
-			void load(TSPLIB_Matrix &m)
+			std::string load(TSPLIB_Matrix &m) const
 			{
 				std::ifstream is(filename.c_str()); assert(is);
 				expect_header(is,"DIMENSION"); size_t n; assert(is >> n);
@@ -153,10 +151,11 @@ namespace tsp
 					expect(is,"NODE_COORD_SECTION");
 					int _; for(size_t i=0; i<n; ++i) assert(is >> _ >> m.X[i] >> m.Y[i]);
 				}
+				return ewt;
 			}
 		};
 
-		std::vector<Graph> graphs;
+		std::map<std::string, Graph> graphs;
 		
 		static void expect(std::istream &is, const std::string &pattern)
 		{

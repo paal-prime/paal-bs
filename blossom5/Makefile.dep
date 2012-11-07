@@ -1,0 +1,7 @@
+# NOTE: in order to exclusion rule work you have to use full path with leading './'
+BLOSSOM5_OBJECTS := $(filter-out $(MAINOBJECTS),$(subst .cpp,.o,$(shell find ./blossom5/ -name "*.cpp")))
+
+blossom5/example: $(BLOSSOM5_OBJECTS)
+
+tsp/Christofides: $(BLOSSOM5_OBJECTS)
+

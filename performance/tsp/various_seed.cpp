@@ -1,6 +1,7 @@
 //Grzegorz Prusak
 #include <iostream>
 #include <random>
+#include <string>
 
 #include "tsp/annealing.h"
 #include "tsp/CycleWalker.h"
@@ -52,7 +53,10 @@ int main(int argc, char **argv)
 		dir.graphs.size());
 		return 0;
 	}
-	auto &graph = dir.graphs[graph_id];
+      auto graph_it = dir.graphs.begin();
+      for(int i = 1; i < graph_id; ++i)
+         ++graph_it;
+	auto &graph = graph_it->second;
 	std::cout << graph.filename << std::endl;
 	graph.load(mtx);
 

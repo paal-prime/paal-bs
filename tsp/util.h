@@ -17,6 +17,21 @@ namespace tsp
 		return f;
 	}
 
+	template<typename Cycle>
+		bool check_cycle(const Cycle &cycle, size_t size) {
+		if(size != cycle.size()) {
+			return false;
+		}
+		std::unique_ptr<bool[]> used(new bool[size]());
+		for(size_t i = 0; i < cycle.size(); ++i) {
+			if(cycle[i] >= size || used[cycle[i]])
+				return false;
+			else
+				used[cycle[i]] = true;
+		}
+		return true;
+	}
+
 	//generates a random cycle from values [0,n)
 	template<typename Cycle, typename Random>
 		void cycle_shuffle(Cycle &cycle, size_t n, Random &random)

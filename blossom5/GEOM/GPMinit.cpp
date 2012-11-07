@@ -128,7 +128,7 @@ extern "C" {
 #define TRILIBRARY
 #define NO_TIMER
 #define main NO_MAIN_FUNCTION
-#include "../triangle/triangle.c"
+#include "triangle/triangle.c"
 }
 
 void GeomPerfectMatching::InitDelaunay()
@@ -166,7 +166,7 @@ void GeomPerfectMatching::InitDelaunay()
 	vorout.edgelist = (int *) NULL;
 	vorout.normlist = (REAL *) NULL;
 
-	triangulate("pczAevn", &in, &out, &vorout);
+	triangulate("pczAevnQ", &in, &out, &vorout);
 
 	free(in.pointlist);
 	free(out.pointlist);

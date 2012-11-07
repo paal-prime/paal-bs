@@ -26,14 +26,14 @@
 #include <math.h>
 #include "../PerfectMatching.h"
 
-//#define DELAUNAY_TRIANGLE
+#define DELAUNAY_TRIANGLE 1
 
 struct GPMKDTree;
 
 class GeomPerfectMatching
 {
 public:
-	typedef int REAL; // if you change it to double, you should also change PerfectMatching::REAL to double!
+	typedef double REAL; // if you change it to double, you should also change PerfectMatching::REAL to double!
 	typedef int PointId;
 
 	// pointNum must be a positive even number.
@@ -55,7 +55,7 @@ public:
 	// options for Solve()
 	struct GPMOptions
 	{
-		GPMOptions() : init_Delaunay(true), init_KNN(0), init_greedy(true), iter_max(0) {}
+		GPMOptions() : init_Delaunay(true), init_KNN(0), init_greedy(true), iter_max(0), euc_2d(true) {}
 
 		// three variables below determine the initial subset of edges. 
 		// Delaunay initialization seems to be more robust than K nearest neighbors
@@ -69,6 +69,7 @@ public:
 		int		iter_max;   // If iter_max <= 0 then adds subsets of edges until an optimal solution is found.
 				            // Otherwise runs at most iter_max iterations, so the solution may be suboptimal. 
 				            // (iter_max=1 runs perfect matching just for the initial subset).
+		bool	euc_2d;
 	};
 	struct PerfectMatching::Options options;
 	struct GPMOptions gpm_options;
@@ -165,7 +166,11 @@ friend struct GPMKDTree;
 inline GeomPerfectMatching::REAL GeomPerfectMatching::Dist(REAL* coord1, REAL* coord2)
 {
 	REAL dist;
-	GPM_GET_DIST (dist,  coord1, coord2);
+	if(gpm_options.euc_2d) {
+		GPM_GET_DIST (dist,  coord1, coord2);
+	} else {
+		dist = ceil(sqrt((coord1[0] - coord2[0])*(coord1[0] - coord2[0])+(coord1[1] - coord2[1])*(coord1[1] - coord2[1])));
+	}
 	return dist; 
 }
 

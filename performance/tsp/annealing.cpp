@@ -36,7 +36,10 @@ int main(int argc, char **argv)
 	
 	tsp::TSPLIB_Directory dir(argv[1]);
 	tsp::TSPLIB_Matrix mtx;
-	auto &graph = dir.graphs[20];
+      auto graph_it = dir.graphs.begin();
+      for (int i = 1; i < 20; ++i)
+         ++graph_it;
+	auto &graph = graph_it->second;
 	graph.load(mtx);
 	std::cout << graph.filename << std::endl;
 

@@ -3,7 +3,6 @@
 #include <string.h>
 #include "PMimplementation.h"
 
-
 PerfectMatching::PerfectMatching(int nodeNum, int edgeNumMax)
 	: node_num(nodeNum),
 	  edge_num(0),
@@ -128,7 +127,7 @@ void PerfectMatching::GetRealEndpoints(Edge* a, Node*& tail, Node*& head)
 
 void PerfectMatching::ReallocateEdges()
 {
-	printf("Warning: reallocating edges. Increasing edge_num_max in the constructor may improve memory efficiency!\n");
+	//printf("Warning: reallocating edges. Increasing edge_num_max in the constructor may improve memory efficiency!\n");
 	edge_num_max = edge_num_max*3/2 + 16;
 	char* edges_orig_old = edges_orig;
 	Edge* edges_old = edges;

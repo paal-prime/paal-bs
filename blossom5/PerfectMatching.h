@@ -47,13 +47,13 @@ class PerfectMatching
 {
 public:
 
-#ifdef PERFECT_MATCHING_DOUBLE
+//#ifdef PERFECT_MATCHING_DOUBLE
 	typedef double REAL; 
 	#define PM_INFTY ((REAL)1e100)
-#else
-	typedef int REAL;
-	#define PM_INFTY (INT_MAX/2)
-#endif
+//#else
+//	typedef int REAL;
+//	#define PM_INFTY (INT_MAX/2)
+//#endif
 
 	typedef int NodeId;
 	typedef int EdgeId;

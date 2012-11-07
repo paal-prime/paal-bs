@@ -71,9 +71,10 @@ void SaveMatching(int node_num, PerfectMatching* pm, char* filename)
 	fclose(fp);
 }
 
-void LoadGeomFile(int& node_num, int*& x_array, int*& y_array, char* filename)
+void LoadGeomFile(int& node_num, double*& x_array, double*& y_array, char* filename)
 {
-	int i = 0, i_tmp, x, y, DIM = 0;
+	int i = 0, i_tmp, DIM = 0;
+	double x, y;
 	char LINE[1000];
 
 	x_array = y_array = NULL;
@@ -88,8 +89,8 @@ void LoadGeomFile(int& node_num, int*& x_array, int*& y_array, char* filename)
 			if (node_num < 1) { printf("too few nodes\n"); exit(1); }
 			if (node_num & 1) { printf("# of points is odd: perfect matching cannot exist\n"); exit(1); }
 			if (x_array) { printf("wrong format\n"); exit(1); }
-			x_array = new int[node_num];
-			y_array = new int[node_num];
+			x_array = new double[node_num];
+			y_array = new double[node_num];
 			continue;
 		}
 		if (sscanf(LINE, "EDGE_WEIGHT_TYPE : EUC_%dD", &DIM) == 1)
@@ -97,7 +98,7 @@ void LoadGeomFile(int& node_num, int*& x_array, int*& y_array, char* filename)
 			if (DIM != 2) { printf("only EUC_2D is supported"); exit(1); }
 			continue;
 		}
-		if (sscanf(LINE, "%d %d %d", &i_tmp, &x, &y) == 3)
+		if (sscanf(LINE, "%d %lf %lf", &i_tmp, &x, &y) == 3)
 		{
 			i_tmp --;
 			if (i_tmp != i ++ || i > node_num) { printf("wrong number of points\n"); exit(1); }
@@ -243,8 +244,8 @@ int main(int argc, char* argv[])
 	else
 	{
 		int geom_node_num;
-		int* x_array;
-		int* y_array;
+		double* x_array;
+		double* y_array;
 		LoadGeomFile(geom_node_num, x_array, y_array, geom_filename);
 		GeomPerfectMatching *gpm = new GeomPerfectMatching(geom_node_num, 2);
 		for (i=0; i<geom_node_num; i++)
