@@ -124,12 +124,12 @@ void SteinerForest(const G& graph, const S& sets)
                 int weight = 0;
                 if(active[target])
                 {
-                    weight = (distances[target] + distances[source] +
-                              get(boost::edge_weight, graph, *first))/2;
+                    weight = (distances[target] + distances[source])/2 +
+                              get(boost::edge_weight, graph, *first);
                 }
                 else
                 {
-                    weight = distances[source] + get(boost::edge_weight, graph, *first);
+                    weight = distances[source] + 2*get(boost::edge_weight, graph, *first);
                 }
 
                 edge_queue.push(std::make_pair(weight, *first));
@@ -207,12 +207,12 @@ void SteinerForest(const G& graph, const S& sets)
                         int weight = 0;
                         if(active[target])
                         {
-                            weight = (distances[target] + distances[source] +
-                                      get(boost::edge_weight, graph, *first))/2;
+                            weight = (distances[target] + distances[source])/2 +
+                                      get(boost::edge_weight, graph, *first);
                         }
                         else
                         {
-                            weight = distances[source] + get(boost::edge_weight, graph, *first);
+                            weight = distances[source] + 2*get(boost::edge_weight, graph, *first);
                         }
 
                         edge_queue.push(std::make_pair(weight, *first));
