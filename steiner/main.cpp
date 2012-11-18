@@ -3,6 +3,7 @@
 #include <boost/graph/adjacency_matrix.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graph_utility.hpp>
+#include <vector>
 
 struct vertex_set_t {
     typedef boost::vertex_property_tag type;
@@ -50,7 +51,14 @@ int main()
     sets_t sets_map(sets, v);
 //    boost::print_graph(graph, names);
 
-    SteinerForest<graph_t, sets_t>(graph, sets_map);
+    typedef typename boost::graph_traits<graph_t>::edge_descriptor edge_t;
+    std::vector<edge_t> steiner_forest_edges;
+    SteinerForest<graph_t, sets_t>(graph, sets_map, std::back_inserter(steiner_forest_edges));
+
+    for(size_t i = 0; i < steiner_forest_edges.size(); ++i)
+    {
+        std::cout << steiner_forest_edges[i] << std::endl;
+    }
 
     return 0;
 }

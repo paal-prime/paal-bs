@@ -12,8 +12,8 @@
 
 //TODO dzielenie krawedzi przez 2, a zaokraglanie
 
-template <typename G, typename S>
-void SteinerForest(const G& graph, const S& sets)
+template <typename G, typename S, typename OutputIterator>
+void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_edges)
 {
     const typename boost::graph_traits<G>::vertices_size_type verticesCount = num_vertices(graph);
     int distances[verticesCount]; //memset
@@ -161,7 +161,7 @@ void SteinerForest(const G& graph, const S& sets)
         if(source_parent != target_parent)
         {
             std::cout << "s " << source << ", t " << target << std::endl;
-
+            *steiner_forest_edges++ = edge;
 
             dsu.link(source, target);
             vertex_descriptor new_root = dsu.find_set(source);
