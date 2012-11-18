@@ -10,20 +10,14 @@
 //DEBUG
 #include <iostream>
 
-//TODO dzielenie krawedzi przez 2, a zaokraglanie
-
 template <typename G, typename S, typename OutputIterator>
 void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_edges)
 {
     const typename boost::graph_traits<G>::vertices_size_type verticesCount = num_vertices(graph);
-    int distances[verticesCount]; //memset
-    bool active[verticesCount]; //memset
-
-    for(size_t i = 0; i < verticesCount; ++i)
-    {
-        distances[i] = 0;
-        active[i] = false;
-    }
+    int distances[verticesCount];
+    memset(distances, 0, sizeof(int) * verticesCount);
+    bool active[verticesCount];
+    memset(active, 0, sizeof(bool) * verticesCount);
 
     typedef typename boost::graph_traits<G>::vertex_iterator vertex_iterator_t;
     std::pair<vertex_iterator_t, vertex_iterator_t> vertex_iterator = vertices(graph);
@@ -41,39 +35,25 @@ void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_
     }
 
     const int setsCount = maxSetNumber + 1;
-    int compoundTerminals[verticesCount][setsCount]; //memset
-    for(size_t i = 0; i < verticesCount; ++i)
-    {
-        for(int j = 0; j < setsCount; ++j)
-        {
-            compoundTerminals[i][j] = 0;
-        }
-    }
-    int setCardinality[setsCount]; //memset
-    for(int i = 0; i < setsCount; ++i)
-    {
-        setCardinality[i] = 0;
-    }
+    int compoundTerminals[verticesCount][setsCount];
+    memset(compoundTerminals, 0, sizeof(int) * verticesCount * setsCount);
+
+    int setCardinality[setsCount];
+    memset(setCardinality, 0, sizeof(int) * setsCount);
 
     //dsu
     typedef typename boost::property_map<G, boost::vertex_index_t>::type vertex_dsu_rank_map_t;
     vertex_dsu_rank_map_t v = get(boost::vertex_index, graph);
-    int rank[verticesCount]; //memset
-    for(size_t i = 0; i < verticesCount; ++i)
-    {
-        rank[i] = 0;
-    }
+    int rank[verticesCount];
+    memset(rank, 0, sizeof(int) * verticesCount);
 
     typedef boost::iterator_property_map<int *, vertex_dsu_rank_map_t, int, int&> dsu_rank_t;
     dsu_rank_t dsu_rank(rank, v);
 
     typedef typename boost::property_map<G, boost::vertex_index_t>::type vertex_dsu_parent_map_t;
     vertex_dsu_parent_map_t p = get(boost::vertex_index, graph);
-    int parent[verticesCount]; //memset
-    for(size_t i = 0; i < verticesCount; ++i)
-    {
-        parent[i] = 0;
-    }
+    int parent[verticesCount];
+    memset(parent, 0, sizeof(int) * verticesCount);
 
     typedef boost::iterator_property_map<int *, vertex_dsu_parent_map_t, int, int&> dsu_parent_t;
     dsu_parent_t dsu_parent(parent, p);
@@ -87,7 +67,7 @@ void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_
     typedef std::pair<int, edge_descriptor> queue_element_t;
     std::priority_queue< queue_element_t,
                          std::vector< queue_element_t >,
-                         std::greater< queue_element_t > > edge_queue; //zmienic z max na min heap
+                         std::greater< queue_element_t > > edge_queue;
 
     vertex_iterator = vertices(graph);
     while(vertex_iterator.first != vertex_iterator.second)
