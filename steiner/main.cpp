@@ -24,18 +24,18 @@ int main()
                                     boost::property<boost::edge_weight_t, int> > graph_t;
     graph_t graph(vertexCount);
 
-    const char * names = "usabvt";
+ //   const char * names = "usabvt";
 
     const int edgeCount = 9;
-    Edge edges[edgeCount] = {{0, 1, 16},
-                             {0, 2, 6},
-                             {1, 2, 12},
-                             {1, 2, 6},
-                             {2, 3, 9},
-                             {3, 4, 6},
-                             {0, 4, 20},
-                             {4, 5, 19},
-                             {3, 5, 12}};
+    Edge edges[edgeCount] = {{0, 1, 4*16},
+                             {0, 2, 4*6},
+                             {1, 2, 4*12},
+                             {1, 2, 4*6},
+                             {2, 3, 4*9},
+                             {3, 4, 4*6},
+                             {0, 4, 4*20},
+                             {4, 5, 4*19},
+                             {3, 5, 4*12}};
 
     for(int i = 0; i < edgeCount; ++i)
     {
@@ -45,11 +45,9 @@ int main()
     //vertices sets, 0 - none
     typedef boost::property_map<graph_t, boost::vertex_index_t>::type vertex_set_map_t;
     vertex_set_map_t v = get(boost::vertex_index, graph);
-    int sets[vertexCount] = {1, 2, 0, 0, 1, 2}; //0 - none
+    int sets[vertexCount] = {0, 1, -1, -1, 0, 1}; //-1 = none
     typedef boost::iterator_property_map<int *, vertex_set_map_t, int, int&> sets_t;
     sets_t sets_map(sets, v);
-//    std::cout << get(boost::edge_weight, graph, edge(0, 1, graph).first) << std::endl;
-//    std::cout << get(sets_map, 1) << std::endl;
 //    boost::print_graph(graph, names);
 
     SteinerForest<graph_t, sets_t>(graph, sets_map);
