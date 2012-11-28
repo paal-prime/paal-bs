@@ -5,10 +5,54 @@
 #include <boost/pending/disjoint_sets.hpp>
 #include <queue>
 #include <vector>
+#include <list>
 #include <functional>
+#include <cmath>
 
 //DEBUG
 #include <iostream>
+
+//TODO LCA O(|V|log|V|)
+void prune(const std::vector< std::list<int> >& adj_lists,
+           const int setsCount, const int vertex_set[],
+           std::vector< std::pair<int, int> > &forest_edges)
+{
+    const int verticesCount = adj_lists.size();
+    const int logVerticesCount = ceil(log2(adj_lists.size()) + 2);
+    int LCAjumps[logVerticesCount][verticesCount];
+    memset(LCAjumps, 0, sizeof(int) * logVerticesCount * verticesCount);
+
+    //DFS to get parents
+
+
+    for(int jmp = 1; jmp < logVerticesCount; ++jmp)
+    {
+        for(int i = 0; i < verticesCount; ++i)
+        {
+            LCAjumps[jmp][i] = LCAjumps[jmp-1][ LCAjumps[jmp-1][i] ];
+        }
+    }
+
+    int setLCA[setsCount];
+    int vertex_value[verticesCount];
+    int setCardinality[setsCount];
+    memset(setCardinality, 0, sizeof(int) * verticesCount);
+    for(int i = 0; i < verticesCount; ++i)
+    {
+        if(vertex_set[i] != -1)
+        {
+            setLCA[vertex_set[i]] = i;
+            setCardinality[vertex_set[i]] += 1;
+            vertex_value[i] = 1;
+        }
+        else
+        {
+            vertex_value[i] = 0;
+        }
+    }
+
+    //compute LCA for each set, change vertex_value for LCA
+}
 
 template <typename G, typename S, typename OutputIterator>
 void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_edges)
@@ -70,9 +114,12 @@ void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_
                          std::greater< queue_element_t > > edge_queue;
 
     vertex_iterator = vertices(graph);
+    int vertex_set[verticesCount];
+    memset(vertex_set, 0, sizeof(int) * verticesCount);
     while(vertex_iterator.first != vertex_iterator.second)
     {
         int set_id = get(sets, *vertex_iterator.first);
+        vertex_set[*vertex_iterator.first] = set_id;
         if(set_id != -1)
         {
             setCardinality[set_id] += 1;
@@ -125,6 +172,8 @@ void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_
         std::cout << "car " << setCardinality[i] << std::endl;
     }
 
+    typedef typename boost::graph_traits<G>::edge_descriptor edge_t;
+    std::vector<edge_t> unpruned_forest_edges;
     while(activeSets)
     {
         std::cout << "sets " << activeSets << std::endl;
@@ -141,7 +190,7 @@ void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_
         if(source_parent != target_parent)
         {
             std::cout << "s " << source << ", t " << target << std::endl;
-            *steiner_forest_edges++ = edge;
+            unpruned_forest_edges.push_back(edge);
 
             dsu.link(source, target);
             vertex_descriptor new_root = dsu.find_set(source);
@@ -204,6 +253,29 @@ void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_
         }
     }
 
+
+    std::cout << "edges start" << std::endl;
+    std::vector< std::list<int> > adj_lists(verticesCount);
+    for(auto it = unpruned_forest_edges.begin(); it != unpruned_forest_edges.end(); it++)
+    {
+        int s = source(*it, graph);
+        int t = target(*it, graph);
+        adj_lists[s].push_front(t);
+        adj_lists[t].push_front(s);
+    }
+
+
+    std::vector< std::pair<int, int> > forest_edges;
+    prune(adj_lists, setsCount, vertex_set, forest_edges);
+
+    std::cout << "edges end" << std::endl;
+
+    //pruning
+
+
+
+    //write result edges
+    //*steiner_forest_edges++ = edge;
 }
 
 #endif /* _STEINER_FOREST_H */
