@@ -6,11 +6,48 @@
 #include <queue>
 #include <vector>
 #include <list>
+#include <stack>
 #include <functional>
 #include <cmath>
 
 //DEBUG
 #include <iostream>
+
+void getParents(const std::vector< std::list<int> >& adj_lists, int parent[])
+{
+    const int verticesCount = adj_lists.size();
+    bool visited[verticesCount];
+    memset(visited, false, sizeof(bool) * verticesCount);
+    typedef std::list<int>::const_iterator list_it_t;
+    std::stack< std::pair<int, list_it_t> > dfsStack; //<vertex, neighbour index
+    dfsStack.push( std::pair<int, list_it_t>(0, adj_lists[0].begin()) );
+    parent[0] = 0;
+    visited[0] = true;
+
+    while(!dfsStack.empty())
+    {
+        std::pair<int, list_it_t> &currentVertex = dfsStack.top();
+
+        if(currentVertex.second == adj_lists[currentVertex.first].end())
+        {
+            dfsStack.pop();
+            continue;
+        }
+
+        while(currentVertex.second != adj_lists[currentVertex.first].end())
+        {
+            int neighbour = *currentVertex.second;
+            currentVertex.second++;
+            if(!visited[neighbour])
+            {
+                parent[neighbour] = currentVertex.first;
+                visited[neighbour] = 1;
+                dfsStack.push(std::pair<int, list_it_t>(neighbour, adj_lists[neighbour].begin()));
+                break;
+            }
+        }
+    }
+}
 
 //TODO LCA O(|V|log|V|)
 void prune(const std::vector< std::list<int> >& adj_lists,
@@ -22,8 +59,16 @@ void prune(const std::vector< std::list<int> >& adj_lists,
     int LCAjumps[logVerticesCount][verticesCount];
     memset(LCAjumps, 0, sizeof(int) * logVerticesCount * verticesCount);
 
-    //DFS to get parents
+    int parent[verticesCount];
+    memset(parent, 0, sizeof(int) * verticesCount);
+    getParents(adj_lists, parent);
 
+
+
+    for(int i = 0; i < verticesCount; ++i)
+    {
+        std::cout << "vertex: " << i << " parent: " << parent[i] << std::endl;
+    }
 
     for(int jmp = 1; jmp < logVerticesCount; ++jmp)
     {
