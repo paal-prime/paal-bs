@@ -13,7 +13,93 @@
 //DEBUG
 #include <iostream>
 
-void getParents(const std::vector< std::list<int> >& adj_lists, int parent[])
+void getForestEdges(const std::vector< std::list<int> >& adj_lists, const int vertex_value[],
+                    std::vector< std::pair<int, int> >& forest_edges)
+{
+    const int verticesCount = adj_lists.size();
+    bool visited[verticesCount];
+    memset(visited, false, sizeof(bool) * verticesCount);
+    typedef std::list<int>::const_iterator list_it_t;
+    std::stack< std::pair<int, list_it_t> > dfsStack; //<vertex, neighbour index
+    dfsStack.push( std::pair<int, list_it_t>(0, adj_lists[0].begin()) );
+    int vertex_sum[verticesCount];
+    memset(vertex_sum, 0, sizeof(int) * verticesCount);
+
+    visited[0] = true;
+
+    while(!dfsStack.empty())
+    {
+        std::pair<int, list_it_t> &currentVertex = dfsStack.top();
+
+        if(currentVertex.second == adj_lists[currentVertex.first].end())
+        {
+            vertex_sum[currentVertex.first] = vertex_value[currentVertex.first];
+            for(list_it_t it= adj_lists[currentVertex.first].begin();
+                it != adj_lists[currentVertex.first].end(); ++it)
+            {
+                vertex_sum[currentVertex.first] += vertex_sum[*it];
+                if(vertex_sum[*it] > 0)
+                {
+                    forest_edges.push_back(std::pair<int, int>(currentVertex.first, *it));
+                    std::cout << currentVertex.first << " " << *it << std::endl;
+                }
+            }
+            dfsStack.pop();
+            continue;
+        }
+
+        while(currentVertex.second != adj_lists[currentVertex.first].end())
+        {
+            int neighbour = *currentVertex.second;
+            currentVertex.second++;
+            if(!visited[neighbour])
+            {
+                visited[neighbour] = 1;
+                dfsStack.push(std::pair<int, list_it_t>(neighbour, adj_lists[neighbour].begin()));
+                break;
+            }
+        }
+    }
+}
+
+int lca(int a, int b, int lvl[], int *LCAjumps, const int verticesLog, const int verticesCount)
+{
+    if(lvl[a] > lvl[b])
+    {
+        std::swap(a, b);
+    }
+
+    int lvlDiff = lvl[b] - lvl[a];
+
+    int k = 0;
+    while(lvlDiff)
+    {
+        if(lvlDiff % 2)
+        {
+            b = LCAjumps[verticesCount*k + b];
+        }
+        lvlDiff /= 2;
+        k += 1;
+    }
+
+    if(a == b)
+    {
+        return a;
+    }
+
+    for(int i = verticesLog - 1; i >= 0; i--)
+    {
+        if(LCAjumps[verticesCount*i + a] != LCAjumps[verticesCount*i + b])
+        {
+            a = LCAjumps[verticesCount*i + a];
+            b = LCAjumps[verticesCount*i + b];
+        }
+    }
+
+    return LCAjumps[a];
+}
+
+void getParents(const std::vector< std::list<int> >& adj_lists, int parent[], int lvl[])
 {
     const int verticesCount = adj_lists.size();
     bool visited[verticesCount];
@@ -22,6 +108,7 @@ void getParents(const std::vector< std::list<int> >& adj_lists, int parent[])
     std::stack< std::pair<int, list_it_t> > dfsStack; //<vertex, neighbour index
     dfsStack.push( std::pair<int, list_it_t>(0, adj_lists[0].begin()) );
     parent[0] = 0;
+    lvl[0] = 1;
     visited[0] = true;
 
     while(!dfsStack.empty())
@@ -43,13 +130,13 @@ void getParents(const std::vector< std::list<int> >& adj_lists, int parent[])
                 parent[neighbour] = currentVertex.first;
                 visited[neighbour] = 1;
                 dfsStack.push(std::pair<int, list_it_t>(neighbour, adj_lists[neighbour].begin()));
+                lvl[neighbour] = dfsStack.size();
                 break;
             }
         }
     }
 }
 
-//TODO LCA O(|V|log|V|)
 void prune(const std::vector< std::list<int> >& adj_lists,
            const int setsCount, const int vertex_set[],
            std::vector< std::pair<int, int> > &forest_edges)
@@ -60,14 +147,15 @@ void prune(const std::vector< std::list<int> >& adj_lists,
     memset(LCAjumps, 0, sizeof(int) * logVerticesCount * verticesCount);
 
     int parent[verticesCount];
+    int lvl[verticesCount];
     memset(parent, 0, sizeof(int) * verticesCount);
-    getParents(adj_lists, parent);
-
-
+    memset(lvl, 0, sizeof(int) * verticesCount);
+    getParents(adj_lists, parent, lvl);
 
     for(int i = 0; i < verticesCount; ++i)
     {
         std::cout << "vertex: " << i << " parent: " << parent[i] << std::endl;
+        std::cout << "vertex: " << i << " lvl: " << lvl[i] << std::endl;
     }
 
     for(int jmp = 1; jmp < logVerticesCount; ++jmp)
@@ -96,8 +184,25 @@ void prune(const std::vector< std::list<int> >& adj_lists,
         }
     }
 
-    //compute LCA for each set, change vertex_value for LCA
+    for(int i = 0; i < verticesCount; ++i)
+    {
+        if(vertex_set[i] != -1)
+        {
+            std::cout << "lca of " << setLCA[vertex_set[i]] << " and " << i << " is ";
+            setLCA[vertex_set[i]] = lca(setLCA[vertex_set[i]], i, lvl, LCAjumps[0],
+                                        logVerticesCount, verticesCount);
+            std::cout << setLCA[vertex_set[i]] << std::endl;
+        }
+    }
+
+    for(int i = 0; i < setsCount; ++i)
+    {
+        vertex_value[setLCA[i]] -= setCardinality[i];
+    }
+
+    getForestEdges(adj_lists, vertex_value, forest_edges);
 }
+
 
 template <typename G, typename S, typename OutputIterator>
 void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_edges)
