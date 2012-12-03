@@ -23,7 +23,7 @@ namespace tsp
 	struct TSPLIB_Matrix
 	{
 		TSPLIB_Matrix() : size_(0) {}
-		typedef int value_type;
+		typedef double value_type;
 		typedef int (*Dist)(double,double);
 		int operator()(size_t i, size_t j) const
 		{ return dist_ ? dist_(X[i]-X[j],Y[i]-Y[j]) : mtx(i,j); }

@@ -15,9 +15,9 @@ template<typename Temp> struct TempWrapper
 		gens(0), steps(0), temp(args...) {}
 	uint32_t gens, steps;
 	Temp temp;
-	bool operator()(double df)
+	bool operator()(double df, double time)
 	{
-		bool res = temp(df);
+		bool res = temp(df,time);
 		if(res) steps++;
 		if(!(++gens%10000)) std::cout
 			<< format("gens = %; steps = % (%)\n",gens,steps,double(steps)/gens)
@@ -50,7 +50,8 @@ int main(int argc, char **argv)
 	
 	tsp::StepsMonitor monitor(steps, graph.optimal_fitness);
 	TempWrapper<tsp::BoltzmannDistr<Random>>
-		temp(tsp::fitness(mtx,cycle)/mtx.size1(),.9999,random);
+		//temp(tsp::fitness(mtx,cycle)/mtx.size1(),.9999,random);
+		temp(tsp::fitness(mtx,cycle)/mtx.size1(),1e-300,random);
 	
 	tsp::annealing(walker,monitor,temp);
 	return 0;

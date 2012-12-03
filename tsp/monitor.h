@@ -7,43 +7,46 @@
 
 namespace tsp {
 
-struct TimeMonitor
+/*
+concept Monitor
 {
-	TimeMonitor(double _time, double _optimal_fitness) :
-		time(_time), steps(0), optimal_fitness(_optimal_fitness)
+	template<typename Walker> double operator()(const Walker &walker);
+	//returns time of the simulation (0 - begin, 1 - end)
+};
+*/
+
+struct TimeMonitor //implements Monitor
+{
+	TimeMonitor(double _time) :
+		time(_time), last_time(0), steps(0)
 	{ sw.start(); }
 	
 	Stopwatch sw;
-	double time;
+	double time,last_time;
 	uint32_t steps;
-	double optimal_fitness;
 	
-	template<typename Walker> bool operator()(const Walker &walker)
+	template<typename Walker> double operator()(const Walker &walker)
 	{
-		if(!(steps++%10000))
-			std::cout << format("fitness = %; opt = %; now = %\n",
-			walker.best_fitness,optimal_fitness,walker.new_fitness);
-		if(sw.check()>time)
-		{
-			std::cout << format("% steps\n",steps);
-			return 0;
-		}
-		return 1;
+		//if(!(steps++%10000))
+		//	std::cout << format("fitness = %; opt = %; now = %\n",
+		//	walker.best_fitness,optimal_fitness,walker.new_fitness);
+		if(!(steps++%1000)) last_time = sw.check();
+		return last_time/time;
 	}
 };
 
-struct StepsMonitor
+struct StepsMonitor //implements Monitor
 {
-	StepsMonitor(uint32_t _steps, double _optimal_fitness) :
-		steps(_steps), optimal_fitness(_optimal_fitness) {}
-	uint32_t steps;
+	StepsMonitor(uint32_t _steps, double = 0) :
+		steps(_steps), current_step(0) {}
+	uint32_t steps, current_step;
 	double optimal_fitness;
-	template<typename Walker> bool operator()(const Walker &walker)
+	template<typename Walker> double operator()(const Walker &walker)
 	{
-		if(!(steps%10000))
-			std::cout << format("fitness = %; opt = %; now = %\n",
-			walker.best_fitness,optimal_fitness,walker.new_fitness);
-		return steps--;
+		//if(!(current_step%10000))
+		//	std::cout << format("fitness = %; opt = %; now = %\n",
+		//	walker.best_fitness,optimal_fitness,walker.new_fitness);
+		return double(current_step++)/steps;
 	}
 };
 
