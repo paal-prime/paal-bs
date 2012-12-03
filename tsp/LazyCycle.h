@@ -1,5 +1,5 @@
 //Grzegorz Prusak
-#ifndef LazyCycle_h
+#ifndef LazyCycle_H
 #define LazyCycle_H
 
 #include <algorithm>
@@ -34,7 +34,7 @@ namespace tsp
 			if(n==data_size) return;
 			data_.reset(new value_type[data_size = n]);
 			//badalloc below will invalidate the object
-			segments_.reset(new Segment[segments_capacity = 2*sqrt(n)+1]);
+			segments_.reset(new Segment[segments_capacity = sqrt(3*n)+2]);
 			segments_size = 1;
 			segments_[0] = Segment(0,n);
 		}
@@ -60,6 +60,9 @@ namespace tsp
 		//O(data_size)
 		void reduce()
 		{
+#ifdef TRACE
+			static VerboseStopwatch sw("LazyCycle::reduce"); sw.start();
+#endif
 			value_type A[data_size];
 			for(size_t j=0,s=0; j<segments_size; ++j)
 				for(size_t i=0; i<segments_[j].size(); ++i)
@@ -67,6 +70,9 @@ namespace tsp
 			for(size_t i=0; i<data_size; ++i) data_[i] = A[i];
 			segments_size = 1;
 			segments_[0] = Segment(0,data_size);
+#ifdef TRACE
+			sw.stop();
+#endif
 		}
 
 		//reverses [begin,end) segment of the cycle 

@@ -3,6 +3,7 @@
 #define tsp_Cycle_h
 
 #include <memory>
+#include "tsp/util.h"
 
 namespace tsp
 {
@@ -32,6 +33,9 @@ namespace tsp
 			size_ = _size;
 		}
 		
+		void reverse(size_t begin, size_t end)
+		{ cycle_reverse(*this,begin,end); }
+
 		size_t size() const { return size_; }
 
 		size_t size_;
