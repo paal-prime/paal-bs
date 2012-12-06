@@ -31,11 +31,11 @@ $(DEPENDS) : %.d : %.cpp
 	@echo -e "\t"$(CXX) $(CXXFLAGS) -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@
 
 # link main objects
-$(MAIN) : % : %.o $(OBJECTS)
+$(MAIN) : % : %.o
 	$(CXX) $(CXXFLAGS) -s $(LDFLAGS) -o $@ $^
 
 # link gtest objects
-$(GTEST) : % : %.o $(OBJECTS)
+$(GTEST) : % : %.o
 	$(CXX) $(CXXFLAGS) -s $(LDFLAGS) $(LDFLAGS_GTEST) -o $@ $^
 
 # include submakefiles
