@@ -1,34 +1,38 @@
-#Grzegorz Prusak
-OBJ = walker_test.o performance/tsp/Cycle.o performance/tsp/annealing.o performance/tsp/various_seed.o
-FLAGS = -I. -O2 --std=c++0x -Wall -Wshadow -pedantic #-D_XOPEN_SOURCE=600 -g
+IGNORED_WARN := -Wno-vla -Wno-unused-parameter
+OPTIMIZATIONS := -O2
 
-TEST_OBJ = tests/tsp/LazyCycle.o tests/tsp/TSPLIB.o
-TEST_FLAGS = -lgtest -lgtest_main -lpthread
+CXX := g++ -I ./
+CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTIMIZATIONS)
+LDFLAGS := -lgtest -lgtest_main -lrt
 
-NO_COLOR = "\033[0m"
-INFO_COLOR = "\033[96m"
-WARNING_COLOR = "\033[93m"
-OK_COLOR = "\033[92m"
+# sources
+SOURCES := $(shell find -name "*.cpp")
+# objects containing main() definition
+MAINOBJECTS := $(subst .cpp,.o,$(shell grep -l "int main" $(SOURCES)))
+# executables (linked from MAINOBJECTS)
+ALL := $(subst .o,,$(MAINOBJECTS))
+# submakefiles
+DEPENDS := $(subst .cpp,.d,$(SOURCES))
+# all objects
+ALLOBJECTS := $(subst .cpp,.o,$(SOURCES))
+# objects not containing main() definition
+OBJECTS := $(filter-out $(MAINOBJECTS),$(ALLOBJECTS))
 
-all: $(OBJ) test
-	g++ walker_test.o -lrt -o walker_test
-	g++ performance/tsp/Cycle.o -lrt -o cycle_test
-	g++ performance/tsp/annealing.o -o annealing_test
-	g++ performance/tsp/various_seed.o -lrt -o various_seed_test
+all: $(DEPENDS) $(ALL)
+
+# create submakefiles
+$(DEPENDS) : %.d : %.cpp
+	$(CXX) $(CXXFLAGS) -MT $(<:.cpp=.o) -MM $< > $@
+	@echo -e "\t"$(CXX) $(CXXFLAGS) -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@
+
+# link objects
+$(ALL) : % : %.o $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -s $(LDFLAGS) -o $@ $^
+
+# include submakefiles
+-include $(DEPENDS)
 
 clean:
-	rm -f $(OBJ) $(TEST_OBJ) *.d
+	-rm -f *.o $(ALL) $(ALLOBJECTS) $(DEPENDS)
 
-rebuild: clean all
-
-.PHONY: all clean rebuild
-
-test: $(TEST_OBJ)
-	g++ $^ $(TEST_FLAGS) -o test
-
-%.o: %.cpp
-	@echo $(INFO_COLOR)"compiling " $< $(NO_COLOR)
-	g++ -c -MMD $(FLAGS) $< -o $@
-
--include $(OBJ:.o=.d) $(TEST_OBJ:.o=.d)
-
+.PHONY: clean
