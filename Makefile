@@ -15,7 +15,7 @@ GTESTOBJECTS := $(subst .cpp,.o,$(shell grep -l "gtest/gtest" $(SOURCES)))
 # executables (linked from MAINOBJECTS)
 MAIN := $(subst .o,,$(MAINOBJECTS))
 # executables (linked from GTESTOBJECTS)
-GTEST := "gtest"
+GTEST := gtest
 # submakefiles
 DEPENDS := $(subst .cpp,.d,$(SOURCES))
 # all objects
