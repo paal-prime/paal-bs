@@ -32,11 +32,11 @@ $(DEPENDS) : %.d : %.cpp
 
 # link main objects
 $(MAIN) : % : %.o
-	$(CXX) $(CXXFLAGS) -s $(LDFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
 
 # link gtest objects
 $(GTEST) : % : $(GTESTOBJECTS)
-	$(CXX) $(CXXFLAGS) -s $(LDFLAGS) $(LDFLAGS_GTEST) -o $@ $(GTESTOBJECTS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@ $(GTESTOBJECTS)
 
 # include submakefiles
 -include $(DEPENDS)
