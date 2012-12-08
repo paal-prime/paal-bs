@@ -1,31 +1,47 @@
-#Grzegorz Prusak
-OBJ = walker_test.o
-FLAGS = -I. -O2 --std=c++0x -Wall -Wshadow -pedantic #-D_XOPEN_SOURCE=600 -g
+IGNORED_WARN := -Wno-vla -Wno-unused-parameter
+OPTIMIZATIONS := -g
 
-TEST_OBJ = tests/tsp/LazyCycle.o tests/tsp/TSPLIB.o
-TEST_FLAGS = -lgtest -lgtest_main -lpthread
+CXX := g++ -I ./
+CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTIMIZATIONS)
+LDFLAGS := -lrt
+LDFLAGS_GTEST := -lgtest -lgtest_main
 
-NO_COLOR = "\033[0m"
-INFO_COLOR = "\033[96m"
-WARNING_COLOR = "\033[93m"
-OK_COLOR = "\033[92m"
+# sources
+SOURCES := $(shell find -name "*.cpp")
+# objects containing main() definition
+MAINOBJECTS := $(subst .cpp,.o,$(shell grep -l "int main" $(SOURCES)))
+# objects to be compiled as gtest executables
+GTESTOBJECTS := $(subst .cpp,.o,$(shell grep -l "gtest/gtest" $(SOURCES)))
+# executables (linked from MAINOBJECTS)
+MAIN := $(subst .o,,$(MAINOBJECTS))
+# executables (linked from GTESTOBJECTS)
+GTEST := gtest
+# submakefiles
+DEPENDS := $(subst .cpp,.d,$(SOURCES))
+# all objects
+ALLOBJECTS := $(subst .cpp,.o,$(SOURCES))
+# intermediate objects
+OBJECTS := $(filter-out $(MAINOBJECTS) $(GTESTOBJECTS),$(ALLOBJECTS))
 
-all: $(OBJ) test
-	g++ walker_test.o -lrt -o walker_test
+all: $(DEPENDS) $(MAIN) $(GTEST)
+
+# create submakefiles
+$(DEPENDS) : %.d : %.cpp
+	$(CXX) $(CXXFLAGS) -MT $(<:.cpp=.o) -MM $< > $@
+	@echo -e "\t"$(CXX) $(CXXFLAGS) -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@
+
+# link main objects
+$(MAIN) : % : %.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
+
+# link gtest objects
+$(GTEST) : % : $(GTESTOBJECTS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@ $(GTESTOBJECTS)
+
+# include submakefiles
+-include $(DEPENDS)
 
 clean:
-	rm -f $(OBJ) $(TEST_OBJ) *.d
+	-rm -f *.o $(MAIN) $(GTEST) $(ALLOBJECTS) $(DEPENDS)
 
-rebuild: clean all
-
-.PHONY: all clean rebuild
-
-test: $(TEST_OBJ)
-	g++ $^ $(TEST_FLAGS) -o test
-
-%.o: %.cpp
-	@echo $(INFO_COLOR)"compiling " $< $(NO_COLOR)
-	g++ -c -MMD $(FLAGS) $< -o $@
-
--include $(OBJ:.o=.d) $(TEST_OBJ:.o=.d)
-
+.PHONY: clean
