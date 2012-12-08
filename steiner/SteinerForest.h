@@ -10,12 +10,13 @@
 #include <functional>
 #include <cmath>
 #include <cstring>
+#include <algorithm>
 
 //DEBUG
 #include <iostream>
 
 void getForestEdges(const std::vector< std::list<int> >& adj_lists, const int vertex_value[],
-                    std::vector< std::pair<int, int> >& forest_edges)
+                    std::vector< std::pair<size_t, size_t> >& forest_edges)
 {
     const int verticesCount = adj_lists.size();
     bool visited[verticesCount];
@@ -41,7 +42,7 @@ void getForestEdges(const std::vector< std::list<int> >& adj_lists, const int ve
                 vertex_sum[currentVertex.first] += vertex_sum[*it];
                 if(vertex_sum[*it] > 0)
                 {
-                    forest_edges.push_back(std::pair<int, int>(currentVertex.first, *it));
+                    forest_edges.push_back(std::pair<size_t, size_t>(currentVertex.first, *it));
                     std::cout << currentVertex.first << " " << *it << std::endl;
                 }
             }
@@ -140,7 +141,7 @@ void getParents(const std::vector< std::list<int> >& adj_lists, int parent[], in
 
 void prune(const std::vector< std::list<int> >& adj_lists,
            const int setsCount, const int vertex_set[],
-           std::vector< std::pair<int, int> > &forest_edges)
+           std::vector< std::pair<size_t, size_t> > &forest_edges)
 {
     const int verticesCount = adj_lists.size();
     const int logVerticesCount = ceil(log2(adj_lists.size()) + 2);
@@ -412,12 +413,38 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
     }
 
     std::cout << "prunning" << std::endl;
-    std::vector< std::pair<int, int> > forest_edges;
+    std::vector< std::pair<vertex_t, vertex_t> > forest_edges;
     prune(adj_lists, setsCount, vertex_set, forest_edges);
 
-    /*
-    std::cout << "edges end" << std::endl;
-    */
+    for(size_t i = 0; i < forest_edges.size(); ++i)
+    {
+        if(forest_edges[i].first > forest_edges[i].second)
+        {
+            std::swap(forest_edges[i].first, forest_edges[i].second);
+        }
+    }
+
+    for(size_t i = 0; i < unpruned_forest_edges.size(); ++i)
+    {
+        if(unpruned_forest_edges[i].first.first > unpruned_forest_edges[i].first.second)
+        {
+            std::swap(unpruned_forest_edges[i].first.first, unpruned_forest_edges[i].first.second);
+        }
+    }
+
+    std::sort(forest_edges.begin(), forest_edges.end());
+    std::sort(unpruned_forest_edges.begin(), unpruned_forest_edges.end());
+
+
+    int unpruned_index = 0;
+    for(int i = 0; i < forest_edges.size(); ++i)
+    {
+        while(forest_edges[i] != unpruned_forest_edges[unpruned_index].first)
+        {
+            unpruned_index += 1;
+        }
+        *steiner_forest_edges++ = unpruned_forest_edges[unpruned_index];
+    }
 }
 
 #endif /* _STEINER_FOREST_H */
