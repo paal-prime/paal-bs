@@ -10,6 +10,7 @@ namespace details
     class adj_list_AdjacencyIterator
     {
         public:
+        adj_list_AdjacencyIterator() {};
         adj_list_AdjacencyIterator(T it) : it(it) {}
         adj_list_AdjacencyIterator operator++(int)
         {
@@ -88,7 +89,6 @@ class AdjacencyLists
             adj[u].push_back(std::make_pair(v, w));
         }
 
-        private:
         V vertices;
         std::unique_ptr<std::list< std::pair<V, WW> >[]> adj;
     };
@@ -140,7 +140,7 @@ class AdjacencyLists
                          adjacency_iterator_t(fields.adj[v].end()));
     }
 
-    std::pair<edge_iterator_t, edge_iterator_t> out_edges(const vertex_t& v)
+    std::pair<edge_iterator_t, edge_iterator_t> out_edges(const vertex_t& v) const
     {
         return std::make_pair(fields.adj[v].begin(), fields.adj[v].end());
     }

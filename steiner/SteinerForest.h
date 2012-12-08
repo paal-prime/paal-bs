@@ -1,14 +1,15 @@
 #ifndef _STEINER_FOREST_H
 #define _STEINER_FOREST_H
 
-#include <boost/graph/adjacency_matrix.hpp>
 #include <boost/pending/disjoint_sets.hpp>
+#include <boost/property_map/property_map.hpp>
 #include <queue>
 #include <vector>
 #include <list>
 #include <stack>
 #include <functional>
 #include <cmath>
+#include <cstring>
 
 //DEBUG
 #include <iostream>
@@ -204,23 +205,19 @@ void prune(const std::vector< std::list<int> >& adj_lists,
 }
 
 
-template <typename G, typename S, typename OutputIterator>
-void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_edges)
+template <typename G, typename OutputIterator>
+void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_forest_edges)
 {
-    const typename boost::graph_traits<G>::vertices_size_type verticesCount = num_vertices(graph);
-    int distances[verticesCount];
-    memset(distances, 0, sizeof(int) * verticesCount);
+    size_t verticesCount = graph.verticesCount();
+    typename G::edge_weight_t distances[verticesCount];
     bool active[verticesCount];
-    memset(active, 0, sizeof(bool) * verticesCount);
-
-    typedef typename boost::graph_traits<G>::vertex_iterator vertex_iterator_t;
-    std::pair<vertex_iterator_t, vertex_iterator_t> vertex_iterator = vertices(graph);
 
     int maxSetNumber = 0;
-    while(vertex_iterator.first != vertex_iterator.second)
+    for(typename G::vertex_t v = 0; v < verticesCount; ++v)
     {
-        maxSetNumber = std::max(maxSetNumber, get(sets, *vertex_iterator.first));
-        vertex_iterator.first++;
+        maxSetNumber = std::max(maxSetNumber, sets[v]);
+        distances[v] = typename G::edge_weight_t();
+        active[v] = false;
     }
 
     if(maxSetNumber == -1)
@@ -235,86 +232,82 @@ void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_
     int setCardinality[setsCount];
     memset(setCardinality, 0, sizeof(int) * setsCount);
 
-    //dsu
-    typedef typename boost::property_map<G, boost::vertex_index_t>::type vertex_dsu_rank_map_t;
-    vertex_dsu_rank_map_t v = get(boost::vertex_index, graph);
+    //dsu 
     int rank[verticesCount];
     memset(rank, 0, sizeof(int) * verticesCount);
 
-    typedef boost::iterator_property_map<int *, vertex_dsu_rank_map_t, int, int&> dsu_rank_t;
-    dsu_rank_t dsu_rank(rank, v);
+    typedef boost::iterator_property_map<int *, boost::identity_property_map, int, int&> dsu_rank_t;
+    dsu_rank_t dsu_rank(rank, boost::identity_property_map());
 
-    typedef typename boost::property_map<G, boost::vertex_index_t>::type vertex_dsu_parent_map_t;
-    vertex_dsu_parent_map_t p = get(boost::vertex_index, graph);
     int parent[verticesCount];
     memset(parent, 0, sizeof(int) * verticesCount);
 
-    typedef boost::iterator_property_map<int *, vertex_dsu_parent_map_t, int, int&> dsu_parent_t;
-    dsu_parent_t dsu_parent(parent, p);
+    typedef boost::iterator_property_map<int *, boost::identity_property_map, int, int&> dsu_parent_t;
+    dsu_parent_t dsu_parent(parent, boost::identity_property_map());
 
     boost::disjoint_sets<dsu_rank_t, dsu_parent_t> dsu(dsu_rank, dsu_parent);
+    //end dsu
+
 
     int activeSets = 0;
-    typedef typename boost::graph_traits<G>::out_edge_iterator out_edge_iterator;
-    typedef typename boost::graph_traits<G>::vertex_descriptor vertex_descriptor;
-    typedef typename boost::graph_traits<G>::edge_descriptor edge_descriptor;
-    typedef std::pair<int, edge_descriptor> queue_element_t;
+    typedef typename G::edge_iterator_t edge_iterator_t;
+    typedef typename G::vertex_t vertex_t;
+    typedef typename G::edge_weight_t edge_weight_t;
+    typedef std::pair<edge_weight_t, std::pair<vertex_t, vertex_t> > queue_element_t;
     std::priority_queue< queue_element_t,
                          std::vector< queue_element_t >,
                          std::greater< queue_element_t > > edge_queue;
 
-    vertex_iterator = vertices(graph);
     int vertex_set[verticesCount];
     memset(vertex_set, 0, sizeof(int) * verticesCount);
-    while(vertex_iterator.first != vertex_iterator.second)
+    for(vertex_t v = 0; v < verticesCount; ++v)
     {
-        int set_id = get(sets, *vertex_iterator.first);
-        vertex_set[*vertex_iterator.first] = set_id;
+        int set_id = sets[v];
+        vertex_set[v] = set_id;
         if(set_id != -1)
         {
             setCardinality[set_id] += 1;
         }
-        vertex_iterator.first++;
     }
 
-    vertex_iterator = vertices(graph);
-    while(vertex_iterator.first != vertex_iterator.second)
+    for(vertex_t v = 0; v < verticesCount; ++v)
     {
-        dsu.make_set(*vertex_iterator.first);
-        int set_id = get(sets, *vertex_iterator.first);
+        dsu.make_set(v);
+        int set_id = sets[v];
         if(set_id != -1 && setCardinality[set_id] != 1)
         {
-            std::cout << "set vertex " << *vertex_iterator.first << std::endl;
+            std::cout << "set vertex " << v << std::endl;
             activeSets += 1;
-            active[*vertex_iterator.first] = 1;
-            distances[*vertex_iterator.first] = 0;
-            compoundTerminals[*vertex_iterator.first][get(sets, *vertex_iterator.first)] += 1;
+            active[v] = 1;
+            distances[v] = edge_weight_t();
+            compoundTerminals[v][set_id] += 1;
 
             //iterate over edges
-            out_edge_iterator first;
-            out_edge_iterator last;
-            boost::tie(first, last) = out_edges(*vertex_iterator.first, graph);
+            edge_iterator_t first;
+            edge_iterator_t last;
+            boost::tie(first, last) = graph.out_edges(v);
             while(first != last)
             {
-                vertex_descriptor source = boost::source(*first, graph);
-                vertex_descriptor target = boost::target(*first, graph);
-                int weight = 0;
+                vertex_t source = v;
+                vertex_t target = (*first).first;
+                int weight = 0; //TODO type
                 if(active[target])
                 {
                     weight = (distances[target] + distances[source])/2 +
-                              get(boost::edge_weight, graph, *first);
+                              (*first).second;
                 }
                 else
                 {
-                    weight = distances[source] + 2*get(boost::edge_weight, graph, *first);
+                    weight = distances[source] + 2*(*first).second;
                 }
 
-                edge_queue.push(std::make_pair(weight, *first));
+                std::cout << "insert weight " << weight << std::endl;
+
+                edge_queue.push(std::make_pair(weight, std::make_pair(v, (*first).first)));
 
                 first++;
             }
         }
-        vertex_iterator.first++;
     }
 
     for(int i = 0; i < setsCount; ++i)
@@ -322,28 +315,31 @@ void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_
         std::cout << "car " << setCardinality[i] << std::endl;
     }
 
-    typedef typename boost::graph_traits<G>::edge_descriptor edge_t;
-    std::vector<edge_t> unpruned_forest_edges;
+    std::vector<std::pair< std::pair<vertex_t, vertex_t>, edge_weight_t > > unpruned_forest_edges;
     while(activeSets)
     {
         std::cout << "sets " << activeSets << std::endl;
-        int weight = 0;
-        edge_descriptor edge;
+        int weight = 0; //TODO type
+        std::pair<vertex_t, vertex_t> edge;
         assert(!edge_queue.empty());
         boost::tie(weight, edge) = edge_queue.top();
-        edge_queue.pop();
-        vertex_descriptor source = boost::source(edge, graph);
-        vertex_descriptor target = boost::target(edge, graph);
 
-        vertex_descriptor source_parent = dsu.find_set(source);
-        vertex_descriptor target_parent = dsu.find_set(target);
+        std::cout << "weight " << weight << std::endl;
+
+        edge_queue.pop();
+        vertex_t source = edge.first;
+        vertex_t target = edge.second;
+
+        vertex_t source_parent = dsu.find_set(source);
+        vertex_t target_parent = dsu.find_set(target);
+
         if(source_parent != target_parent)
         {
             std::cout << "s " << source << ", t " << target << std::endl;
-            unpruned_forest_edges.push_back(edge);
+            unpruned_forest_edges.push_back(std::make_pair(edge, weight));
 
             dsu.link(source, target);
-            vertex_descriptor new_root = dsu.find_set(source);
+            vertex_t new_root = dsu.find_set(source);
             for(int i = 0; i < setsCount; ++i)
             {
                 compoundTerminals[new_root][i] = compoundTerminals[source_parent][i] + \
@@ -372,29 +368,30 @@ void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_
             {
                 active[target] = 1;
                 distances[target] = weight;
-                vertex_descriptor parent = source;
+                vertex_t parent = source;
                 //copy paste - add adjacent edges, modified (parent)
-                out_edge_iterator first;
-                out_edge_iterator last;
-                boost::tie(first, last) = out_edges(target, graph);
+                edge_iterator_t first;
+                edge_iterator_t last;
+                boost::tie(first, last) = graph.out_edges(target);
+    //STOPPED HERE
                 while(first != last)
                 {
-                    vertex_descriptor source = boost::source(*first, graph);
-                    vertex_descriptor target = boost::target(*first, graph);
+                    vertex_t source = target;
+                    vertex_t target = (*first).first;
                     if(source != parent)
                     {
-                        int weight = 0;
+                        int weight = 0; //TODO type
                         if(active[target])
                         {
                             weight = (distances[target] + distances[source])/2 +
-                                      get(boost::edge_weight, graph, *first);
+                                      (*first).second;
                         }
                         else
                         {
-                            weight = distances[source] + 2*get(boost::edge_weight, graph, *first);
+                            weight = distances[source] + 2*(*first).second;
                         }
 
-                        edge_queue.push(std::make_pair(weight, *first));
+                        edge_queue.push(std::make_pair(weight, std::make_pair(source, target)));
                     }
                     first++;
                 }
@@ -402,30 +399,25 @@ void SteinerForest(const G& graph, const S& sets, OutputIterator steiner_forest_
             }
         }
     }
-
-
     std::cout << "edges start" << std::endl;
     std::vector< std::list<int> > adj_lists(verticesCount);
+    std::cout << "unpruned" << std::endl;
     for(auto it = unpruned_forest_edges.begin(); it != unpruned_forest_edges.end(); it++)
     {
-        int s = source(*it, graph);
-        int t = target(*it, graph);
+        int s = ((*it).first).first;
+        int t = ((*it).first).second;
         adj_lists[s].push_front(t);
         adj_lists[t].push_front(s);
+        std::cout << s << " " << t << std::endl;
     }
 
-
+    std::cout << "prunning" << std::endl;
     std::vector< std::pair<int, int> > forest_edges;
     prune(adj_lists, setsCount, vertex_set, forest_edges);
 
+    /*
     std::cout << "edges end" << std::endl;
-
-    //pruning
-
-
-
-    //write result edges
-    //*steiner_forest_edges++ = edge;
+    */
 }
 
 #endif /* _STEINER_FOREST_H */

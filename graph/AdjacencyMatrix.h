@@ -13,7 +13,9 @@ class AdjacencyMatrix
     {
         public:
             typedef typename M::vertex_t vertex_t;
-            AdjacencyIterator(vertex_t a, vertex_t b, M* adjMatrix) :
+            AdjacencyIterator() : adjMatrix(NULL) {}
+
+            AdjacencyIterator(vertex_t a, vertex_t b, const M* adjMatrix) :
                 it(a, b), adjMatrix(adjMatrix)
             {
                 if(!adjMatrix->adjacent(a, b) && b != adjMatrix->verticesCount())
@@ -51,7 +53,7 @@ class AdjacencyMatrix
             }
         private:
             std::pair<vertex_t, vertex_t> it;
-            const M * const adjMatrix;
+            const M * adjMatrix;
     };
 
     template <typename M, typename WW>
@@ -60,7 +62,9 @@ class AdjacencyMatrix
         public:
             typedef typename M::vertex_t vertex_t;
             typedef typename M::edge_weight_t edge_weight_t;
-            EdgeIterator(vertex_t a, vertex_t b, M* adjMatrix) :
+            EdgeIterator() : adjMatrix(NULL) {}
+
+            EdgeIterator(vertex_t a, vertex_t b, const M* adjMatrix) :
                 it(a, b), adjMatrix(adjMatrix)
             {
                 if(!adjMatrix->adjacent(a, b) && b != adjMatrix->verticesCount())
@@ -98,7 +102,7 @@ class AdjacencyMatrix
             }
         private:
             std::pair<vertex_t, vertex_t> it;
-            const M * const adjMatrix;
+            const M * adjMatrix;
     };
 
     template <typename M>
@@ -174,7 +178,7 @@ class AdjacencyMatrix
                                  adjacency_iterator_t(v, verticesCount(), this));
 
         }
-        std::pair<edge_iterator_t, edge_iterator_t> out_edges(const vertex_t& v)
+        std::pair<edge_iterator_t, edge_iterator_t> out_edges(const vertex_t& v) const
         {
             return std::pair<edge_iterator_t, edge_iterator_t>(
                                  edge_iterator_t(v, 0, this),
