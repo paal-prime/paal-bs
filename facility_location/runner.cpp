@@ -1,11 +1,14 @@
 #include <iostream>
+#include <string>
 
 #include "facility_location/SimpleFormat.h"
 #include "facility_location/PrimDualSchema.h"
 
-int main() {
+int main(int argc, char *argv[]) {
   using namespace facility_location;
-  SimpleFormat<double> instance("UflLib/Euclid/1011EuclS.txt");
+  std::string file = argc > 1 ? argv[1] : "UflLib/Euclid/1011EuclS.txt";
+  SimpleFormat<double> instance(file);
   PrimDualSchema<double, Vector<double>, Matrix<double> > solver(instance);
-  solver();
+  std::cout << solver() << ' ' << instance.optimal_cost() << ' ';
+  std::cout << (double) solver.cost() / instance.optimal_cost() << std::endl;
 }

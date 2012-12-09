@@ -8,6 +8,7 @@
 #include <utility>
 #include <queue>
 #include <memory>
+#include <limits>
 
 namespace facility_location {
   using std::vector;
@@ -47,15 +48,15 @@ namespace facility_location {
       const ConnectingCost &connecting_cost_;
       const OpeningCost &opening_cost_;
       vector<pair<Cost, pair<Facility*, City*> > > edge_events_;
-      priority_queue <
-      pair<Cost, Facility*>,
-           vector<pair<Cost, Facility*> >,
-           greater<pair<Cost, Facility*> > > facility_events_;
+      priority_queue < pair<Cost, Facility*>, vector<pair<Cost, Facility*> >,
+                     greater<pair<Cost, Facility*> > > facility_events_;
       std::unique_ptr<Facility[]> facilities_;
       std::unique_ptr<City[]> cities_;
-      // current time, updated on each event;
       Cost current_time_ = 0;
       size_t unconnected_cities_;
+      // solution
+      vector<size_t> assignment_;
+      Cost total_cost_;
 
     public:
       template<typename Instance> explicit PrimDualSchema(Instance &instance) :
@@ -227,13 +228,48 @@ namespace facility_location {
         }
       }
       void find_cities_assignment() {
+        assignment_.resize(cities_count_);
+        total_cost_ = 0;
+        for (size_t j = 0; j < cities_count_; j++) {
+          Cost min_cost = std::numeric_limits<Cost>::max();
+          size_t min_i = 0;
+          for (size_t i = 0; i < facilities_count_; i++) {
+            if (facilities_[i].is_opened_) {
+              Cost c = connecting_cost_(i, j);
+              if (min_cost >= c) {
+                min_cost = c;
+                min_i = i;
+              }
+            }
+          }
+          assert(facilities_[min_i].is_opened_);
+          assignment_[j] = min_i;
+          total_cost_ += min_cost;
+        }
+        for (size_t i = 0; i < facilities_count_; i++) {
+          facilities_[i].is_opened_ = 0;
+        }
+        for (size_t j = 0; j < cities_count_; j++) {
+          size_t i = assignment_[j];
+          if (!facilities_[i].is_opened_) {
+            total_cost_ += opening_cost_(i);
+            facilities_[i].is_opened_ = true;
+          }
+        }
       }
-      void operator()() {
+      Cost operator()() {
         // TODO(stupaq): corner cases n == 0 || m == 0
         time_simulation();
         find_opened_facilities();
         find_cities_assignment();
         deinit();
+        return cost();
+      }
+      vector<Cost>& assignment() {
+        return assignment_;
+      }
+      Cost cost() {
+        return total_cost_;
       }
   };
 }
