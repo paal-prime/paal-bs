@@ -31,6 +31,8 @@ namespace facility_location {
         vector<City*> special_edges_;
         size_t payers_count_;
         Facility() : is_opened_(0), last_paid_(0), payers_count_(0) {}
+        Facility(const Facility&) = delete;
+        Facility & operator=(const Facility&) = delete;
       };
       struct City {
         bool is_connected_;
@@ -38,6 +40,8 @@ namespace facility_location {
         // TODO(stupaq): remove witnesses
         Facility* connection_witness_;
         City() : is_connected_(0), connection_witness_(0) {}
+        City(const City&) = delete;
+        City & operator=(const City&) = delete;
       };
       const double kEpsilon = 1e-9;
 
@@ -52,6 +56,7 @@ namespace facility_location {
       // current time, updated on each event;
       Cost current_time_ = 0;
       size_t unconnected_cities_;
+      size_t facilities_count_;
       // TODO(stupaq): remove input (at least no-copy)
       const ConnectingCost &connecting_cost_;
       const OpeningCost &opening_cost_;
@@ -79,6 +84,7 @@ namespace facility_location {
         const OpeningCost &opening_cost,
         const ConnectingCost &connecting_cost) {
         unconnected_cities_ = cities_count;
+        facilities_count_ = facilities_count;
         // facilities
         facilities_.reset(new Facility[facilities_count]);
         for (size_t i = 0; i < facilities_count; i++) {
@@ -207,11 +213,26 @@ namespace facility_location {
         }
       }
       void find_opened_facilities() {
+        for (size_t i = 0; i < facilities_count_; i++) {
+          Facility &facility = facilities_[i];
+          if (facility.is_opened_) {
+            BOOST_FOREACH(City * c, facility.special_edges_) {
+              BOOST_FOREACH(Facility * f, c->special_edges_) {
+                if (f != &facility) {
+                  f->is_opened_ = false;
+                }
+              }
+            }
+          }
+        }
+      }
+      void find_cities_assignment() {
       }
       void operator()() {
         // TODO(stupaq): corner cases n == 0 || m == 0
         time_simulation();
         find_opened_facilities();
+        find_cities_assignment();
         //
       }
   };
