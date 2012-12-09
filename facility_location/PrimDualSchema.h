@@ -9,8 +9,6 @@
 #include <queue>
 #include <memory>
 
-#define assert(p) if (!(p)) asm("int $3");
-
 namespace facility_location {
   using std::vector;
   using std::pair;
@@ -37,15 +35,17 @@ namespace facility_location {
       struct City {
         bool is_connected_;
         vector<Facility*> special_edges_;
-        // TODO(stupaq): remove witnesses
-        Facility* connection_witness_;
-        City() : is_connected_(0), connection_witness_(0) {}
+        City() : is_connected_(0) {}
         City(const City&) = delete;
         City & operator=(const City&) = delete;
       };
       const double kEpsilon = 1e-9;
 
     private:
+      const size_t cities_count_;
+      const size_t facilities_count_;
+      const ConnectingCost &connecting_cost_;
+      const OpeningCost &opening_cost_;
       vector<pair<Cost, pair<Facility*, City*> > > edge_events_;
       priority_queue <
       pair<Cost, Facility*>,
@@ -56,51 +56,50 @@ namespace facility_location {
       // current time, updated on each event;
       Cost current_time_ = 0;
       size_t unconnected_cities_;
-      size_t facilities_count_;
-      // TODO(stupaq): remove input (at least no-copy)
-      const ConnectingCost &connecting_cost_;
-      const OpeningCost &opening_cost_;
 
     public:
       template<typename Instance> explicit PrimDualSchema(Instance &instance) :
+        cities_count_(instance.cities_count()),
+        facilities_count_(instance.facilities_count()),
         connecting_cost_(instance.connecting_cost()),
         opening_cost_(instance.opening_cost()) {
-        init(instance.cities_count(), instance.facilities_count(),
-             instance.opening_cost(), instance.connecting_cost());
+        init();
       }
       PrimDualSchema(
         size_t cities_count,
         size_t facilities_count,
         const OpeningCost &opening_cost,
         const ConnectingCost &connecting_cost) :
+        cities_count_(cities_count), facilities_count_(facilities_count),
         connecting_cost_(connecting_cost), opening_cost_(opening_cost) {
-        init(cities_count, facilities_count, opening_cost, connecting_cost);
+        init();
       }
       virtual ~PrimDualSchema() {
       }
-      void init(
-        size_t cities_count,
-        size_t facilities_count,
-        const OpeningCost &opening_cost,
-        const ConnectingCost &connecting_cost) {
-        unconnected_cities_ = cities_count;
-        facilities_count_ = facilities_count;
+      void init() {
+        unconnected_cities_ = cities_count_;
         // facilities
-        facilities_.reset(new Facility[facilities_count]);
-        for (size_t i = 0; i < facilities_count; i++) {
-          facilities_[i].to_pay_ = opening_cost(i);
+        facilities_.reset(new Facility[facilities_count_]);
+        for (size_t i = 0; i < facilities_count_; i++) {
+          facilities_[i].to_pay_ = opening_cost_(i);
         }
         // cities
-        cities_.reset(new City[cities_count]);
+        cities_.reset(new City[cities_count_]);
         // events
-        edge_events_.reserve(cities_count * facilities_count);
-        for (size_t i = 0; i < facilities_count; i++) {
-          for (size_t j = 0; j < cities_count; j++) {
-            edge_events_.push_back(make_pair(connecting_cost(i, j),
+        edge_events_.reserve(cities_count_ * facilities_count_);
+        for (size_t i = 0; i < facilities_count_; i++) {
+          for (size_t j = 0; j < cities_count_; j++) {
+            edge_events_.push_back(make_pair(connecting_cost_(i, j),
                 make_pair(&facilities_[i], &cities_[j])));
           }
         }
         sort(edge_events_.begin(), edge_events_.end());
+      }
+      void deinit() {
+        facilities_.reset();
+        cities_.reset();
+        edge_events_.clear();
+        // facility_events_.clear();
       }
       size_t index(Facility &facility) {
         return &facility - &facilities_[0];
@@ -157,7 +156,8 @@ namespace facility_location {
         if (city.is_connected_) {
           return;
         }
-        city.connection_witness_ = &facility;
+        // NOTE: we use different matching algorithm, we don't need that
+        // city.connection_witness_ = &facility;
         BOOST_FOREACH(Facility * f, city.special_edges_) {
           remove_payer_city(*f, city);
         }
@@ -233,7 +233,7 @@ namespace facility_location {
         time_simulation();
         find_opened_facilities();
         find_cities_assignment();
-        //
+        deinit();
       }
   };
 }
