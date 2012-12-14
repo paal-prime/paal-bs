@@ -19,10 +19,10 @@ template<typename Walker, typename StepCtrl, typename ProgressCtrl, typename Ran
 	{
 		double current_fitness = walker.current_fitness();
 		logger.log(current_fitness);
-		double progress = progress_ctrl.progress(walker.best_fitness());
+		double progress = progress_ctrl.progress(current_fitness);
 		if(progress>=1) break;
 		walker.prepare_step(progress,random);
-		if(step_ctrl.step_decision(walker.next_fitness()-current_fitness,progress,random))
+		if(step_ctrl.step_decision(current_fitness,walker.next_fitness(),progress,random))
 			walker.make_step();
 	}
 }
@@ -48,7 +48,6 @@ concept Walker
 			progress \in [0,1)
 			Random
 		Output:
-			best_fitness
 			current_fitness
 			next_fitness
 	*/
@@ -67,12 +66,6 @@ concept Walker
 		i.e. the current solution shall change to the next solution.
 	*/
 	
-	double best_fitness();
-	/*
-		Returns fitness of the best solution found so far.
-		It can change only during the execution of prepare_step().
-	*/
-
 	double current_fitness();
 	/*
 		Returns fitness of the current solution.
@@ -94,21 +87,21 @@ concept StepCtrl
 		It is responsible for making decision whether to make the step proposed by Walker.
 		
 		Input:
-			delta_fitness = next_fitness - current_fitness
+			current_fitness
+			next_fitness
 			progress \in [0,1)
 			Random
 		Output:
 			step_decision
 	*/
 
-	template<typename Random> bool step_decision(double delta_fitness, double progress, Random &random);
-	{ Why not (current_fitness, next_fitness)? }
+	template<typename Random> bool step_decision(double current_fitness, double next_fitness double progress, Random &random);
 	/*
 		Returns true iff step proposed by the Walker should be made.
 		
 		examples:	
-			In annealing, the decision would be made according to the delta_fitness and the temperature schedule.
-			In hill climb, the decision would be solely based on delta_fitness.
+			In annealing, the decision would be made according to the fitness delta and the temperature schedule.
+			In hill climb, the decision would be solely based on fitness delta.
 			{ What should be done for tabu search? Do we really care? }
 	*/
 
@@ -121,12 +114,12 @@ concept ProgressCtrl
 		It is responsible for estimation of the ratio: iterations passed/iterations available.
 
 		Input:
-			best_fitness
+			current_fitness
 		Output:
 			progress \in [0;inf)
 	*/
 
-	double progress(double best_fitness); { Why not current_fitness? }
+	double progress(double current_fitness);
 	/*
 		Returns non-negative value estimating the ratio described above.
 		search() provides that progress() will be called exatly once before every iteration.
@@ -158,7 +151,7 @@ concept Logger
 			current_fitness
 	*/
 
-	void log(double current_fitness); { Why not best_fitness? }
+	void log(double current_fitness);
 	/*
 		It logs current fitness.
 		search() provides that log() will be called exactly once before every iteration once after the last one.
