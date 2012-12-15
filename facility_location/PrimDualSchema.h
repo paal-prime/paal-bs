@@ -2,6 +2,7 @@
 #define FACILITY_LOCATION_PRIMDUALSCHEMA_H_
 
 #include <boost/foreach.hpp>
+#include <boost/heap/fibonacci_heap.hpp>
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -26,12 +27,29 @@ namespace facility_location {
       const time_type kEpsilon = 1e-9;
 
       struct City;
+      struct Facility;
+      struct EdgeEvent;
+      struct FacilityEvent;
+      template<typename Event, bool Greater = false> struct EventComparator {
+        inline bool operator()(const Event& e1, const Event& e2)  const {
+          if (Greater) {
+            return (e1.time_ >= e2.time_);
+          } else {
+            return (e1.time_ < e2.time_);
+          }
+        }
+      };
+      typedef typename boost::heap::fibonacci_heap < FacilityEvent,
+              boost::heap::compare<EventComparator<FacilityEvent, true> > >
+              facility_events_queue;
+
       struct Facility {
         bool is_opened_;
         Cost to_pay_;
         Cost last_paid_;
         vector<City*> special_edges_;
         size_t payers_count_;
+        typename facility_events_queue::handle_type heap_handle_;
         Facility() : is_opened_(0), last_paid_(0), payers_count_(0) {}
         Facility(const Facility&) = delete;
         Facility & operator=(const Facility&) = delete;
@@ -47,28 +65,17 @@ namespace facility_location {
         time_type time_;
         Facility* facility_;
         City* city_;
-        EdgeEvent(time_type time, Facility* facility, City* city) :
+        EdgeEvent(time_type time, Facility * facility, City * city) :
           time_(time), facility_(facility), city_(city) {
         }
       };
       struct FacilityEvent {
         time_type time_;
         Facility* facility_;
-        FacilityEvent(time_type time, Facility* facility) :
+        FacilityEvent(time_type time, Facility * facility) :
           time_(time), facility_(facility) {
         }
       };
-      template<typename Event, bool Greater = false> struct EventComparator {
-        inline bool operator()(const Event& e1, const Event& e2) {
-          if (Greater) {
-            return (e1.time_ >= e2.time_);
-          } else {
-            return (e1.time_ < e2.time_);
-          }
-        }
-      };
-      typedef priority_queue < FacilityEvent, vector<FacilityEvent>,
-              EventComparator<FacilityEvent, true> > facility_events_queue;
 
       // TODO(stupaq): make it const
       Instance& instance_;
@@ -96,6 +103,9 @@ namespace facility_location {
         facilities_.reset(new Facility[facilities_count]);
         for (size_t i = 0; i < facilities_count; i++) {
           facilities_[i].to_pay_ = instance_.opening_cost()(i);
+          facilities_[i].heap_handle_ = facility_events_.push(
+                FacilityEvent(recompute_expected(facilities_[i]),
+                    &facilities_[i]));
         }
         cities_.reset(new City[cities_count]);
         edge_events_.reserve(cities_count * facilities_count);
@@ -123,58 +133,71 @@ namespace facility_location {
       bool is_zero(time_type val) {
         return fabs(val) <= kEpsilon;
       }
+      bool is_paid(Facility &facility) {
+        recompute_to_pay(facility);
+        return is_zero(facility.to_pay_);
+      }
       void recompute_to_pay(Facility &facility) {
         facility.to_pay_ -= (current_time_ - facility.last_paid_)
             * facility.payers_count_;
         facility.last_paid_ = current_time_;
       }
       time_type recompute_expected(Facility &facility) {
-        assert(facility.payers_count_ > 0);
-        return (time_type) facility.to_pay_ / facility.payers_count_
-               + current_time_;
+        recompute_to_pay(facility);
+        if (is_paid(facility)) {
+          return current_time_;
+        } else if (facility.payers_count_ > 0) {
+          return (time_type) facility.to_pay_ / facility.payers_count_
+                 + current_time_;
+        } else {
+          return std::numeric_limits<time_type>::infinity();
+        }
       }
       void open_facility(Facility &facility) {
-        if (facility.is_opened_) {
+        // NOTE: when using pure update() on heap we have one event per facility
+        if (facility.is_opened_) {  // || !is_paid(facility)
           return;
         }
-        // since we have both increase and decrease key, we cannot simply
-        // pass first attempt of paying
-        recompute_to_pay(facility);
-        if (is_zero(facility.to_pay_)) {
-          BOOST_FOREACH(City * c, facility.special_edges_) {
-            connect_city(facility, *c);
-          }
-          facility.is_opened_ = true;
+        facility.is_opened_ = true;
+        assert(is_paid(facility));
+        BOOST_FOREACH(City * c, facility.special_edges_) {
+          connect_city(facility, *c);
         }
       }
       void add_payer_city(Facility &facility, City &city) {
-        recompute_to_pay(facility);
+        assert(!facility.is_opened_);
+        ++facility.payers_count_;
+        // NOTE: we give precedence to facility payment events, therefore
+        // dual variable for this edge will be strictly positive in next
+        // facility event (which will occur at different time)
         facility.special_edges_.push_back(&city);
-        facility.payers_count_++;
         city.special_edges_.push_back(&facility);
+        time_type expected_time = recompute_expected(facility);
+        auto new_event = FacilityEvent(expected_time, &facility);
+        facility_events_.update(facility.heap_handle_, new_event);
       }
       void remove_payer_city(Facility &facility, City &city) {
         assert(facility.payers_count_ > 0);
-        recompute_to_pay(facility);
+        --facility.payers_count_;
         // NOTE: we do NOT have to remove cities from this list as they
         // become connected, as we cannot harm trying to connect them again
         // facility.special_edges_.remove(&city);
-        if (--facility.payers_count_ > 0) {
+        if (!facility.is_opened_) {
           time_type expected_time = recompute_expected(facility);
-          // TODO(stupaq): increase key instead
-          facility_events_.push(FacilityEvent(expected_time, &facility));
+          auto new_event = FacilityEvent(expected_time, &facility);
+          facility_events_.update(facility.heap_handle_, new_event);
         }
       }
       void connect_city(Facility &facility, City &city) {
         if (city.is_connected_) {
           return;
         }
+        city.is_connected_ = true;
         // NOTE: we use different matching algorithm, we don't need that
         // city.connection_witness_ = &facility;
         BOOST_FOREACH(Facility * f, city.special_edges_) {
           remove_payer_city(*f, city);
         }
-        city.is_connected_ = true;
         --unconnected_cities_;
       }
       void handle_edge_event(const EdgeEvent& event) {
@@ -183,9 +206,6 @@ namespace facility_location {
         City &city = *event.city_;
         if (!facility.is_opened_) {
           add_payer_city(facility, city);
-          time_type expected_time = recompute_expected(facility);
-          // TODO(stupaq): decrease key instead
-          facility_events_.push(FacilityEvent(expected_time, &facility));
         } else {
           connect_city(facility, city);
         }
