@@ -8,11 +8,13 @@
 #include <vector>
 
 #include "facility_location/ComposableInstance.h"
+#include "facility_location/SimpleFormat.h"
 #include "facility_location/PrimDualSchema.h"
 
 using std::pair;
 using std::make_pair;
 using facility_location::ComposableInstance;
+using facility_location::SimpleFormat;
 using facility_location::PrimDualSchema;
 using facility_location::make_instance;
 
@@ -73,3 +75,33 @@ INSTANTIATE_TEST_CASE_P(OneFacility, PrimDualSchemaBoundary, ::testing::Values(
 
 INSTANTIATE_TEST_CASE_P(Bigger, PrimDualSchemaBoundary, ::testing::Values(
       make_pair(4, 3), make_pair(4, 2), make_pair(3, 3), make_pair(3, 2)));
+
+
+class PrimDualSchemaUflLib
+    : public ::testing::TestWithParam<const char*> {
+  protected:
+    const std::string kUflLibDir = "./UflLib/";
+};
+
+TEST_P(PrimDualSchemaUflLib, ApxRatio3) {
+  std::string file(GetParam());
+  SimpleFormat<double> i(kUflLibDir + file);
+  PrimDualSchema<SimpleFormat<double> > s(i);
+  double ratio = s() / i.optimal_cost();
+  EXPECT_LE(1.0, ratio);
+  ASSERT_GE(3.0, ratio);
+}
+
+const char* ufwlib_euklid[] = {"Euclid/1011EuclS.txt", "Euclid/1111EuclS.txt",
+    "Euclid/111EuclS.txt", "Euclid/1211EuclS.txt", "Euclid/1311EuclS.txt",
+    "Euclid/1411EuclS.txt", "Euclid/1511EuclS.txt", "Euclid/1611EuclS.txt",
+    "Euclid/1711EuclS.txt", "Euclid/1811EuclS.txt", "Euclid/1911EuclS.txt",
+    "Euclid/2011EuclS.txt", "Euclid/2111EuclS.txt", "Euclid/211EuclS.txt",
+    "Euclid/2211EuclS.txt", "Euclid/2311EuclS.txt", "Euclid/2411EuclS.txt",
+    "Euclid/2511EuclS.txt", "Euclid/2611EuclS.txt", "Euclid/2711EuclS.txt",
+    "Euclid/2811EuclS.txt", "Euclid/2911EuclS.txt", "Euclid/3011EuclS.txt",
+    "Euclid/311EuclS.txt", "Euclid/411EuclS.txt", "Euclid/511EuclS.txt",
+    "Euclid/611EuclS.txt", "Euclid/711EuclS.txt", "Euclid/811EuclS.txt",
+    "Euclid/911EuclS.txt"};
+INSTANTIATE_TEST_CASE_P(Euclid, PrimDualSchemaUflLib,
+    ::testing::ValuesIn(ufwlib_euklid));
