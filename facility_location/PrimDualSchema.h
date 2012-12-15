@@ -5,7 +5,6 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
-#include <utility>
 #include <queue>
 #include <memory>
 #include <limits>
@@ -14,17 +13,14 @@
 
 namespace facility_location {
   using std::vector;
-  using std::pair;
-  using std::make_pair;
   using std::sort;
   using std::priority_queue;
   using std::greater;
 
-  // TODO(stupaq): in case of equal times, default comparator compares also
-  // other positions in tuple, we do not need that
-  // TODO(stupaq): switch to tuples
   template<typename Cost, typename OpeningCost, typename ConnectingCost>
   class PrimDualSchema {
+      typedef double time_type;
+
       struct City;
       struct Facility {
         bool is_opened_;
@@ -43,6 +39,31 @@ namespace facility_location {
         City(const City&) = delete;
         City & operator=(const City&) = delete;
       };
+      struct EdgeEvent {
+        time_type time_;
+        Facility* facility_;
+        City* city_;
+        EdgeEvent(time_type time, Facility* facility, City* city) :
+          time_(time), facility_(facility), city_(city) {
+        }
+      };
+      struct FacilityEvent {
+        time_type time_;
+        Facility* facility_;
+        FacilityEvent(time_type time, Facility* facility) :
+          time_(time), facility_(facility) {
+        }
+      };
+      template<typename Event, bool Greater = false> struct EventComparator {
+        inline bool operator()(const Event& e1, const Event& e2) {
+          if (Greater) {
+            return (e1.time_ >= e2.time_);
+          } else {
+            return (e1.time_ < e2.time_);
+          }
+        }
+      };
+
       const double kEpsilon = 1e-9;
 
     private:
@@ -50,12 +71,12 @@ namespace facility_location {
       const size_t facilities_count_;
       const ConnectingCost &connecting_cost_;
       const OpeningCost &opening_cost_;
-      vector<pair<Cost, pair<Facility*, City*> > > edge_events_;
-      priority_queue < pair<Cost, Facility*>, vector<pair<Cost, Facility*> >,
-                     greater<pair<Cost, Facility*> > > facility_events_;
+      vector<EdgeEvent> edge_events_;
+      priority_queue < FacilityEvent, vector<FacilityEvent>,
+                     EventComparator<FacilityEvent, true> > facility_events_;
       std::unique_ptr<Facility[]> facilities_;
       std::unique_ptr<City[]> cities_;
-      Cost current_time_ = 0;
+      time_type current_time_ = 0;
       size_t unconnected_cities_;
       // solution
       vector<size_t> assignment_;
@@ -94,11 +115,12 @@ namespace facility_location {
         edge_events_.reserve(cities_count_ * facilities_count_);
         for (size_t i = 0; i < facilities_count_; i++) {
           for (size_t j = 0; j < cities_count_; j++) {
-            edge_events_.push_back(make_pair(connecting_cost_(i, j),
-                make_pair(&facilities_[i], &cities_[j])));
+            edge_events_.push_back(EdgeEvent(connecting_cost_(i, j),
+                &facilities_[i], &cities_[j]));
           }
         }
-        sort(edge_events_.begin(), edge_events_.end());
+        sort(edge_events_.begin(), edge_events_.end(),
+             EventComparator<EdgeEvent, false>());
       }
       void deinit() {
         facilities_.reset();
@@ -112,7 +134,7 @@ namespace facility_location {
       size_t index(City &city) {
         return &city - &cities_[0];
       }
-      bool is_zero(Cost val) {
+      bool is_zero(time_type val) {
         return fabs(val) <= kEpsilon;
       }
       void recompute_to_pay(Facility &facility) {
@@ -120,9 +142,9 @@ namespace facility_location {
             * facility.payers_count_;
         facility.last_paid_ = current_time_;
       }
-      Cost recompute_expected(Facility &facility) {
+      time_type recompute_expected(Facility &facility) {
         assert(facility.payers_count_ > 0);
-        return (Cost) facility.to_pay_ / facility.payers_count_
+        return (time_type) facility.to_pay_ / facility.payers_count_
                + current_time_;
       }
       void open_facility(Facility &facility) {
@@ -152,9 +174,9 @@ namespace facility_location {
         // become connected, as we cannot harm trying to connect them again
         // facility.special_edges_.remove(&city);
         if (--facility.payers_count_ > 0) {
-          Cost expected_time = recompute_expected(facility);
+          time_type expected_time = recompute_expected(facility);
           // TODO(stupaq): increase key instead
-          facility_events_.push(make_pair(expected_time, &facility));
+          facility_events_.push(FacilityEvent(expected_time, &facility));
         }
       }
       void connect_city(Facility &facility, City &city) {
@@ -169,22 +191,22 @@ namespace facility_location {
         city.is_connected_ = true;
         --unconnected_cities_;
       }
-      void handle_edge_event(const pair<Cost, pair<Facility*, City*> > event) {
-        current_time_ = event.first;
-        Facility &facility = *event.second.first;
-        City &city = *event.second.second;
+      void handle_edge_event(const EdgeEvent& event) {
+        current_time_ = event.time_;
+        Facility &facility = *event.facility_;
+        City &city = *event.city_;
         if (!facility.is_opened_) {
           add_payer_city(facility, city);
-          Cost expected_time = recompute_expected(facility);
+          time_type expected_time = recompute_expected(facility);
           // TODO(stupaq): decrease key instead
-          facility_events_.push(make_pair(expected_time, &facility));
+          facility_events_.push(FacilityEvent(expected_time, &facility));
         } else {
           connect_city(facility, city);
         }
       }
-      void handle_facility_event(const pair<Cost, Facility*> event) {
-        current_time_ = event.first;
-        open_facility(*event.second);
+      void handle_facility_event(const FacilityEvent& event) {
+        current_time_ = event.time_;
+        open_facility(*event.facility_);
       }
       void time_simulation() {
         auto next_edge = edge_events_.begin();
@@ -196,7 +218,7 @@ namespace facility_location {
             if (!facility_events_.empty()) {
               // NOTE: we give precedence to facility payment event, so that
               // edges between cities contributing to facilities are special
-              if (next_edge->first < facility_events_.top().first) {
+              if (next_edge->time_ < facility_events_.top().time_) {
                 handle_edge_event(*next_edge);
                 next_edge++;
               } else {
