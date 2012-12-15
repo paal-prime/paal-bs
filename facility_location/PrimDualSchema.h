@@ -17,9 +17,13 @@ namespace facility_location {
   using std::priority_queue;
   using std::greater;
 
-  template<typename Cost, typename OpeningCost, typename ConnectingCost>
-  class PrimDualSchema {
+  template<typename Instance> class PrimDualSchema {
+    public:
+      typedef typename Instance::value_type Cost;
+
+    private:
       typedef double time_type;
+      const time_type kEpsilon = 1e-9;
 
       struct City;
       struct Facility {
@@ -63,17 +67,13 @@ namespace facility_location {
           }
         }
       };
+      typedef priority_queue < FacilityEvent, vector<FacilityEvent>,
+              EventComparator<FacilityEvent, true> > facility_events_queue;
 
-      const double kEpsilon = 1e-9;
-
-    private:
-      const size_t cities_count_;
-      const size_t facilities_count_;
-      const ConnectingCost &connecting_cost_;
-      const OpeningCost &opening_cost_;
+      // TODO(stupaq): make it const
+      Instance& instance_;
       vector<EdgeEvent> edge_events_;
-      priority_queue < FacilityEvent, vector<FacilityEvent>,
-                     EventComparator<FacilityEvent, true> > facility_events_;
+      facility_events_queue facility_events_;
       std::unique_ptr<Facility[]> facilities_;
       std::unique_ptr<City[]> cities_;
       time_type current_time_ = 0;
@@ -83,39 +83,28 @@ namespace facility_location {
       Cost total_cost_;
 
     public:
-      template<typename Instance> explicit PrimDualSchema(Instance &instance) :
-        cities_count_(instance.cities_count()),
-        facilities_count_(instance.facilities_count()),
-        connecting_cost_(instance.connecting_cost()),
-        opening_cost_(instance.opening_cost()) {
-        init();
-      }
-      // TODO(stupaq): deprecate this
-      PrimDualSchema(
-        size_t cities_count,
-        size_t facilities_count,
-        const OpeningCost &opening_cost,
-        const ConnectingCost &connecting_cost) :
-        cities_count_(cities_count), facilities_count_(facilities_count),
-        connecting_cost_(connecting_cost), opening_cost_(opening_cost) {
+      explicit PrimDualSchema(Instance &instance) :
+        instance_(instance) {
         init();
       }
       virtual ~PrimDualSchema() {
       }
       void init() {
-        unconnected_cities_ = cities_count_;
+        size_t facilities_count = instance_.facilities_count(),
+               cities_count = instance_.cities_count();
+        unconnected_cities_ = cities_count;
         // facilities
-        facilities_.reset(new Facility[facilities_count_]);
-        for (size_t i = 0; i < facilities_count_; i++) {
-          facilities_[i].to_pay_ = opening_cost_(i);
+        facilities_.reset(new Facility[facilities_count]);
+        for (size_t i = 0; i < facilities_count; i++) {
+          facilities_[i].to_pay_ = instance_.opening_cost()(i);
         }
         // cities
-        cities_.reset(new City[cities_count_]);
+        cities_.reset(new City[cities_count]);
         // events
-        edge_events_.reserve(cities_count_ * facilities_count_);
-        for (size_t i = 0; i < facilities_count_; i++) {
-          for (size_t j = 0; j < cities_count_; j++) {
-            edge_events_.push_back(EdgeEvent(connecting_cost_(i, j),
+        edge_events_.reserve(cities_count * facilities_count);
+        for (size_t i = 0; i < facilities_count; i++) {
+          for (size_t j = 0; j < cities_count; j++) {
+            edge_events_.push_back(EdgeEvent(instance_.connecting_cost()(i, j),
                 &facilities_[i], &cities_[j]));
           }
         }
@@ -126,7 +115,7 @@ namespace facility_location {
         facilities_.reset();
         cities_.reset();
         edge_events_.clear();
-        // facility_events_.clear();
+        facility_events_ = facility_events_queue();
       }
       size_t index(Facility &facility) {
         return &facility - &facilities_[0];
@@ -240,7 +229,7 @@ namespace facility_location {
         }
       }
       void find_opened_facilities() {
-        for (size_t i = 0; i < facilities_count_; i++) {
+        for (size_t i = 0; i < instance_.facilities_count(); i++) {
           Facility &facility = facilities_[i];
           if (facility.is_opened_) {
             BOOST_FOREACH(City * c, facility.special_edges_) {
@@ -254,13 +243,13 @@ namespace facility_location {
         }
       }
       void find_cities_assignment() {
-        assignment_.resize(cities_count_);
-        for (size_t j = 0; j < cities_count_; j++) {
+        assignment_.resize(instance_.cities_count());
+        for (size_t j = 0; j < instance_.cities_count(); j++) {
           Cost min_cost = std::numeric_limits<Cost>::max();
           size_t min_i = 0;
-          for (size_t i = 0; i < facilities_count_; i++) {
+          for (size_t i = 0; i < instance_.facilities_count(); i++) {
             if (facilities_[i].is_opened_) {
-              Cost c = connecting_cost_(i, j);
+              Cost c = instance_.connecting_cost()(i, j);
               if (min_cost >= c) {
                 min_cost = c;
                 min_i = i;
@@ -270,8 +259,7 @@ namespace facility_location {
           assert(facilities_[min_i].is_opened_);
           assignment_[j] = min_i;
         }
-        total_cost_ = assignment_cost<Cost>(facilities_count_, cities_count_,
-            opening_cost_, connecting_cost_, assignment_);
+        total_cost_ = assignment_cost(instance_, assignment_);
       }
       Cost operator()() {
         time_simulation();

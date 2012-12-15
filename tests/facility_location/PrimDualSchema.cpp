@@ -14,11 +14,12 @@ using std::pair;
 using std::make_pair;
 using facility_location::ComposableInstance;
 using facility_location::PrimDualSchema;
+using facility_location::make_instance;
 
 typedef boost::numeric::ublas::scalar_matrix<int> Matrix;
 typedef boost::numeric::ublas::scalar_vector<int> Vector;
-typedef ComposableInstance<int, Vector, Matrix, std::vector<int> > Instance;
-typedef PrimDualSchema<int, Vector, Matrix> Solver;
+typedef ComposableInstance<Vector, Matrix, std::vector<int> > Instance;
+typedef PrimDualSchema<Instance> Solver;
 
 class PrimDualSchemaBoundary
     : public ::testing::TestWithParam<pair<size_t, size_t> > {
@@ -37,7 +38,7 @@ class PrimDualSchemaBoundary
     }
     Instance instance(pair<size_t, size_t> p, Vector& oc, Matrix& cc) {
       assert(p.first <= f && p.second <= c);
-      return Instance(p.first, p.second, oc, cc, sol);
+      return make_instance(p.first, p.second, oc, cc, sol);
     }
 };
 

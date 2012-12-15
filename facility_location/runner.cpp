@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
   using namespace facility_location;
   std::string file = argc > 1 ? argv[1] : "UflLib/Euclid/1011EuclS.txt";
   SimpleFormat<double> instance(file);
-  PrimDualSchema<double, Vector<double>, Matrix<double> > solver(instance);
+  PrimDualSchema<SimpleFormat<double> > solver(instance);
   std::cout << solver() << ' ' << instance.optimal_cost() << ' ';
   std::cout << (double) solver.cost() / instance.optimal_cost() << std::endl;
 }

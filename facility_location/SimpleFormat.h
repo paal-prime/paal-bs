@@ -23,6 +23,7 @@ namespace facility_location {
       Vector<Cost> optimal_solution_;
       Cost optimal_cost_;
     public:
+      typedef Cost value_type;
       SimpleFormat(const std::string &file) {
         // read instance
         std::ifstream is(file.c_str());
