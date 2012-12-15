@@ -30,6 +30,28 @@ typedef PrimDualSchema<Instance> Solver;
 typedef ComposableInstance<SVector, SMatrix, Assignment> SInstance;
 typedef PrimDualSchema<SInstance> SSolver;
 
+class PrimDualSchemaMisc : public ::testing::Test {
+  protected:
+    const size_t f = 4;
+    const size_t c = 3;
+    SVector oc0;
+    SMatrix cc1;
+    Assignment sol;
+
+    PrimDualSchemaMisc() : oc0(SVector(f, 0)), cc1(SMatrix(f, c, 1)),
+      sol(Assignment(c, 0)) {
+    }
+};
+
+TEST_F(PrimDualSchemaMisc, lazyFunctor) {
+  SInstance i = make_instance(f, c, oc0, cc1, sol);
+  ASSERT_EQ(c, i.optimal_cost());
+  SSolver s(i);
+  ASSERT_EQ(i.optimal_cost(), s());
+  ASSERT_EQ(i.optimal_cost(), s());
+  ASSERT_EQ(i.optimal_cost(), s());
+}
+
 class PrimDualSchemaBoundary
     : public ::testing::TestWithParam<pair<size_t, size_t> > {
   protected:
@@ -164,6 +186,7 @@ const char* ufwlib_euklid[] = {"Euclid/1011EuclS.txt", "Euclid/1111EuclS.txt",
     "Euclid/2811EuclS.txt", "Euclid/2911EuclS.txt", "Euclid/3011EuclS.txt",
     "Euclid/311EuclS.txt", "Euclid/411EuclS.txt", "Euclid/511EuclS.txt",
     "Euclid/611EuclS.txt", "Euclid/711EuclS.txt", "Euclid/811EuclS.txt",
-    "Euclid/911EuclS.txt"};
+    "Euclid/911EuclS.txt"
+                              };
 INSTANTIATE_TEST_CASE_P(Euclid, PrimDualSchemaUflLib,
     ::testing::ValuesIn(ufwlib_euklid));

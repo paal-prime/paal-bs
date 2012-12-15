@@ -93,14 +93,11 @@ namespace facility_location {
         size_t facilities_count = instance_.facilities_count(),
                cities_count = instance_.cities_count();
         unconnected_cities_ = cities_count;
-        // facilities
         facilities_.reset(new Facility[facilities_count]);
         for (size_t i = 0; i < facilities_count; i++) {
           facilities_[i].to_pay_ = instance_.opening_cost()(i);
         }
-        // cities
         cities_.reset(new City[cities_count]);
-        // events
         edge_events_.reserve(cities_count * facilities_count);
         for (size_t i = 0; i < facilities_count; i++) {
           for (size_t j = 0; j < cities_count; j++) {
@@ -262,10 +259,12 @@ namespace facility_location {
         total_cost_ = assignment_cost(instance_, assignment_);
       }
       Cost operator()() {
-        time_simulation();
-        find_opened_facilities();
-        find_cities_assignment();
-        deinit();
+        if (facilities_.get()) {
+          time_simulation();
+          find_opened_facilities();
+          find_cities_assignment();
+          deinit();
+        }
         return cost();
       }
       vector<Cost>& assignment() {
