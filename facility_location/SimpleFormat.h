@@ -11,12 +11,12 @@
 #include <limits>
 
 namespace facility_location {
+  // TODO(stupaq): consider switching to std::vector->ublas::Vector facade
   template<typename Value> using Matrix = boost::numeric::ublas::matrix<Value>;
   template<typename Value> using Vector = boost::numeric::ublas::vector<Value>;
 
-  const std::string kOptFileSuffix = ".opt";
-
   template<typename Cost = double> class SimpleFormat {
+      const std::string kOptFileSuffix = ".opt";
     private:
       Matrix<Cost> connecting_cost_;
       Vector<Cost> opening_cost_;

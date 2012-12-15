@@ -10,6 +10,8 @@
 #include <memory>
 #include <limits>
 
+#include "facility_location/ComposableInstance.h"
+
 namespace facility_location {
   using std::vector;
   using std::pair;
@@ -20,6 +22,7 @@ namespace facility_location {
 
   // TODO(stupaq): in case of equal times, default comparator compares also
   // other positions in tuple, we do not need that
+  // TODO(stupaq): switch to tuples
   template<typename Cost, typename OpeningCost, typename ConnectingCost>
   class PrimDualSchema {
       struct City;
@@ -66,6 +69,7 @@ namespace facility_location {
         opening_cost_(instance.opening_cost()) {
         init();
       }
+      // TODO(stupaq): deprecate this
       PrimDualSchema(
         size_t cities_count,
         size_t facilities_count,
@@ -229,7 +233,6 @@ namespace facility_location {
       }
       void find_cities_assignment() {
         assignment_.resize(cities_count_);
-        total_cost_ = 0;
         for (size_t j = 0; j < cities_count_; j++) {
           Cost min_cost = std::numeric_limits<Cost>::max();
           size_t min_i = 0;
@@ -244,21 +247,11 @@ namespace facility_location {
           }
           assert(facilities_[min_i].is_opened_);
           assignment_[j] = min_i;
-          total_cost_ += min_cost;
         }
-        for (size_t i = 0; i < facilities_count_; i++) {
-          facilities_[i].is_opened_ = 0;
-        }
-        for (size_t j = 0; j < cities_count_; j++) {
-          size_t i = assignment_[j];
-          if (!facilities_[i].is_opened_) {
-            total_cost_ += opening_cost_(i);
-            facilities_[i].is_opened_ = true;
-          }
-        }
+        total_cost_ = assignment_cost<Cost>(facilities_count_, cities_count_,
+            opening_cost_, connecting_cost_, assignment_);
       }
       Cost operator()() {
-        // TODO(stupaq): corner cases n == 0 || m == 0
         time_simulation();
         find_opened_facilities();
         find_cities_assignment();
