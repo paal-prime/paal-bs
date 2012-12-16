@@ -172,17 +172,19 @@ INSTANTIATE_TEST_CASE_P(Exp10Series, PrimDualSchemaHard, ::testing::Combine(
       ::testing::Values(100, 1000, 5000, 10000)));
 
 class PrimDualSchemaUflLib
-    : public ::testing::TestWithParam<const char*> {
+    : public ::testing::TestWithParam<tuple<double, const char*> > {
   protected:
     const std::string kUflLibDir = "./UflLib/";
 };
 
 TEST_P(PrimDualSchemaUflLib, ApxRatio3) {
-  std::string file(GetParam());
+  auto p = GetParam();
+  std::string file(get<1>(p));
   SimpleFormat<double> i(kUflLibDir + file);
   PrimDualSchema<SimpleFormat<double> > s(i);
   double ratio = s() / i.optimal_cost();
   EXPECT_LE(1.0, ratio);
+  EXPECT_GE(get<0>(p), ratio);
   ASSERT_GE(3.0, ratio);
 }
 
@@ -198,5 +200,6 @@ static const char* ufwlib_euklid[] = {"Euclid/1011EuclS.txt",
   "Euclid/511EuclS.txt",    "Euclid/611EuclS.txt", "Euclid/711EuclS.txt",
   "Euclid/811EuclS.txt",    "Euclid/911EuclS.txt"};
 
-INSTANTIATE_TEST_CASE_P(Euclid, PrimDualSchemaUflLib,
-    ::testing::ValuesIn(ufwlib_euklid));
+INSTANTIATE_TEST_CASE_P(Euclid, PrimDualSchemaUflLib, ::testing::Combine(
+    ::testing::Values(1.25),  // NOTE: regression limit
+    ::testing::ValuesIn(ufwlib_euklid)));
