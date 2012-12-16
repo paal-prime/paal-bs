@@ -186,17 +186,17 @@ TEST_P(PrimDualSchemaUflLib, ApxRatio3) {
   ASSERT_GE(3.0, ratio);
 }
 
-const char* ufwlib_euklid[] = {"Euclid/1011EuclS.txt", "Euclid/1111EuclS.txt",
-    "Euclid/111EuclS.txt", "Euclid/1211EuclS.txt", "Euclid/1311EuclS.txt",
-    "Euclid/1411EuclS.txt", "Euclid/1511EuclS.txt", "Euclid/1611EuclS.txt",
-    "Euclid/1711EuclS.txt", "Euclid/1811EuclS.txt", "Euclid/1911EuclS.txt",
-    "Euclid/2011EuclS.txt", "Euclid/2111EuclS.txt", "Euclid/211EuclS.txt",
-    "Euclid/2211EuclS.txt", "Euclid/2311EuclS.txt", "Euclid/2411EuclS.txt",
-    "Euclid/2511EuclS.txt", "Euclid/2611EuclS.txt", "Euclid/2711EuclS.txt",
-    "Euclid/2811EuclS.txt", "Euclid/2911EuclS.txt", "Euclid/3011EuclS.txt",
-    "Euclid/311EuclS.txt", "Euclid/411EuclS.txt", "Euclid/511EuclS.txt",
-    "Euclid/611EuclS.txt", "Euclid/711EuclS.txt", "Euclid/811EuclS.txt",
-    "Euclid/911EuclS.txt"
-                              };
+static const char* ufwlib_euklid[] = {"Euclid/1011EuclS.txt",
+  "Euclid/1111EuclS.txt",    "Euclid/111EuclS.txt", "Euclid/1211EuclS.txt",
+  "Euclid/1311EuclS.txt",    "Euclid/1411EuclS.txt", "Euclid/1511EuclS.txt",
+  "Euclid/1611EuclS.txt",    "Euclid/1711EuclS.txt", "Euclid/1811EuclS.txt",
+  "Euclid/1911EuclS.txt",    "Euclid/2011EuclS.txt", "Euclid/2111EuclS.txt",
+  "Euclid/211EuclS.txt",    "Euclid/2211EuclS.txt", "Euclid/2311EuclS.txt",
+  "Euclid/2411EuclS.txt",    "Euclid/2511EuclS.txt", "Euclid/2611EuclS.txt",
+  "Euclid/2711EuclS.txt",    "Euclid/2811EuclS.txt", "Euclid/2911EuclS.txt",
+  "Euclid/3011EuclS.txt",    "Euclid/311EuclS.txt", "Euclid/411EuclS.txt",
+  "Euclid/511EuclS.txt",    "Euclid/611EuclS.txt", "Euclid/711EuclS.txt",
+  "Euclid/811EuclS.txt",    "Euclid/911EuclS.txt"};
+
 INSTANTIATE_TEST_CASE_P(Euclid, PrimDualSchemaUflLib,
     ::testing::ValuesIn(ufwlib_euklid));

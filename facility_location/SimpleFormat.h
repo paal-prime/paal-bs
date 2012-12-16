@@ -7,6 +7,7 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include <fstream>
 #include <limits>
 
@@ -27,6 +28,9 @@ namespace facility_location {
       SimpleFormat(const std::string &file) {
         // read instance
         std::ifstream is(file.c_str());
+        if (!is) {
+          throw std::runtime_error("Could not open " + file);
+        }
         is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         size_t n, m;
         is >> n >> m;
@@ -45,6 +49,9 @@ namespace facility_location {
         // read optimal solution
         const std::string file_opt = file + kOptFileSuffix;
         std::ifstream isopt(file_opt.c_str());
+        if (!isopt) {
+          throw std::runtime_error("Could not open " + file_opt);
+        }
         optimal_solution_.resize(m);
         for (size_t j = 0; j < m; j++) {
           isopt >> optimal_solution_(j);
