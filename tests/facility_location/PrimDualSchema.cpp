@@ -12,6 +12,8 @@
 #include "facility_location/SimpleFormat.h"
 #include "facility_location/PrimDualSchema.h"
 
+#define cost(s) (s).first
+
 using std::pair;
 using std::make_pair;
 // NOTE: gtest is retarded and wants std::tr1::tuple instead of std::tuple
@@ -45,13 +47,13 @@ class PrimDualSchemaMisc : public ::testing::Test {
     }
 };
 
-TEST_F(PrimDualSchemaMisc, lazyFunctor) {
+TEST_F(PrimDualSchemaMisc, onetimeFunctor) {
   SInstance i = make_instance(f, c, oc0, cc1, sol);
   ASSERT_EQ(c, i.optimal_cost());
   SSolver s(i);
-  ASSERT_EQ(i.optimal_cost(), s());
-  ASSERT_EQ(i.optimal_cost(), s());
-  ASSERT_EQ(i.optimal_cost(), s());
+  ASSERT_EQ(i.optimal_cost(), cost(s()));
+  ASSERT_ANY_THROW(s());
+  ASSERT_ANY_THROW(s());
 }
 
 class PrimDualSchemaBoundary
@@ -79,7 +81,7 @@ TEST_P(PrimDualSchemaBoundary, ZeroCosts) {
   SInstance i = instance(GetParam(), oc0, cc0);
   ASSERT_EQ(0, i.optimal_cost());
   SSolver s(i);
-  ASSERT_EQ(i.optimal_cost(), s());
+  ASSERT_EQ(i.optimal_cost(), cost(s()));
 }
 
 TEST_P(PrimDualSchemaBoundary, ZeroOpeningCosts) {
@@ -87,7 +89,7 @@ TEST_P(PrimDualSchemaBoundary, ZeroOpeningCosts) {
   SInstance i = instance(p, oc0, cc1);
   ASSERT_EQ(p.second, i.optimal_cost());
   SSolver s(i);
-  ASSERT_EQ(i.optimal_cost(), s());
+  ASSERT_EQ(i.optimal_cost(), cost(s()));
 }
 
 TEST_P(PrimDualSchemaBoundary, ZeroConnectingCosts) {
@@ -95,7 +97,7 @@ TEST_P(PrimDualSchemaBoundary, ZeroConnectingCosts) {
   SInstance i = instance(p, oc1, cc0);
   ASSERT_EQ((p.second > 0) ? 1 : 0, i.optimal_cost());
   SSolver s(i);
-  ASSERT_EQ(i.optimal_cost(), s());
+  ASSERT_EQ(i.optimal_cost(), cost(s()));
 }
 
 INSTANTIATE_TEST_CASE_P(ZeroCities, PrimDualSchemaBoundary, ::testing::Values(
@@ -147,7 +149,7 @@ TEST_P(PrimDualSchemaHard, ApxRatioTight) {
   auto i = instance(p);
   EXPECT_GE(expected_optimal(p) + kEpsilon, i.optimal_cost());
   Solver s(i);
-  double ratio = s() / i.optimal_cost();
+  double ratio = cost(s()) / i.optimal_cost();
   EXPECT_LE(1.0, ratio);
   ASSERT_GE(3.0, ratio);
 }
@@ -182,7 +184,7 @@ TEST_P(PrimDualSchemaUflLib, ApxRatio3) {
   std::string file(get<1>(p));
   SimpleFormat<double> i(kUflLibDir + file);
   PrimDualSchema<SimpleFormat<double> > s(i);
-  double ratio = s() / i.optimal_cost();
+  double ratio = cost(s()) / i.optimal_cost();
   EXPECT_LE(1.0, ratio);
   EXPECT_GE(get<0>(p), ratio);
   ASSERT_GE(3.0, ratio);

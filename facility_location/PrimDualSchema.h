@@ -8,6 +8,7 @@
 #include <functional>
 #include <queue>
 #include <memory>
+#include <utility>
 #include <limits>
 
 #include "facility_location/ComposableInstance.h"
@@ -17,10 +18,12 @@ namespace facility_location {
   using std::sort;
   using std::priority_queue;
   using std::greater;
+  using std::pair;
 
   template<typename Instance> class PrimDualSchema {
     public:
       typedef typename Instance::value_type Cost;
+      typedef boost::numeric::ublas::vector<size_t> Assignment;
 
     private:
       typedef double time_type;
@@ -86,9 +89,6 @@ namespace facility_location {
       std::unique_ptr<City[]> cities_;
       time_type current_time_ = 0;
       size_t unconnected_cities_;
-      // solution
-      boost::numeric::ublas::vector<size_t> assignment_;
-      Cost total_cost_;
 
     public:
       explicit PrimDualSchema(Instance &instance) :
@@ -260,8 +260,9 @@ namespace facility_location {
           }
         }
       }
-      void find_cities_assignment() {
-        assignment_.resize(instance_.cities_count());
+      pair<Cost, Assignment> find_cities_assignment() {
+        Assignment assignment;
+        assignment.resize(instance_.cities_count());
         for (size_t j = 0; j < instance_.cities_count(); j++) {
           Cost min_cost = std::numeric_limits<Cost>::max();
           size_t min_i = 0;
@@ -275,24 +276,20 @@ namespace facility_location {
             }
           }
           assert(facilities_[min_i].is_opened_);
-          assignment_(j) = min_i;
+          assignment(j) = min_i;
         }
-        total_cost_ = assignment_cost(instance_, assignment_);
+        Cost total_cost = assignment_cost(instance_, assignment);
+        return make_pair(total_cost, assignment);
       }
-      Cost operator()() {
-        if (facilities_.get()) {
-          time_simulation();
-          find_opened_facilities();
-          find_cities_assignment();
-          deinit();
+      pair<Cost, Assignment> operator()() {
+        if (!facilities_.get()) {
+          throw std::logic_error("Attempt to use deinitialized solver.");
         }
-        return cost();
-      }
-      boost::numeric::ublas::vector<size_t>& assignment() {
-        return assignment_;
-      }
-      Cost cost() {
-        return total_cost_;
+        time_simulation();
+        find_opened_facilities();
+        auto result = find_cities_assignment();
+        deinit();
+        return result;
       }
   };
 }

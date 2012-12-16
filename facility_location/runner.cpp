@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
   std::string file = argc > 1 ? argv[1] : "UflLib/Euclid/1011EuclS.txt";
   SimpleFormat<double> instance(file);
   PrimDualSchema<SimpleFormat<double> > solver(instance);
-  std::cout << solver() << ' ' << instance.optimal_cost() << ' ';
-  std::cout << (double) solver.cost() / instance.optimal_cost() << std::endl;
+  auto solution = solver();
+  std::cout << solution.first << ' ' << instance.optimal_cost() << ' ';
+  std::cout << (double) solution.first / instance.optimal_cost() << std::endl;
 }
