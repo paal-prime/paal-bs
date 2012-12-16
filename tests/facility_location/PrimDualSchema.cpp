@@ -5,6 +5,7 @@
 #include <climits>
 #include <algorithm>
 #include <utility>
+#include <string>
 #include <vector>
 
 #include "facility_location/ComposableInstance.h"
@@ -13,8 +14,9 @@
 
 using std::pair;
 using std::make_pair;
-using boost::numeric::ublas::vector;
-using boost::numeric::ublas::matrix;
+// NOTE: gtest is retarded and wants std::tr1::tuple instead of std::tuple
+using std::tr1::tuple;
+using std::tr1::get;
 using facility_location::ComposableInstance;
 using facility_location::SimpleFormat;
 using facility_location::PrimDualSchema;
@@ -106,9 +108,9 @@ INSTANTIATE_TEST_CASE_P(Bigger, PrimDualSchemaBoundary, ::testing::Values(
       make_pair(4, 3), make_pair(4, 2), make_pair(3, 3), make_pair(3, 2)));
 
 class PrimDualSchemaHard
-    : public ::testing::TestWithParam<size_t> {
+    : public ::testing::TestWithParam<tuple<double, size_t> > {
   protected:
-    // NOTE: this eps is data-size dependent
+    // NOTE: this eps is only for comparisons, not for constructing instance
     const double kEpsilon = 1e-11;
     const size_t f = 2;
     const size_t max_c = 10000;
@@ -118,8 +120,6 @@ class PrimDualSchemaHard
 
     PrimDualSchemaHard() : oc(Vector(f)), cc(Matrix(f, max_c)),
       sol(Assignment(max_c, 1)) {
-      oc(0) = kEpsilon;
-      oc(1) = (max_c + 1) * kEpsilon;
       cc(0, 0) = 1;
       cc(1, 0) = 1;
       for (size_t i = 1; i < max_c; i++) {
@@ -127,39 +127,49 @@ class PrimDualSchemaHard
         cc(1, i) = 1;
       }
     }
-    Instance instance(size_t c) {
+    Instance instance(tuple<double, size_t> p) {
+      double eps = get<0>(p);
+      size_t c = get<1>(p);
       assert(c <= max_c);
-      oc(1) = (c + 1) * kEpsilon;
+      oc(0) = eps;
+      oc(1) = (c + 1) * eps;
       return make_instance(f, c, oc, cc, sol);
     }
-    double expected_optimal(size_t c) {
-      return (double) 3 * (c - 1) + 1 + kEpsilon;
+    double expected_optimal(tuple<double, size_t> p) {
+      double eps = get<0>(p);
+      size_t c = get<1>(p);
+      return static_cast<double>(3 * (c - 1) + 1) + eps;
     }
 };
 
 TEST_P(PrimDualSchemaHard, ApxRatioTight) {
-  size_t c = GetParam();
-  auto i = instance(c);
-  EXPECT_GE(expected_optimal(c) + kEpsilon, i.optimal_cost());
+  auto p = GetParam();
+  auto i = instance(p);
+  EXPECT_GE(expected_optimal(p) + kEpsilon, i.optimal_cost());
   Solver s(i);
   double ratio = s() / i.optimal_cost();
   EXPECT_LE(1.0, ratio);
   ASSERT_GE(3.0, ratio);
 }
 
-INSTANTIATE_TEST_CASE_P(PrimeSeries, PrimDualSchemaHard,
-    ::testing::Values(2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
-        53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127,
-        131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197));
+INSTANTIATE_TEST_CASE_P(PrimeSeries, PrimDualSchemaHard, ::testing::Combine(
+      ::testing::Values(1e-11),
+      ::testing::Values(2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
+          53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127,
+          131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193)));
 
-INSTANTIATE_TEST_CASE_P(Exp2Series, PrimDualSchemaHard,
-    ::testing::Values(1, 2, 4, 8, 16, 32, 64, 128, 256));
+INSTANTIATE_TEST_CASE_P(Exp2Series, PrimDualSchemaHard, ::testing::Combine(
+      ::testing::Values(1e-11),
+      ::testing::Values(4, 8, 16, 32, 64, 128, 256)));
 
-INSTANTIATE_TEST_CASE_P(Exp3Series, PrimDualSchemaHard,
-    ::testing::Values(1, 3, 9, 27, 81, 243));
+INSTANTIATE_TEST_CASE_P(Exp3Series, PrimDualSchemaHard, ::testing::Combine(
+      ::testing::Values(1e-11),
+      ::testing::Values(9, 27, 81, 243)));
 
-INSTANTIATE_TEST_CASE_P(Exp10Series, PrimDualSchemaHard,
-    ::testing::Values(1, 100, 1000, 10000));
+// NOTE: eps is dependent on size of instance, e.g. this won't work for (1.0, 1)
+INSTANTIATE_TEST_CASE_P(Exp10Series, PrimDualSchemaHard, ::testing::Combine(
+      ::testing::Values(1e-11, 1e-5, 1e-1, 1.0),
+      ::testing::Values(100, 1000, 5000, 10000)));
 
 class PrimDualSchemaUflLib
     : public ::testing::TestWithParam<const char*> {
