@@ -77,8 +77,9 @@ namespace facility_location {
         }
       };
 
-      // TODO(stupaq): make it const
-      Instance& instance_;
+      // input
+      const Instance& instance_;
+      // operational data
       vector<EdgeEvent> edge_events_;
       facility_events_queue facility_events_;
       std::unique_ptr<Facility[]> facilities_;
@@ -86,7 +87,7 @@ namespace facility_location {
       time_type current_time_ = 0;
       size_t unconnected_cities_;
       // solution
-      vector<size_t> assignment_;
+      boost::numeric::ublas::vector<size_t> assignment_;
       Cost total_cost_;
 
     public:
@@ -102,7 +103,7 @@ namespace facility_location {
         unconnected_cities_ = cities_count;
         facilities_.reset(new Facility[facilities_count]);
         for (size_t i = 0; i < facilities_count; i++) {
-          facilities_[i].to_pay_ = instance_.opening_cost()(i);
+          facilities_[i].to_pay_ = instance_(i);
           facilities_[i].heap_handle_ = facility_events_.push(
                 FacilityEvent(recompute_expected(facilities_[i]),
                     &facilities_[i]));
@@ -111,7 +112,7 @@ namespace facility_location {
         edge_events_.reserve(cities_count * facilities_count);
         for (size_t i = 0; i < facilities_count; i++) {
           for (size_t j = 0; j < cities_count; j++) {
-            edge_events_.push_back(EdgeEvent(instance_.connecting_cost()(i, j),
+            edge_events_.push_back(EdgeEvent(instance_(i, j),
                 &facilities_[i], &cities_[j]));
           }
         }
@@ -266,7 +267,7 @@ namespace facility_location {
           size_t min_i = 0;
           for (size_t i = 0; i < instance_.facilities_count(); i++) {
             if (facilities_[i].is_opened_) {
-              Cost c = instance_.connecting_cost()(i, j);
+              Cost c = instance_(i, j);
               if (min_cost >= c) {
                 min_cost = c;
                 min_i = i;
@@ -274,7 +275,7 @@ namespace facility_location {
             }
           }
           assert(facilities_[min_i].is_opened_);
-          assignment_[j] = min_i;
+          assignment_(j) = min_i;
         }
         total_cost_ = assignment_cost(instance_, assignment_);
       }
@@ -287,7 +288,7 @@ namespace facility_location {
         }
         return cost();
       }
-      vector<Cost>& assignment() {
+      boost::numeric::ublas::vector<size_t>& assignment() {
         return assignment_;
       }
       Cost cost() {

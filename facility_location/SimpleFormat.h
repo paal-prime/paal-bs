@@ -59,22 +59,22 @@ namespace facility_location {
         isopt >> optimal_cost_;
         isopt.close();
       }
-      size_t cities_count() {
+      size_t cities_count() const {
         return connecting_cost_.size2();
       }
-      size_t facilities_count() {
+      size_t facilities_count() const {
         return opening_cost_.size();
       }
-      Matrix<Cost>& connecting_cost() {
-        return connecting_cost_;
+      Cost operator()(size_t facility, size_t city) const {
+        return connecting_cost_(facility, city);
       }
-      Vector<Cost>& opening_cost() {
-        return opening_cost_;
+      Cost operator()(size_t facility) const {
+        return opening_cost_(facility);
       }
-      Vector<Cost>& optimal_solution() {
-        return optimal_solution_;
+      size_t optimal_solution(size_t city) const {
+        return optimal_solution_(city);
       }
-      Cost optimal_cost() {
+      Cost optimal_cost() const {
         return optimal_cost_;
       }
       template<typename Stream> Stream& operator<< (Stream& os) const {
