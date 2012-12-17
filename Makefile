@@ -44,7 +44,7 @@ $(MAIN) : % : %.o
 
 # link gtest objects
 $(GTEST) : % : $(GTESTOBJECTS)
-	$(CXX) $(GTESTOBJECTS) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@ 
+	$(CXX) $(GTESTOBJECTS) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@
 
 clean:
 	-rm -f *.o $(MAIN) $(GTEST) $(ALLOBJECTS) $(DEPENDS)
