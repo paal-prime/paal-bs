@@ -97,7 +97,7 @@ TEST(paal_search, sample_use)
   MyProgressCtrl progress_ctrl;
   MyRandom random;
   MyLogger logger;
-  paal::search(walker, step_ctrl, progress_ctrl, random, logger);
+  paal::search(walker, random, progress_ctrl, step_ctrl, logger);
   ASSERT_EQ(walker.steps_prepared, 10);
   ASSERT_EQ(walker.steps_made, 5);
   ASSERT_EQ(progress_ctrl.iterations, 11);
