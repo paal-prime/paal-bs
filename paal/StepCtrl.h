@@ -11,7 +11,7 @@ namespace paal
     template<typename Random> bool step_decision(double current_fitness,
         double next_fitness, double, Random &)
     {
-      return current_fitness < next_fitness;
+      return current_fitness >= next_fitness;
     }
   };
 

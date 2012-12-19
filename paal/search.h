@@ -8,7 +8,6 @@ namespace paal
   void search(Walker &walker, Random &random, ProgressCtrl &progress_ctrl,
       StepCtrl &step_ctrl, Logger &logger)
   {
-    progress_ctrl.reset();
 	while (1)
     {
       double current_fitness = walker.current_fitness();
