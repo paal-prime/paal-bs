@@ -8,7 +8,8 @@ namespace paal
   void search(Walker &walker, Random &random, ProgressCtrl &progress_ctrl,
       StepCtrl &step_ctrl, Logger &logger)
   {
-	while (1)
+    size_t steps_done = 0;
+    while (1)
     {
       double current_fitness = walker.current_fitness();
       logger.log(current_fitness);
@@ -16,10 +17,15 @@ namespace paal
       if (progress >= 1) break;
       walker.prepare_step(progress, random);
       if (step_ctrl.step_decision(current_fitness, walker.next_fitness(),
-          progress, random)) walker.make_step();
+          progress, random))
+      {
+        steps_done++;
+        walker.make_step();
+      }
     }
+    std::cout << "steps done: " << steps_done << std::endl;
   }
-  
+
   /*template < typename Walker, typename Random, typename ProgressCtrl,
   typename StepCtrl >
   void search(Walker &walker, Random &random, ProgressCtrl &progress_ctrl,
@@ -35,7 +41,6 @@ namespace paal
     HillClimb step_ctrl;
     search(walker, random, progress_ctrl, step_ctrl);
   }*/
-
 }
 
 #endif  // PAAL_SEARCH_H_

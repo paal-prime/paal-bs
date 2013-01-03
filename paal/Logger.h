@@ -7,14 +7,17 @@ namespace paal
 {
   struct VoidLogger  // implements Logger
   {
-    void log(double) {}
+    void log(double current_fitness) {}
   };
 
   struct CountingLogger
   {
-  	CountingLogger() : iterations(-1) {}
-	size_t iterations;
-	void log(double){ iterations++; }
+    CountingLogger() : iterations(-1) {}
+    size_t iterations;
+    void log(double current_fitness)
+    {
+      iterations++;
+    }
   };
 }
 

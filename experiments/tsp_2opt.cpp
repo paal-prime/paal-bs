@@ -15,54 +15,67 @@ typedef tsp::TSPLIB_Matrix Matrix;
 std::mt19937 random_(786284);
 
 
-
-struct Algo// implements Algo
+struct Algo  // implements Algo
 {
-	Algo(Matrix &_matrix) : matrix(_matrix) {}
-	Matrix &matrix;
+  Algo(Matrix &_matrix) : matrix(_matrix) {}
+  Matrix &matrix;
 
-	template<typename Logger, typename StepCtrl>
-	double run(Logger &logger, StepCtrl &step_ctrl) const
-	{
-		std::vector<size_t> cycle;
-		tsp::cycle_shuffle(cycle,matrix.size1(),random_);
-		tsp::TwoOptWalker<Matrix> walker(matrix,cycle);
-		//paal::IterationCtrl progress_ctrl(100000);
-		paal::TimeAutoCtrl progress_ctrl(5);
-		double begin = paal::realtime_sec();
-		paal::search(walker,random_,progress_ctrl,step_ctrl,logger);
-		double end = paal::realtime_sec();
-		std::cout << format("time=%\n",end-begin);
-		return walker.current_fitness();
-	}
+  template<typename Logger, typename StepCtrl, typename Cycle>
+  double run_(Logger &logger, StepCtrl &step_ctrl, const Cycle &cycle) const
+  {
+    tsp::TwoOptWalker<Matrix> walker(matrix, cycle);
+    paal::IterationCtrl progress_ctrl(10000000);
+    //paal::TimeAutoCtrl progress_ctrl(15);
+    //double begin = paal::realtime_sec();
+    paal::search(walker, random_, progress_ctrl, step_ctrl, logger);
+    //double end = paal::realtime_sec();
+    //std::cout << format("time=%\n",end-begin);
+    return walker.current_fitness();
+  }
 };
 
 struct HillAlgo : Algo
 {
-	template<typename Logger> double run(Logger &logger) const
-	{
-		paal::HillClimb step_ctrl;
-		return run(logger,step_ctrl);
-	}
+  HillAlgo(Matrix &_matrix) : Algo(_matrix) {}
+
+  template<typename Logger> double run(Logger &logger) const
+  {
+    std::vector<size_t> cycle;
+    tsp::cycle_shuffle(cycle, matrix.size1(), random_);
+    paal::HillClimb step_ctrl;
+    return run_(logger, step_ctrl, cycle);
+  }
 };
 
 struct AnneAlgo : Algo
 {
-	template<typename Logger> double run(Logger &logger) const
-	{
-		paal::Annealing step_ctrl(); //damnit! <- was starting point dependent until now
-		return run(logger,step_ctrl);
-	}
+  AnneAlgo(Matrix &_matrix) : Algo(_matrix) {}
+
+  template<typename Logger> double run(Logger &logger) const
+  {
+    std::vector<size_t> cycle;
+    tsp::cycle_shuffle(cycle, matrix.size1(), random_);
+    paal::Annealing step_ctrl(
+      tsp::fitness(matrix, cycle) / matrix.size1(), 1e-9);
+    return run_(logger, step_ctrl, cycle);
+  }
 };
 
 int main()
 {
-	tsp::TSPLIB_Directory dir("./TSPLIB/symmetrical/");
-	Matrix matrix;
-	dir.graphs[67].load(matrix);
-	paal::SuperLogger sl;
-	sl.test("hill_climb",HillAlgo(matrix),5);
-	sl.test("annealing",AnneAlgo(matrix),5);
-	sl.dump(std::cout); std::cout << std::flush;
-	return 0;
+  tsp::TSPLIB_Directory dir("./TSPLIB/symmetrical/");
+  std::vector<size_t> graph_ids = {9, 20, 21, 32, 65, 67, 91, 109};
+  Matrix matrix;
+  paal::SuperLogger sl;
+for (size_t gid : graph_ids)
+  {
+    dir.graphs[gid].load(matrix);
+    sl.test(
+      format("hill_climb %", dir.graphs[gid].filename), HillAlgo(matrix), 5);
+    sl.test(
+      format("annealing %", dir.graphs[gid].filename), AnneAlgo(matrix), 5);
+    sl.dump(std::cout);
+    std::cout << std::flush;
+  }
+  return 0;
 }

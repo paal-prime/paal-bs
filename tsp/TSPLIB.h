@@ -65,7 +65,7 @@ namespace tsp
         pos.resize(_size);
         mtx.resize(0, 0);
       }
-      else
+      else  // NOLINT
       {
         mtx.resize(_size, _size2);
         pos.clear();
@@ -159,7 +159,7 @@ namespace tsp
                 m.mtx(i, j) = m.mtx(j, i) = d;
               }
           }
-          else if (ewf == "LOWER_DIAG_ROW")
+          else if (ewf == "LOWER_DIAG_ROW")  // NOLINT
             for (size_t i = 0; i < n; ++i)
               for (size_t j = 0; j <= i; ++j)
               {
@@ -167,7 +167,7 @@ namespace tsp
                 assert(is >> d);
                 m.mtx(i, j) = m.mtx(j, i) = d;
               }
-          else if (ewf == "UPPER_DIAG_ROW")
+          else if (ewf == "UPPER_DIAG_ROW")  // NOLINT
             for (size_t i = 0; i < n; ++i)
               for (size_t j = i; j < n; ++j)
               {
@@ -175,10 +175,10 @@ namespace tsp
                 assert(is >> d);
                 m.mtx(i, j) = m.mtx(j, i) = d;
               }
-          else throw std::runtime_error(
+          else throw std::runtime_error(  //NOLINT
               format("EDGE_WEIGHT_FORMAT % is unimplemented", ewf));
         }
-        else if (ewt == "GEO")
+        else if (ewt == "GEO")  // NOLINT
         {
           expect(is, "NODE_COORD_SECTION");
           std::vector<Point> pos(n);
@@ -191,7 +191,7 @@ namespace tsp
             for (size_t j = i; j < n; ++j)
               m.mtx(i, j) = m.mtx(j, i) = geo_dist(pos[i], pos[j]);
         }
-        else
+        else  // NOLINT
         {
           if (ewt == "EUC_2D") m.resize(n, n, m.eucl_dist);
           else if (ewt == "CEIL_2D") m.resize(n, n, m.ceil_dist);

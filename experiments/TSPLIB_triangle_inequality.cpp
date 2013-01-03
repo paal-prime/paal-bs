@@ -9,7 +9,7 @@ int main()
   std::string path = "./TSPLIB/symmetrical";
   tsp::TSPLIB_Directory dir(path);
   tsp::TSPLIB_Matrix mtx;
-  for (auto &g : dir.graphs)
+for (auto &g : dir.graphs)
   {
     g.load(mtx);
     if (mtx.dist_) continue;
@@ -24,5 +24,5 @@ int main()
           }
     std::cout << format("% %", g.filename, ok ? "OK" : "INVALID") << std::endl;
   }
-	return 0;
+  return 0;
 }
