@@ -213,7 +213,7 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
     typename G::edge_weight_t distances[verticesCount];
     bool active[verticesCount];
 
-    int maxSetNumber = 0;
+    int maxSetNumber = -1;
     for(typename G::vertex_t v = 0; v < verticesCount; ++v)
     {
         maxSetNumber = std::max(maxSetNumber, sets[v]);
@@ -233,7 +233,6 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
     int setCardinality[setsCount];
     memset(setCardinality, 0, sizeof(int) * setsCount);
 
-    //dsu 
     int rank[verticesCount];
     memset(rank, 0, sizeof(int) * verticesCount);
 
@@ -247,8 +246,6 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
     dsu_parent_t dsu_parent(parent, boost::identity_property_map());
 
     boost::disjoint_sets<dsu_rank_t, dsu_parent_t> dsu(dsu_rank, dsu_parent);
-    //end dsu
-
 
     int activeSets = 0;
     typedef typename G::edge_iterator_t edge_iterator_t;
@@ -424,26 +421,36 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
         }
     }
 
-    for(size_t i = 0; i < unpruned_forest_edges.size(); ++i)
-    {
-        if(unpruned_forest_edges[i].first.first > unpruned_forest_edges[i].first.second)
-        {
-            std::swap(unpruned_forest_edges[i].first.first, unpruned_forest_edges[i].first.second);
-        }
-    }
-
     std::sort(forest_edges.begin(), forest_edges.end());
-    std::sort(unpruned_forest_edges.begin(), unpruned_forest_edges.end());
 
-
-    int unpruned_index = 0;
-    for(int i = 0; i < forest_edges.size(); ++i)
+    size_t current_edge = 0;
+    while(current_edge < forest_edges.size())
     {
-        while(forest_edges[i] != unpruned_forest_edges[unpruned_index].first)
+        edge_iterator_t first, last;
+        vertex_t source = forest_edges[current_edge].first;
+        boost::tie(first, last) = graph.out_edges(source);
+
+        while(first != last)
         {
-            unpruned_index += 1;
+            if(forest_edges[current_edge].first != source)
+            {
+                break;
+            }
+
+            if(forest_edges[current_edge].second == (*first).first)
+            {
+                *steiner_forest_edges++ = std::make_pair(std::make_pair(source, (*first).first),
+                                                         (*first).second);
+                current_edge += 1;
+                if(current_edge >= forest_edges.size())
+                {
+                    break;
+                }
+            }
+
+            first++;
+
         }
-        *steiner_forest_edges++ = unpruned_forest_edges[unpruned_index];
     }
 }
 
