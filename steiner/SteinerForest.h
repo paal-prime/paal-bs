@@ -23,42 +23,52 @@ void getForestEdges(const std::vector< std::list<int> >& adj_lists, const int ve
     memset(visited, false, sizeof(bool) * verticesCount);
     typedef std::list<int>::const_iterator list_it_t;
     std::stack< std::pair<int, list_it_t> > dfsStack; //<vertex, neighbour index
-    dfsStack.push( std::pair<int, list_it_t>(0, adj_lists[0].begin()) );
+
     int vertex_sum[verticesCount];
     memset(vertex_sum, 0, sizeof(int) * verticesCount);
 
-    visited[0] = true;
-
-    while(!dfsStack.empty())
+    for(int i = 0; i < verticesCount; ++i)
     {
-        std::pair<int, list_it_t> &currentVertex = dfsStack.top();
-
-        if(currentVertex.second == adj_lists[currentVertex.first].end())
+        if(visited[i])
         {
-            vertex_sum[currentVertex.first] = vertex_value[currentVertex.first];
-            for(list_it_t it= adj_lists[currentVertex.first].begin();
-                it != adj_lists[currentVertex.first].end(); ++it)
-            {
-                vertex_sum[currentVertex.first] += vertex_sum[*it];
-                if(vertex_sum[*it] > 0)
-                {
-                    forest_edges.push_back(std::pair<size_t, size_t>(currentVertex.first, *it));
-                    std::cout << currentVertex.first << " " << *it << std::endl;
-                }
-            }
-            dfsStack.pop();
             continue;
         }
 
-        while(currentVertex.second != adj_lists[currentVertex.first].end())
+        dfsStack.push( std::pair<int, list_it_t>(i, adj_lists[i].begin()) );
+
+        visited[i] = true;
+
+        while(!dfsStack.empty())
         {
-            int neighbour = *currentVertex.second;
-            currentVertex.second++;
-            if(!visited[neighbour])
+            std::pair<int, list_it_t> &currentVertex = dfsStack.top();
+
+            if(currentVertex.second == adj_lists[currentVertex.first].end())
             {
-                visited[neighbour] = 1;
-                dfsStack.push(std::pair<int, list_it_t>(neighbour, adj_lists[neighbour].begin()));
-                break;
+                vertex_sum[currentVertex.first] = vertex_value[currentVertex.first];
+                for(list_it_t it = adj_lists[currentVertex.first].begin();
+                    it != adj_lists[currentVertex.first].end(); ++it)
+                {
+                    vertex_sum[currentVertex.first] += vertex_sum[*it];
+                    if(vertex_sum[*it] > 0)
+                    {
+                        forest_edges.push_back(std::pair<size_t, size_t>(currentVertex.first, *it));
+                        std::cout << currentVertex.first << " " << *it << std::endl;
+                    }
+                }
+                dfsStack.pop();
+                continue;
+            }
+
+            while(currentVertex.second != adj_lists[currentVertex.first].end())
+            {
+                int neighbour = *currentVertex.second;
+                currentVertex.second++;
+                if(!visited[neighbour])
+                {
+                    visited[neighbour] = 1;
+                    dfsStack.push(std::pair<int, list_it_t>(neighbour, adj_lists[neighbour].begin()));
+                    break;
+                }
             }
         }
     }
@@ -108,32 +118,41 @@ void getParents(const std::vector< std::list<int> >& adj_lists, int parent[], in
     memset(visited, false, sizeof(bool) * verticesCount);
     typedef std::list<int>::const_iterator list_it_t;
     std::stack< std::pair<int, list_it_t> > dfsStack; //<vertex, neighbour index
-    dfsStack.push( std::pair<int, list_it_t>(0, adj_lists[0].begin()) );
-    parent[0] = 0;
-    lvl[0] = 1;
-    visited[0] = true;
 
-    while(!dfsStack.empty())
+    for(int i = 0; i < verticesCount; ++i)
     {
-        std::pair<int, list_it_t> &currentVertex = dfsStack.top();
-
-        if(currentVertex.second == adj_lists[currentVertex.first].end())
+        if(visited[i])
         {
-            dfsStack.pop();
             continue;
         }
 
-        while(currentVertex.second != adj_lists[currentVertex.first].end())
+        dfsStack.push( std::pair<int, list_it_t>(i, adj_lists[i].begin()) );
+        parent[i] = i;
+        lvl[i] = 1;
+        visited[i] = true;
+
+        while(!dfsStack.empty())
         {
-            int neighbour = *currentVertex.second;
-            currentVertex.second++;
-            if(!visited[neighbour])
+            std::pair<int, list_it_t> &currentVertex = dfsStack.top();
+
+            if(currentVertex.second == adj_lists[currentVertex.first].end())
             {
-                parent[neighbour] = currentVertex.first;
-                visited[neighbour] = 1;
-                dfsStack.push(std::pair<int, list_it_t>(neighbour, adj_lists[neighbour].begin()));
-                lvl[neighbour] = dfsStack.size();
-                break;
+                dfsStack.pop();
+                continue;
+            }
+
+            while(currentVertex.second != adj_lists[currentVertex.first].end())
+            {
+                int neighbour = *currentVertex.second;
+                currentVertex.second++;
+                if(!visited[neighbour])
+                {
+                    parent[neighbour] = currentVertex.first;
+                    visited[neighbour] = 1;
+                    dfsStack.push(std::pair<int, list_it_t>(neighbour, adj_lists[neighbour].begin()));
+                    lvl[neighbour] = dfsStack.size();
+                    break;
+                }
             }
         }
     }
@@ -158,6 +177,7 @@ void prune(const std::vector< std::list<int> >& adj_lists,
     {
         std::cout << "vertex: " << i << " parent: " << parent[i] << std::endl;
         std::cout << "vertex: " << i << " lvl: " << lvl[i] << std::endl;
+        LCAjumps[0][i] = parent[i];
     }
 
     for(int jmp = 1; jmp < logVerticesCount; ++jmp)
@@ -413,6 +433,7 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
     std::vector< std::pair<vertex_t, vertex_t> > forest_edges;
     prune(adj_lists, setsCount, vertex_set, forest_edges);
 
+    std::cout << "size after prunning" << forest_edges.size() << std::endl;
     for(size_t i = 0; i < forest_edges.size(); ++i)
     {
         if(forest_edges[i].first > forest_edges[i].second)
