@@ -114,8 +114,8 @@ class AdjacencyMatrix
         public:
             AdjacencyMatrixFields(V vertices) : vertices(vertices)
             {
-                weights.reset(new WW[vertices * vertices]);
-                adjs.reset(new bool[vertices * vertices]);
+                weights.reset(new WW[vertices * vertices]());
+                adjs.reset(new bool[vertices * vertices]());
             }
 
             W getWeight(V u, V v) const
@@ -145,7 +145,7 @@ class AdjacencyMatrix
         public:
             AdjacencyMatrixFields(V vertices) : vertices(vertices)
             {
-                adjs.reset(new bool[vertices * vertices]);
+                adjs.reset(new bool[vertices * vertices]());
             }
 
             bool getAdj(V u, V v) const
