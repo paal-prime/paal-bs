@@ -52,7 +52,6 @@ void getForestEdges(const std::vector< std::list<int> >& adj_lists, const int ve
                     if(vertex_sum[*it] > 0)
                     {
                         forest_edges.push_back(std::pair<size_t, size_t>(currentVertex.first, *it));
-                        std::cout << currentVertex.first << " " << *it << std::endl;
                     }
                 }
                 dfsStack.pop();
@@ -175,8 +174,6 @@ void prune(const std::vector< std::list<int> >& adj_lists,
 
     for(int i = 0; i < verticesCount; ++i)
     {
-        std::cout << "vertex: " << i << " parent: " << parent[i] << std::endl;
-        std::cout << "vertex: " << i << " lvl: " << lvl[i] << std::endl;
         LCAjumps[0][i] = parent[i];
     }
 
@@ -210,10 +207,8 @@ void prune(const std::vector< std::list<int> >& adj_lists,
     {
         if(vertex_set[i] != -1)
         {
-            std::cout << "lca of " << setLCA[vertex_set[i]] << " and " << i << " is ";
             setLCA[vertex_set[i]] = lca(setLCA[vertex_set[i]], i, lvl, LCAjumps[0],
                                         logVerticesCount, verticesCount);
-            std::cout << setLCA[vertex_set[i]] << std::endl;
         }
     }
 
@@ -294,7 +289,6 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
         int set_id = sets[v];
         if(set_id != -1 && setCardinality[set_id] != 1)
         {
-            std::cout << "set vertex " << v << std::endl;
             activeSets += 1;
             active[v] = 1;
             distances[v] = edge_weight_t();
@@ -319,8 +313,6 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
                     weight = distances[source] + 2*(*first).second;
                 }
 
-                std::cout << "insert weight " << weight << std::endl;
-
                 edge_queue.push(std::make_pair(weight, std::make_pair(v, (*first).first)));
 
                 first++;
@@ -328,21 +320,13 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
         }
     }
 
-    for(int i = 0; i < setsCount; ++i)
-    {
-        std::cout << "car " << setCardinality[i] << std::endl;
-    }
-
     std::vector<std::pair< std::pair<vertex_t, vertex_t>, edge_weight_t > > unpruned_forest_edges;
     while(activeSets)
     {
-        std::cout << "sets " << activeSets << std::endl;
         int weight = 0; //TODO type
         std::pair<vertex_t, vertex_t> edge;
         assert(!edge_queue.empty());
         boost::tie(weight, edge) = edge_queue.top();
-
-        std::cout << "weight " << weight << std::endl;
 
         edge_queue.pop();
         vertex_t source = edge.first;
@@ -353,7 +337,6 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
 
         if(source_parent != target_parent)
         {
-            std::cout << "s " << source << ", t " << target << std::endl;
             unpruned_forest_edges.push_back(std::make_pair(edge, weight));
 
             dsu.link(source, target);
@@ -417,23 +400,18 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
             }
         }
     }
-    std::cout << "edges start" << std::endl;
     std::vector< std::list<int> > adj_lists(verticesCount);
-    std::cout << "unpruned" << std::endl;
     for(auto it = unpruned_forest_edges.begin(); it != unpruned_forest_edges.end(); it++)
     {
         int s = ((*it).first).first;
         int t = ((*it).first).second;
         adj_lists[s].push_front(t);
         adj_lists[t].push_front(s);
-        std::cout << s << " " << t << std::endl;
     }
 
-    std::cout << "prunning" << std::endl;
     std::vector< std::pair<vertex_t, vertex_t> > forest_edges;
     prune(adj_lists, setsCount, vertex_set, forest_edges);
 
-    std::cout << "size after prunning" << forest_edges.size() << std::endl;
     for(size_t i = 0; i < forest_edges.size(); ++i)
     {
         if(forest_edges[i].first > forest_edges[i].second)

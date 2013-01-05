@@ -22,8 +22,6 @@ TEST_P(SteinerTest, asdf)
     size_t verticesCount, edgeCount;
     graphData >> verticesCount >> edgeCount;
 
-    std::cout << verticesCount;
-
     AdjacencyLists<Graph::undirected, double> graph(verticesCount);
 
     int sets[verticesCount];
@@ -50,15 +48,12 @@ TEST_P(SteinerTest, asdf)
     SteinerForest<>(graph, sets, std::back_inserter(steiner_forest_edges));
 
     double solutionCost = 0.0;
-    std::cout << "OUTPUT" << std::endl;
+
     for(size_t i = 0; i < steiner_forest_edges.size(); ++i)
     {
-        std::cout << steiner_forest_edges[i].first.first << " " << steiner_forest_edges[i].first.second << std::endl;
-        std::cout << steiner_forest_edges[i].second << std::endl;
         solutionCost += steiner_forest_edges[i].second;
     }
 
-    std::cout << "COST: " << solutionCost << std::endl;
     ASSERT_LE(solutionCost, 2 * bestKnownSolution);
     ASSERT_GE(solutionCost, bestKnownSolution);
 
