@@ -346,10 +346,11 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
                 compoundTerminals[new_root][i] = compoundTerminals[source_parent][i] + \
                                                  compoundTerminals[target_parent][i];
             }
-            if(active[target])
+            if(active[source_parent] && active[target_parent])
             {
                 activeSets -= 1;
 
+                active[new_root] = 1;
                 bool isActive = false;
                 for(int i = 0; i < setsCount; ++i)
                 {
@@ -363,11 +364,13 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
                 if(!isActive)
                 {
                     activeSets -= 1;
+                    active[new_root] = 0;
                 }
             }
-            else
+            else if(active[source_parent] || active[target_parent])
             {
-                active[target] = 1;
+                active[new_root] = 1;
+
                 distances[target] = weight;
                 vertex_t parent = source;
                 //copy paste - add adjacent edges, modified (parent)
@@ -400,6 +403,7 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
             }
         }
     }
+
     std::vector< std::list<int> > adj_lists(verticesCount);
     for(auto it = unpruned_forest_edges.begin(); it != unpruned_forest_edges.end(); it++)
     {
