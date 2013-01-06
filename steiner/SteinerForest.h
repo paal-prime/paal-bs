@@ -304,7 +304,7 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
             {
                 vertex_t source = v;
                 vertex_t target = (*first).first;
-                int weight = 0; //TODO type
+                edge_weight_t weight = edge_weight_t();
                 if(active[target])
                 {
                     weight = (distances[target] + distances[source])/2 +
@@ -325,7 +325,7 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
     std::vector<std::pair< std::pair<vertex_t, vertex_t>, edge_weight_t > > unpruned_forest_edges;
     while(activeSets)
     {
-        int weight = 0; //TODO type
+        edge_weight_t weight = edge_weight_t();
         std::pair<vertex_t, vertex_t> edge;
         assert(!edge_queue.empty());
         boost::tie(weight, edge) = edge_queue.top();
@@ -406,7 +406,7 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
                     vertex_t target = (*first).first;
                     if(source != parent)
                     {
-                        int weight = 0; //TODO type
+                        edge_weight_t weight = edge_weight_t();
                         if(active[target])
                         {
                             weight = (distances[target] + distances[source])/2 +
