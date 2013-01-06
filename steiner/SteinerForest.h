@@ -3,6 +3,7 @@
 
 #include <boost/pending/disjoint_sets.hpp>
 #include <boost/property_map/property_map.hpp>
+#include <boost/heap/skew_heap.hpp>
 #include <queue>
 #include <vector>
 #include <list>
@@ -242,8 +243,6 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
     }
 
     const int setsCount = maxSetNumber + 1;
-    int compoundTerminals[verticesCount][setsCount];
-    memset(compoundTerminals, 0, sizeof(int) * verticesCount * setsCount);
 
     int setCardinality[setsCount];
     memset(setCardinality, 0, sizeof(int) * setsCount);
@@ -283,6 +282,9 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
         }
     }
 
+    int setCardinalityCounter[verticesCount];
+    memset(setCardinalityCounter, 0, sizeof(int) * verticesCount);
+    boost::heap::skew_heap<int> compoundTerminals[verticesCount];
     for(vertex_t v = 0; v < verticesCount; ++v)
     {
         dsu.make_set(v);
@@ -292,7 +294,7 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
             activeSets += 1;
             active[v] = 1;
             distances[v] = edge_weight_t();
-            compoundTerminals[v][set_id] += 1;
+            compoundTerminals[v].push(set_id);
 
             //iterate over edges
             edge_iterator_t first;
@@ -341,27 +343,47 @@ void SteinerForest(const G& graph, const int sets[], OutputIterator steiner_fore
 
             dsu.link(source, target);
             vertex_t new_root = dsu.find_set(source);
-            for(int i = 0; i < setsCount; ++i)
+
+            size_t merge;
+            if(new_root == source_parent)
             {
-                compoundTerminals[new_root][i] = compoundTerminals[source_parent][i] + \
-                                                 compoundTerminals[target_parent][i];
+                merge = target_parent;
             }
+            else
+            {
+                merge = source_parent;
+            }
+            compoundTerminals[new_root].merge(compoundTerminals[merge]);
+
             if(active[source_parent] && active[target_parent])
             {
-                activeSets -= 1;
 
+                activeSets -= 1;
                 active[new_root] = 1;
-                bool isActive = false;
-                for(int i = 0; i < setsCount; ++i)
+
+                while(compoundTerminals[new_root].size() >= 2)
                 {
-                    if(compoundTerminals[new_root][i] > 0 &&
-                       setCardinality[i] != compoundTerminals[new_root][i])
+                    int a = compoundTerminals[new_root].top();
+                            compoundTerminals[new_root].pop();
+                    int b = compoundTerminals[new_root].top();
+
+                    if(a == b)
                     {
-                        isActive = true;
+                        setCardinalityCounter[a] += 1;
+                    }
+                    else
+                    {
+                        compoundTerminals[new_root].push(a);
                         break;
                     }
+
+                    if(setCardinalityCounter[a] + 1 == setCardinality[a])
+                    {
+                        compoundTerminals[new_root].pop();
+                    }
                 }
-                if(!isActive)
+
+                if(compoundTerminals[new_root].empty())
                 {
                     activeSets -= 1;
                     active[new_root] = 0;
