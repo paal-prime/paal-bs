@@ -67,7 +67,7 @@ int main()
   std::vector<size_t> graph_ids = {9, 20, 21, 32, 65, 67, 91, 109};
   Matrix matrix;
   paal::SuperLogger sl;
-for (size_t gid : graph_ids)
+  for (size_t gid : graph_ids)
   {
     dir.graphs[gid].load(matrix);
     sl.test(

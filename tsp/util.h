@@ -7,6 +7,27 @@
 
 namespace tsp
 {
+  /*
+  concept Matrix
+  {
+	double operator()(size_t i, size_t j) const;  // M_ij
+	size_t size1() const;  // 1st dimension size
+	size_t size2() cosnt;  // 2nd dimension size
+	
+	double & operator()(size_t i, size_t j);
+	size_t resize(size_t _size1, size_t _size2);  // resizes the matrix
+  };
+  
+  concept Cycle
+  {
+  	size_t operator[](size_t i) const;  // C_i
+  	size_t size() const;
+
+  	size_t & operator[](size_t i);
+  };
+  */
+  
+  
   template<typename Matrix, typename Cycle>
   double fitness(const Matrix &m, const Cycle &cycle)
   {

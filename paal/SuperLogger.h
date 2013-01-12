@@ -10,6 +10,13 @@
 
 namespace paal
 {
+  /*
+  concept Algo
+  {
+    template<typename Logger> double run(Logger &logger) const(?);  // runs copy of algorithm instance with the logger given
+  };
+  */
+
   struct SuperLogger
   {
     struct Result
