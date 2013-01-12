@@ -33,8 +33,8 @@ TEST(tsp_util, cycle_shuffle)
   tsp::cycle_shuffle(cycle, n, random);
   EXPECT_EQ(n, cycle.size());
   int C[n] = {};
-for (int i : cycle) C[i]++;
-for (int c : C) EXPECT_EQ(1, c);
+  for (int i : cycle) C[i]++;
+  for (int c : C) EXPECT_EQ(1, c);
 }
 
 TEST(tsp_util, cycle_reverse)

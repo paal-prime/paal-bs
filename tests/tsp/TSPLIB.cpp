@@ -34,7 +34,7 @@ TEST(TSPLIB_Directory, dist)
   int fitnesses[] = { 221440, 423710, 309636 };
   tsp::TSPLIB_Directory dir(path);
   tsp::TSPLIB_Matrix mtx;
-for (auto &g : dir.graphs)
+  for (auto &g : dir.graphs)
     for (int i = 0; i < 3; ++i)
       if (path + filenames[i] == g.filename)
       {
