@@ -27,6 +27,21 @@ namespace tsp
   };
   */
   
+  struct Point
+  {
+    Point() {}
+    Point(double _x, double _y) : x(_x), y(_y) {}
+    Point operator-(const Point &b) const
+    {
+      return Point(x - b.x, y - b.y);
+    }
+    double sqr() const
+    {
+      return x*x + y*y;
+    }
+    double x, y;
+  };
+ 
   
   template<typename Matrix, typename Cycle>
   double fitness(const Matrix &m, const Cycle &cycle)

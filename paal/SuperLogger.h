@@ -59,6 +59,33 @@ namespace paal
       }
     }
   };
+
+  struct ImprovementSuperLogger
+  {
+  	struct Record
+	{
+		Record(const std::string &_name) : name(_name) {}
+		std::string name;
+		ImprovementLogger logger;
+	};
+
+	std::vector<Record> records;
+
+	template<typename Algo> void test(const std::string &name, Algo algo)
+	{
+		records.push_back(Record(name));
+		algo.run(records.back().logger);
+	}
+
+	void dump(std::ostream &os)
+	{
+		for(Record &r : records)
+		{
+			for(auto &rr : r.logger.records)
+				os << format("%, %, %\n",r.name,rr.iteration,rr.fitness);
+		}
+	}
+  };
 }
 
 #endif  // PAAL_SUPERLOGGER_H_
