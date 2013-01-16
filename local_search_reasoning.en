@@ -34,7 +34,7 @@ his own code.
 
 [concept] PRNG has to be shared, since only 1 seed is expected to be provided and using multiple PRNGs can cause conditional probabilities
 
-[concept] ProgressCtrl (progress controller) - is usually implemented as a time/iteration limit or sufficiency treshold.
+[concept] ProgressCtrl (progress controller) - is usually implemented as a time/iteration limit or sufficiency threshold.
 None of these are problem dependent, hence this component can be effectively extracted from the design.
 
 [concept] StepCtrl (step controller) - component deciding whether to perform a step - represents the metaheuristic used.
