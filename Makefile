@@ -3,7 +3,7 @@ OPTIMIZATIONS := -O2
 
 CXX := g++ -I ./
 CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTIMIZATIONS)
-LDFLAGS := -lrt
+LDFLAGS := -lrt -lboost_program_options
 LDFLAGS_GTEST := -lgtest -lgtest_main
 
 # sources
@@ -39,7 +39,7 @@ $(DEPENDS) : %.d : %.cpp
 	@echo -e "\t"$(CXX) $(CXXFLAGS) -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@
 
 # link main objects
-$(MAIN) : % : %.o
+$(MAIN) : % : %.o $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
 
 # link gtest objects

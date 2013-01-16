@@ -13,7 +13,7 @@ namespace tsp
 	{
 		template<typename Cycle>
 			CycleWalker(const Matrix &_matrix, Cycle &cycle, Random &_random) :
-				matrix(_matrix), random(_random), next(cycle), best(cycle)
+				matrix(_matrix), random(_random), next(cycle), best(cycle), steps(0)
 		{
 			assert(matrix.size1()==matrix.size2() && matrix.size1()==cycle.size());
 			best_fitness = next_fitness = fitness(matrix,next);
@@ -26,6 +26,7 @@ namespace tsp
 
 		typename Matrix::value_type new_fitness;
 		Split split;
+		uint32_t steps;
 		
 		void prepare()
 		{
@@ -43,6 +44,7 @@ namespace tsp
 		{
 			cycle_reverse(next,split.begin,split.end);
 			next_fitness = new_fitness;
+			++steps;
 		}
 	};	
 }

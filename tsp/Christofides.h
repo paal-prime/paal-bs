@@ -1,9 +1,10 @@
-// Piotr Jaszkowski
+// Copyright 2013 <przed_deadlinem_zdarzymy>
 #ifndef TSP_CHRISTOFIDES_H_
 #define TSP_CHRISTOFIDES_H_
 
 #include<boost/graph/adjacency_list.hpp>
 #include<boost/foreach.hpp>
+
 #include<cstdint>
 #include<cstddef>
 #include<cstdlib>
@@ -33,7 +34,6 @@ using boost::out_edges;
 using boost::undirectedS;
 using boost::vecS;
 
-
 namespace tsp {
   // Creates minimum spanning tree using Prim's algorithm.
   template<typename GraphIn, typename GraphOut>
@@ -50,20 +50,20 @@ namespace tsp {
     list<int> unused;
     // We are not adding 0, as it's starting point.
     for (size_t i = 1; i < size; ++i) {
-    	unused.push_back(i);
+        unused.push_back(i);
     }
     auto next = unused.begin();
     for (size_t i = 1; i < size; ++i) {
       min = INT_MAX;
       for (auto it = unused.begin(); it != unused.end(); ++it) {
-		  if (dist[*it] > graph(current, *it)) {
-			dist[*it] = graph(current, *it);
-			edge[*it] = current;
-		  }
-		  if (dist[*it] < min) {
-			min = dist[*it];
-			next = it;
-		  }
+          if (dist[*it] > graph(current, *it)) {
+            dist[*it] = graph(current, *it);
+            edge[*it] = current;
+          }
+          if (dist[*it] < min) {
+            min = dist[*it];
+            next = it;
+          }
       }
       add_edge(*next, edge[*next], out);
       current = *next;
@@ -86,8 +86,8 @@ namespace tsp {
   // Blossom algorithm.
   template<typename GraphIn, typename GraphOut, typename CoordType = double>
   void even_odd_vertices(const GraphIn &graph, GraphOut &out,
-		  	  	  	  	 std::string ewt = "", CoordType* X = nullptr,
-		  	  	  	  	 CoordType* Y = nullptr) {
+                                 std::string ewt = "", CoordType* X = nullptr,
+                                 CoordType* Y = nullptr) {
     std::vector<int> oddV;
     for (size_t v = 0; v < graph.size1(); ++v) {
       if (out_degree(v, out) % 2) {
@@ -95,28 +95,28 @@ namespace tsp {
       }
     }
 
-	PerfectMatching::Options options;
-	GeomPerfectMatching::GPMOptions gpm_options;
-	options.verbose = false;
+    PerfectMatching::Options options;
+    GeomPerfectMatching::GPMOptions gpm_options;
+    options.verbose = false;
 #ifdef DEBUG_CHRIST
     options.verbose = true;
 #endif
 
     if (ewt != "" && X != nullptr && Y != nullptr) {
-    	GeomPerfectMatching gpm(oddV.size(), 2);
-    	gpm.options = options;
-    	if(ewt == "CEIL_2D")
-    		gpm_options.euc_2d = false;
-    	gpm.gpm_options = gpm_options;
-    	double point[2];
-    	for (size_t i = 0; i < oddV.size(); ++i) {
-    		point[0] = X[oddV[i]];
-    		point[1] = Y[oddV[i]];
-    		gpm.AddPoint(point);
-    	}
-    	for (size_t i = 0; i < oddV.size()/2; ++i) {
-    		gpm.AddInitialEdge(2*i, 2*i + 1);
-    	}
+        GeomPerfectMatching gpm(oddV.size(), 2);
+        gpm.options = options;
+        if (ewt == "CEIL_2D")
+            gpm_options.euc_2d = false;
+        gpm.gpm_options = gpm_options;
+        double point[2];
+        for (size_t i = 0; i < oddV.size(); ++i) {
+            point[0] = X[oddV[i]];
+            point[1] = Y[oddV[i]];
+            gpm.AddPoint(point);
+        }
+        for (size_t i = 0; i < oddV.size()/2; ++i) {
+            gpm.AddInitialEdge(2*i, 2*i + 1);
+        }
         gpm.Solve();
         for (size_t i = 0; i < oddV.size(); ++i) {
           int m = oddV[gpm.GetMatch(i)];
@@ -124,19 +124,19 @@ namespace tsp {
             add_edge(oddV[i], m, out);
         }
     } else {
-		PerfectMatching pm(oddV.size(), oddV.size() * oddV.size() / 2);
-		pm.options = options;
-		for (size_t i = 0; i < oddV.size(); ++i) {
-		  for (size_t j = i + 1; j < oddV.size(); ++j) {
-			pm.AddEdge(i, j, graph(oddV[i], oddV[j]));
-		  }
-		}
-	    pm.Solve();
-	    for (size_t i = 0; i < oddV.size(); ++i) {
-	      int m = oddV[pm.GetMatch(i)];
-	      if (m > oddV[i])
-	        add_edge(oddV[i], m, out);
-	    }
+        PerfectMatching pm(oddV.size(), oddV.size() * oddV.size() / 2);
+        pm.options = options;
+        for (size_t i = 0; i < oddV.size(); ++i) {
+          for (size_t j = i + 1; j < oddV.size(); ++j) {
+            pm.AddEdge(i, j, graph(oddV[i], oddV[j]));
+          }
+        }
+        pm.Solve();
+        for (size_t i = 0; i < oddV.size(); ++i) {
+          int m = oddV[pm.GetMatch(i)];
+          if (m > oddV[i])
+            add_edge(oddV[i], m, out);
+        }
     }
 
 #ifdef DEBUG_CHRIST
@@ -205,9 +205,9 @@ namespace tsp {
     CycleList* change = cycle;
     change->vertex = start;
     while (to_do != done_overall) {
-    	done_this_iter = find_cycle<Graph>(graph, cycle + done_overall,
-    									   added.get(), toCheck,
-    									   change->vertex);
+        done_this_iter = find_cycle<Graph>(graph, cycle + done_overall,
+                                           added.get(), toCheck,
+                                           change->vertex);
       (cycle + done_overall + done_this_iter - 1)->next = change->next;
       change->next = cycle + done_overall;
       done_overall += done_this_iter;
@@ -222,7 +222,7 @@ namespace tsp {
     }
 #ifdef DEBUG_CHRIST
     cout << "Eulerian cycle" << endl;
-    CycleList* current = cycle.get();
+    CycleList* current = cycle;
     for (int i = 0; i < to_do; ++i) {
       cout << current->vertex << " ";
       current = current->next;
@@ -258,16 +258,16 @@ namespace tsp {
 
   template<typename Graph, typename Cycle, typename CoordType = double>
   void christofides(const Graph &graph, Cycle &cycle, size_t size,
-		  	  	    std::string ewt = "", CoordType* X = nullptr,
-		  	  	    CoordType* Y = nullptr) {
+                        std::string ewt = "", CoordType* X = nullptr,
+                        CoordType* Y = nullptr) {
     typedef adjacency_list<vecS, vecS, undirectedS> AdjList;
     AdjList _graph(size);
     mst_prim<Graph, AdjList>(graph, _graph, size);
 
     if (X != nullptr && Y != nullptr && ewt != "") {
-    	even_odd_vertices<Graph, AdjList, CoordType>(graph, _graph, ewt, X, Y);
+        even_odd_vertices<Graph, AdjList, CoordType>(graph, _graph, ewt, X, Y);
     } else {
-    	even_odd_vertices<Graph, AdjList>(graph, _graph);
+        even_odd_vertices<Graph, AdjList>(graph, _graph);
     }
 
     int edge_num = num_edges(_graph);
