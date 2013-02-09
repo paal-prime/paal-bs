@@ -1,5 +1,5 @@
 IGNORED_WARN := -Wno-vla -Wno-unused-parameter
-OPTIMIZATIONS := -O2
+OPTIMIZATIONS := -O2 -g
 
 CXX := g++ -I ./
 CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTIMIZATIONS)
@@ -44,7 +44,7 @@ $(MAIN) : % : %.o
 
 # link gtest objects
 $(GTEST) : % : $(GTESTOBJECTS)
-	$(CXX) $(GTESTOBJECTS) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@ $(GTESTOBJECTS)
 
 clean:
 	-rm -f *.o $(MAIN) $(GTEST) $(ALLOBJECTS) $(DEPENDS)
