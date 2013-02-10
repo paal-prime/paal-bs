@@ -34,8 +34,10 @@ namespace mcts {
       if (is_leaf()) {
         auto moves = state.moves();
         children_.resize(moves.size());
-        for (size_t i = 0; i < moves.size(); i++) {
-          children_[i].reset(new node_type(moves[i]));
+        size_t i = 0;
+        for (auto m : moves) {
+          children_[i].reset(new node_type(m));
+          ++i;
         }
       }
     }

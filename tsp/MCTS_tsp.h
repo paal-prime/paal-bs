@@ -29,54 +29,67 @@ namespace tsp {
     }
   };
 
-  template<typename Matrix> struct TSPState {
-    const Matrix& matrix_;
-    size_t length_;
-    size_t first_vertex_;
-    size_t last_vertex_;
-    Fitness cost_;
-    std::vector<bool> in_path_;
+  template<typename Matrix> class TSPState {
+    private:
+      const Matrix& matrix_;
+      size_t length_;
+      size_t first_vertex_;
+      size_t last_vertex_;
+      std::vector<bool> in_path_;
+      std::vector<TSPMove> default_moves_;
+    public:
+      Fitness cost_;
 
-    explicit TSPState(const Matrix& matrix) : matrix_(matrix),
+      explicit TSPState(const Matrix& matrix) : matrix_(matrix),
       length_(0), last_vertex_(kNoVertex), cost_(0) {
-      in_path_.resize(matrix.size1(), false);
-    }
-
-    bool is_terminal() const {
-      return length_ == in_path_.size();
-    }
-
-    void apply(const TSPMove& move) {
-      assert(!in_path_[move.vertex_]);
-      in_path_[move.vertex_] = true;
-      length_++;
-      if (last_vertex_ != kNoVertex) {
-        cost_ += matrix_(last_vertex_, move.vertex_);
-      } else {
-        first_vertex_ = move.vertex_;
+        in_path_.resize(matrix.size1(), false);
       }
-      last_vertex_ = move.vertex_;
-      if (is_terminal()) {
-        cost_ += matrix_(last_vertex_, first_vertex_);
+
+      bool is_terminal() const {
+        return length_ == in_path_.size();
       }
-    }
 
-    void apply_default() {
-      std::vector<TSPMove> ms = moves();
-      assert(!ms.empty());
-      apply(ms[rand() % ms.size()]);  // TODO(stupaq): fix it!
-    }
-
-    std::vector<TSPMove> moves() const {
-      std::vector<TSPMove> ms;
-      for (size_t i = 0; i < in_path_.size(); i++) {
-        if (!in_path_[i]) {
-          ms.push_back(TSPMove(i));
+      void apply(const TSPMove& move) {
+        assert(!in_path_[move.vertex_]);
+        in_path_[move.vertex_] = true;
+        length_++;
+        if (!default_moves_.empty()
+            && default_moves_.back() == move) {
+          default_moves_.pop_back();
+        } else {
+          default_moves_.clear();
+        }
+        if (last_vertex_ != kNoVertex) {
+          cost_ += matrix_(last_vertex_, move.vertex_);
+        } else {
+          first_vertex_ = move.vertex_;
+        }
+        last_vertex_ = move.vertex_;
+        if (is_terminal()) {
+          cost_ += matrix_(last_vertex_, first_vertex_);
         }
       }
-      assert(in_path_.size() == ms.size() + length_);
-      return ms;
-    }
+
+      void apply_default() {
+        assert(!is_terminal());
+        if (default_moves_.empty()) {
+          default_moves_ = moves();
+          std::random_shuffle(default_moves_.begin(), default_moves_.end());
+        }
+        assert(!default_moves_.empty());
+        apply(default_moves_.back());
+      }
+
+      const std::vector<TSPMove> moves() const {
+        std::vector<TSPMove> ms;
+        for (size_t i = 0; i < in_path_.size(); i++) {
+          if (!in_path_[i]) {
+            ms.push_back(TSPMove(i));
+          }
+        }
+        assert(in_path_.size() == ms.size() + length_);
+        return ms;
+      }
   };
 
   struct TSPPolicy {
