@@ -3,21 +3,23 @@
 #include <tsp/TSPLIB.h>
 #include <tsp/MCTS.h>
 #include <tsp/MCTS_tsp.h>
+#include <random>
 #include <iostream>
 
 TEST(MCTS, TSPBuildPath) {
-  srand(123432143);
-  tsp::TSPLIB_Directory dir("./TSPLIB/symmetrical/");
-  tsp::TSPLIB_Matrix matrix;
+  using namespace tsp;
+  TSPLIB_Directory dir("./TSPLIB/symmetrical/");
+  TSPLIB_Matrix matrix;
   dir.graphs[25].load(matrix);
-  tsp::TSPState<tsp::TSPLIB_Matrix> state(matrix);
-  assert(state.moves().size() == matrix.size1());
-  mcts::MCTS<tsp::TSPMove, tsp::TSPState<tsp::TSPLIB_Matrix>, tsp::TSPPolicy>
-    mct(state, tsp::TSPPolicy());
-  size_t samples = 35000;
-  double q = .93;
+  TSPState<TSPLIB_Matrix> state(matrix);
+  std::mt19937 random;
+  TSPPolicy<std::mt19937> policy(random);
+  mcts::MCTS < TSPMove, TSPState<TSPLIB_Matrix>,
+       TSPPolicy<std::mt19937> > mct(state, policy);
+  size_t samples = 75000;
+  double q = .85;
   while (!mct.state_.is_terminal()) {
-    tsp::TSPMove move = mct.search(samples);
+    TSPMove move = mct.search(samples);
     mct.apply(move);
     samples *= q;
     std::cout << move << '\n';

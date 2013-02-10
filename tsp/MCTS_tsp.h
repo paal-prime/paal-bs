@@ -37,11 +37,12 @@ namespace tsp {
       size_t last_vertex_;
       std::vector<bool> in_path_;
       std::vector<TSPMove> default_moves_;
+
     public:
       Fitness cost_;
 
       explicit TSPState(const Matrix& matrix) : matrix_(matrix),
-      length_(0), last_vertex_(kNoVertex), cost_(0) {
+        length_(0), last_vertex_(kNoVertex), cost_(0) {
         in_path_.resize(matrix.size1(), false);
       }
 
@@ -70,11 +71,11 @@ namespace tsp {
         }
       }
 
-      void apply_default() {
+      template<typename Random> void apply_default(Random& random) {
         assert(!is_terminal());
         if (default_moves_.empty()) {
           default_moves_ = moves();
-          std::random_shuffle(default_moves_.begin(), default_moves_.end());
+          std::shuffle(default_moves_.begin(), default_moves_.end(), random);
         }
         assert(!default_moves_.empty());
         apply(default_moves_.back());
@@ -92,47 +93,55 @@ namespace tsp {
       }
   };
 
-  struct TSPPolicy {
-    const double kLCBParam = .46;
-    const double kExpandVisits = 500;
+  template<typename Random> class TSPPolicy {
+      const double kLCBParam = .46;
+      const double kExpandVisits = 1000;
 
-    Fitness combine_estimate(Fitness previous, Fitness sample, size_t visits) {
-      if (visits == 1) {
-        return sample;
-      } else {
-        return std::min(previous, sample);
+    private:
+      Random& random_;
+
+    public:
+      explicit TSPPolicy(Random& random) : random_(random) {
       }
-    }
 
-    template<typename State> Fitness get_estimate(const State& state) {
-      return state.cost_;
-    }
-
-    template<typename Node, typename State>
-    Node* best_child(Node* parent, const State& state) {
-      Fitness best_est = std::numeric_limits<Fitness>::infinity();
-      Node* best_node = NULL;
-      assert(!parent->children_.empty());
-      for (auto& node : parent->children_) {
-        Fitness lcb = node->estimate_;
-        if (parent->visits_ == 0 || node->visits_ == 0) {
-          lcb -= std::numeric_limits<Fitness>::infinity();
-        } else {
-          lcb *= 1 - kLCBParam * sqrt(log(parent->visits_) / node->visits_);
-        }
-        if (lcb < best_est) {
-          best_est = lcb;
-          best_node = node.get();
-        }
+      Fitness combine_estimate(Fitness estimate, Fitness sample,
+          size_t visits) {
+        return (visits == 1) ? sample : std::min(estimate, sample);
       }
-      assert(best_node != NULL);
-      return best_node;
-    }
 
-    template<typename Node, typename State> bool do_expand(const Node* node,
-        const State& state) {
-      return node->visits_ >= kExpandVisits;
-    }
+      template<typename State> Fitness get_estimate(const State& state) {
+        return state.cost_;
+      }
+
+      template<typename Node, typename State>
+      Node* best_child(Node* parent, const State& state) {
+        Fitness best_est = std::numeric_limits<Fitness>::infinity();
+        Node* best_node = NULL;
+        assert(!parent->children_.empty());
+        for (auto& node : parent->children_) {
+          Fitness lcb = node->estimate_;
+          if (parent->visits_ == 0 || node->visits_ == 0) {
+            lcb -= std::numeric_limits<Fitness>::infinity();
+          } else {
+            lcb *= 1 - kLCBParam * sqrt(log(parent->visits_) / node->visits_);
+          }
+          if (lcb < best_est) {
+            best_est = lcb;
+            best_node = node.get();
+          }
+        }
+        assert(best_node != NULL);
+        return best_node;
+      }
+
+      std::mt19937& get_random() {
+        return random_;
+      }
+
+      template<typename Node, typename State> bool do_expand(const Node* node,
+          const State& state) {
+        return node->visits_ >= kExpandVisits;
+      }
   };
 }
 

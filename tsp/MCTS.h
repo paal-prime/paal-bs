@@ -45,7 +45,7 @@ namespace mcts {
     template<typename Stream, typename MoveType> friend
     Stream& operator<<(Stream& out, const Node<MoveType>& node) {
       out << node.move_ << "\tv:" << node.visits_ << "\te:"
-        << node.estimate_ << "\tl:" << node.is_leaf();
+          << node.estimate_ << "\tl:" << node.is_leaf();
       return out;
     }
   };
@@ -60,7 +60,7 @@ namespace mcts {
 
       Fitness default_policy(State& state) {
         while (!state.is_terminal()) {
-          state.apply_default();
+          state.apply_default(policy_.get_random());
         }
         return policy_.get_estimate(state);
       }
