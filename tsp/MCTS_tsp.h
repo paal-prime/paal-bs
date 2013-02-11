@@ -88,14 +88,17 @@ namespace tsp {
             ms.push_back(TSPMove(i));
           }
         }
-        assert(in_path_.size() == ms.size() + length_);
+        assert(ms.size() == moves_count());
         return ms;
+      }
+
+      size_t moves_count() const {
+        return in_path_.size() - length_;
       }
   };
 
   template<typename Random> class TSPPolicy {
-      const double kLCBParam = .46;
-      const double kExpandVisits = 1000;
+      const double kLCBParam = 1.0;
 
     private:
       Random& random_;
@@ -106,7 +109,8 @@ namespace tsp {
 
       Fitness combine_estimate(Fitness estimate, Fitness sample,
           size_t visits) {
-        return (visits == 1) ? sample : std::min(estimate, sample);
+        return (visits == 1) ? sample :
+          (estimate * (visits - 1) + sample) / visits;
       }
 
       template<typename State> Fitness get_estimate(const State& state) {
@@ -140,7 +144,7 @@ namespace tsp {
 
       template<typename Node, typename State> bool do_expand(const Node* node,
           const State& state) {
-        return node->visits_ >= kExpandVisits;
+        return node->visits_ >= state.moves_count();
       }
   };
 }

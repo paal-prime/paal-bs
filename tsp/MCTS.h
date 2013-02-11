@@ -13,7 +13,7 @@ namespace mcts {
   template<typename Move> struct Node {
     typedef Node<Move> node_type;
 
-    Move move_;
+    const Move move_;
     size_t visits_ = 0;
     Fitness estimate_ = 0;
     std::vector<std::unique_ptr<node_type> > children_;
@@ -108,6 +108,7 @@ namespace mcts {
           std::vector<node_type*> root_path;
           State leaf = tree_policy(root_path);
           Fitness estimate = default_policy(leaf);
+          assert(root_path.front() == root_.get());
           update_back(root_path, estimate);
         }
         Fitness best_fit = std::numeric_limits<Fitness>::infinity();
@@ -136,8 +137,9 @@ namespace mcts {
 
       template<typename Stream, typename M, typename S, typename P>
       friend Stream& operator<<(Stream& out, const MCTS<M, S, P>& tree) {
+        out << "root: " << *tree.root_ << '\n';
         for (auto& node : tree.root_->children_) {
-          out << *node << std::endl;
+          out << *node << '\n';
         }
         return out;
       }

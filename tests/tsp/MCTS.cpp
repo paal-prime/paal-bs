@@ -16,13 +16,14 @@ TEST(MCTS, TSPBuildPath) {
   TSPPolicy<std::mt19937> policy(random);
   mcts::MCTS < TSPMove, TSPState<TSPLIB_Matrix>,
        TSPPolicy<std::mt19937> > mct(state, policy);
-  size_t samples = 75000;
-  double q = .85;
+  size_t samples = 20000;
+  double q = .95;
   while (!mct.state_.is_terminal()) {
     TSPMove move = mct.search(samples);
+    std::cerr << mct;
     mct.apply(move);
     samples *= q;
-    std::cout << move << '\n';
+    std::cout << "move: " << move << "\n\n";
   }
   std::cout << "res: " << mct.state_.cost_ << std::endl;
 }
