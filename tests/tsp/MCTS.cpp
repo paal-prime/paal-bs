@@ -19,6 +19,10 @@ TEST(MCTS, TSPBuildPath) {
   size_t samples = 20000;
   double q = .95;
   while (!mct.state_.is_terminal()) {
+    if (mct.state_.moves_count() < 10) {
+      mct.state_.exhaustive_search();
+      break;
+    }
     TSPMove move = mct.search(samples);
     std::cerr << mct;
     mct.apply(move);

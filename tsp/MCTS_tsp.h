@@ -36,7 +36,6 @@ namespace tsp {
       size_t first_vertex_;
       size_t last_vertex_;
       std::vector<bool> in_path_;
-      std::vector<TSPMove> default_moves_;
 
     public:
       Fitness cost_;
@@ -51,15 +50,10 @@ namespace tsp {
       }
 
       void apply(const TSPMove& move) {
+        assert(!is_terminal());
         assert(!in_path_[move.vertex_]);
         in_path_[move.vertex_] = true;
         length_++;
-        if (!default_moves_.empty()
-            && default_moves_.back() == move) {
-          default_moves_.pop_back();
-        } else {
-          default_moves_.clear();
-        }
         if (last_vertex_ != kNoVertex) {
           cost_ += matrix_(last_vertex_, move.vertex_);
         } else {
@@ -71,21 +65,25 @@ namespace tsp {
         }
       }
 
-      template<typename Random> void apply_default(Random& random) {
-        assert(!is_terminal());
-        if (default_moves_.empty()) {
-          default_moves_ = moves();
-          std::shuffle(default_moves_.begin(), default_moves_.end(), random);
+      template<typename Random> Fitness default_playout(Random& random) {
+        auto left_moves = moves();
+        std::shuffle(left_moves.begin(), left_moves.end(), random);
+        for (auto m : left_moves) {
+          if (moves_count() < 5) {  // TODO(stupaq): this makes things worse
+            exhaustive_search();
+            break;
+          }
+          apply(m);
         }
-        assert(!default_moves_.empty());
-        apply(default_moves_.back());
+        assert(is_terminal());
+        return cost_;
       }
 
-      const std::vector<TSPMove> moves() const {
-        std::vector<TSPMove> ms;
+      template<typename Move = TSPMove> const std::vector<Move> moves() const {
+        std::vector<Move> ms;
         for (size_t i = 0; i < in_path_.size(); i++) {
           if (!in_path_[i]) {
-            ms.push_back(TSPMove(i));
+            ms.push_back(Move(i));
           }
         }
         assert(ms.size() == moves_count());
@@ -94,6 +92,34 @@ namespace tsp {
 
       size_t moves_count() const {
         return in_path_.size() - length_;
+      }
+
+      void exhaustive_search() {
+        assert(!is_terminal());
+        assert(length_ > 0);
+        auto left_vertices = moves<size_t>();
+        // assertion: path is sorted
+        Fitness best_cost = std::numeric_limits<Fitness>::infinity();
+        do {
+          size_t last = last_vertex_;
+          Fitness cost = 0;
+          for (auto v : left_vertices) {
+            cost += matrix_(last, v);
+            last = v;
+          }
+          cost += matrix_(last, first_vertex_);
+          if (cost < best_cost) {
+            best_cost = cost;
+          }
+        } while(std::next_permutation(left_vertices.begin(),
+              left_vertices.end()));
+        cost_ += best_cost;
+        // we're not reproducing moves sequence but making state terminal
+        length_ = in_path_.size();
+        for (auto v : left_vertices) {
+          in_path_[v] = true;
+        }
+        assert(is_terminal());
       }
   };
 
@@ -111,10 +137,6 @@ namespace tsp {
           size_t visits) {
         return (visits == 1) ? sample :
           (estimate * (visits - 1) + sample) / visits;
-      }
-
-      template<typename State> Fitness get_estimate(const State& state) {
-        return state.cost_;
       }
 
       template<typename Node, typename State>

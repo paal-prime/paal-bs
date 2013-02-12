@@ -59,10 +59,7 @@ namespace mcts {
       std::unique_ptr<node_type> root_;  // it does not hold any move in fact
 
       Fitness default_policy(State& state) {
-        while (!state.is_terminal()) {
-          state.apply_default(policy_.get_random());
-        }
-        return policy_.get_estimate(state);
+        return state.default_playout(policy_.get_random());
       }
 
       template<typename Stack> State tree_policy(
