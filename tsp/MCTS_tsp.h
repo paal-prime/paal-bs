@@ -39,7 +39,7 @@ namespace tsp {
 
     private:
       const Matrix& matrix_;
-      size_t length_;
+      size_t left_count_;
       size_t first_vertex_;
       size_t last_vertex_;
       std::vector<bool> in_path_;
@@ -67,24 +67,22 @@ namespace tsp {
       Fitness cost_;
 
       explicit TSPState(const Matrix& matrix) : matrix_(matrix),
-        length_(0), last_vertex_(kNoVertex), cost_(0) {
+      left_count_(matrix.size1() - 1), first_vertex_(matrix.size1() - 1),
+      last_vertex_(first_vertex_), cost_(0) {
         in_path_.resize(matrix.size1(), false);
+        in_path_[first_vertex_] = true;
       }
 
       bool is_terminal() const {
-        return length_ == in_path_.size();
+        return left_count_ == 0;
       }
 
       void apply(const TSPMove& move) {
         assert(!is_terminal());
         assert(!in_path_[move.vertex_]);
         in_path_[move.vertex_] = true;
-        length_++;
-        if (last_vertex_ != kNoVertex) {
-          cost_ += matrix_(last_vertex_, move.vertex_);
-        } else {
-          first_vertex_ = move.vertex_;
-        }
+        left_count_--;
+        cost_ += matrix_(last_vertex_, move.vertex_);
         last_vertex_ = move.vertex_;
         if (is_terminal()) {
           cost_ += matrix_(last_vertex_, first_vertex_);
@@ -120,23 +118,21 @@ namespace tsp {
       }
 
       size_t moves_count() const {
-        return in_path_.size() - length_;
+        return left_count_;
       }
 
       void exhaustive_search_min() {
         assert(!is_terminal());
-        assert(length_ > 0);
         Fitness best_cost = exhaustive_accumulate(min<Fitness>(),
             std::numeric_limits<Fitness>::infinity());
         cost_ += best_cost;
         // we're not reproducing moves sequence but making state terminal
-        length_ = in_path_.size();
+        left_count_ = 0;
         assert(is_terminal());
       }
 
       void exhaustive_search_mean() {
         assert(!is_terminal());
-        assert(length_ > 0);
         size_t total_count = 1;
         for (size_t i = moves_count(); i > 1; i--) {
           total_count *= i;
@@ -144,7 +140,7 @@ namespace tsp {
         Fitness total_cost = exhaustive_accumulate(std::plus<Fitness>(), 0);
         cost_ += total_cost / total_count;
         // we're not reproducing moves sequence but making state terminal
-        length_ = in_path_.size();
+        left_count_ = 0;
         assert(is_terminal());
       }
   };
