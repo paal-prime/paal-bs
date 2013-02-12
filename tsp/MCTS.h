@@ -126,7 +126,9 @@ namespace mcts {
             node_type* new_root = node.release();
             root_.reset(new_root);
             state_.apply(move);
-            root_->expand(state_);
+            if (!state_.is_terminal()) {
+              root_->expand(state_);
+            }
             break;
           }
         }
