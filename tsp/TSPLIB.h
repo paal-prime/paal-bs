@@ -20,30 +20,55 @@
 
 namespace tsp
 {
-  struct TSPLIB_Matrix  // implements Matrix
+  /**
+   * @brief [implements Matrix] represents TSPLIB test cases
+   */
+  struct TSPLIB_Matrix
   {
     TSPLIB_Matrix() : size_(0) {}
     typedef double value_type;
-    typedef int (*Dist)(Point);
-    int operator()(size_t i, size_t j) const
+    
+	/** @brief type of a metric */
+	typedef int (*Dist)(Point);
+    
+	int operator()(size_t i, size_t j) const
     {
       return dist_ ? dist_(pos[i] - pos[j]) : mtx(i, j);
     }
 
-    static int eucl_dist(Point d)
+    /**
+	 * @brief TSPLIB EUCL_DIST
+	 * @param d position difference vector
+	 */
+	static int eucl_dist(Point d)
     {
       return int(.5 + sqrt(d.sqr()));  // NOLINT
     }
+
+    /**
+	 * @brief TSPLIB CEIL_DIST
+	 * @param d position difference vector
+	 */
     static int ceil_dist(Point d)
     {
       return ceil(sqrt(d.sqr()));
     }
+
+    /**
+	 * @brief TSPLIB ATT_DIST
+	 * @param d position difference vector
+	 */
     static int att_dist(Point d)
     {
       return ceil(sqrt(d.sqr() / 10));
     }
 
-    void resize(size_t _size, size_t _size2, Dist _dist = 0)
+    /**
+	 * @brief resizes matrix
+	 * @param _dist one of TSPLIB distance metrics, 0 if values are to be
+	 * 	stored explicitly
+	 */
+	void resize(size_t _size, size_t _size2, Dist _dist = 0)
     {
       assert(_size == _size2);
       if ((dist_ = _dist))
@@ -68,14 +93,29 @@ namespace tsp
       return size_;
     }
 
+	/** @brief currently used TSPLIB metric; 0 if values stored explicitly */
     Dist dist_;
+
+	/** @brief matrix dimension */
     size_t size_;
+
+	/** @brief explicit values representation; empty if dist_!=0 */
     boost::numeric::ublas::matrix<int> mtx;
-    std::vector<Point> pos;
+    
+	/** @brief represented points; empty if dist_==0 */
+	std::vector<Point> pos;
   };
 
+  /**
+   * @brief represents TSPLIB/ test case directory filled by
+   * 	./download_TSPLIB.sh
+   */
   struct TSPLIB_Directory
   {
+	/**
+	 * @brief WARNING: loads test cases' descriptions from {dir}/index
+	 * @param dir - path to the TSPLIB directory
+	 */
     explicit TSPLIB_Directory(const std::string &dir)
     {
       std::ifstream index((dir + "/index").c_str());
@@ -87,22 +127,38 @@ namespace tsp
           Graph(dir + "/" + header + ".tsp", optimal_fitness));
     }
 
+	/**
+	 * @brief internal test case description
+	 */
     struct Graph
     {
       Graph() {}
+	  /**
+	   * @param _filename
+	   * @param _optimal_fitness
+	   */
       Graph(const std::string &_filename, double _optimal_fitness) :
           filename(_filename), optimal_fitness(_optimal_fitness) {}
       std::string filename;
       double optimal_fitness;
 
-      // http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/TSPFAQ.html
+      /**
+	   * @brief input -> geo coordinate in radians conversion
+	   *
+	   * see: http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/TSPFAQ.html
+	   */
       static double geo_rad(double x)
       {
         const double PI = 3.141592;
         int deg = x;
         return PI*(int(deg) + 5*(x - deg) / 3) / 180;  // NOLINT
       }
-
+      
+	  /**
+	   * @brief geo distance between points with geo radian coordinates
+	   *
+	   * see: http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/TSPFAQ.html
+	   */
       static double geo_dist(Point a, Point b)
       {
         const double RRR = 6378.388;
@@ -113,6 +169,9 @@ namespace tsp
         return int(RRR * acos(.5*((1. + q1)*q2 - (1. - q1)*q3)) + 1.0);  // NOLINT
       }
 
+	  /**
+	   * @brief loads test case from file to m
+	   */
       void load(TSPLIB_Matrix &m)
       {
         std::ifstream is(filename.c_str());
@@ -193,6 +252,9 @@ namespace tsp
       }
     };
 
+	/**
+	 * @brief descriptions of represented test cases
+	 */
     std::vector<Graph> graphs;
 
     static void expect(std::istream &is, const std::string &pattern)

@@ -27,6 +27,7 @@ namespace tsp
   };
   */
   
+  /** @brief point on a 2D plane */
   struct Point
   {
     Point() {}
@@ -35,14 +36,21 @@ namespace tsp
     {
       return Point(x - b.x, y - b.y);
     }
+	/** @brief dot product with itself */
     double sqr() const
     {
       return x*x + y*y;
     }
+	/** @brief coordinates */
     double x, y;
   };
  
-  
+  /**
+   * @brief calculates cycle length
+   * @param matrix [implements Matrix] square matrix
+   * @param cycle [implelemts Cycle]
+   * @return cycle length
+   */
   template<typename Matrix, typename Cycle>
   double fitness(const Matrix &m, const Cycle &cycle)
   {
@@ -52,7 +60,11 @@ namespace tsp
     return f;
   }
 
-  // generates a random cycle from values [0,n)
+  /**
+   * @brief generates a random cycle from values [0,n)
+   * @param cycle [implements Cycle]
+   * @param Random [implements Random]
+   */
   template<typename Cycle, typename Random>
   void cycle_shuffle(Cycle &cycle, size_t n, Random &random)
   {
@@ -65,15 +77,23 @@ namespace tsp
     }
   }
 
-  // reverses [l,r) cycle segment
+  /**
+   * @brief reverses [l,r) cycle segment
+   * @param cycle [implements Cycle] 
+   *
+   * ASSUMPTION: l <= r <= cycle.size()
+   */
   template<typename Cycle>
   void cycle_reverse(Cycle &cycle, size_t l, size_t r)
   {
     while (l < r) std::swap(cycle[l++], cycle[--r]);
   }
 
-  // rotates cycle so that the first element is 0 and the second is
-  // its lower neighbour
+  /**
+   * rotates cycle so that the first element is 0 and the second is
+   * its lower neighbour
+   * @param cycle [implements Cycle]
+   */
   template<typename Cycle> void cycle_normalize(Cycle &cycle)
   {
     if (!cycle.size()) return;
@@ -89,17 +109,28 @@ namespace tsp
       cycle_reverse(cycle, 1, cycle.size());
   }
 
+  /** @brief represents a split of a cycle into 2 paths */
   struct Split
   {
+	/** see: @ref generate */
     uint32_t begin, end;
 
-    // splits cycle [0,n) into 2 intervals of length at least 2.
-    // resulting parts are [begin,end) and [end,begin)
-    // begin < end
-    // distribution is uniform
-
-    // expected length = n/3:
-    // integral x(1-x) / integral x = 1/3
+	/**
+     * @brief generates split of cycle [0,n) into 2 intervals
+	 * 	of length at least 2.
+	 *
+     * resulting parts are [@ref begin, @ref end) and [@ref end, @ref begin)
+	 *
+     * @ref begin < @ref end
+	 *
+     * distribution is uniform
+	 *
+     * expected length = n/3:
+     * integral x(1-x) / integral x = 1/3
+	 *
+	 * @param n cycle size in nodes
+	 * @param random [implements Random]
+	 */
     template<typename Random> void generate(uint32_t n, Random &random)
     {
       assert(n > 3);

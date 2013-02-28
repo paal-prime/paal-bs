@@ -10,7 +10,13 @@
 
 namespace tsp
 {
-  template<typename Matrix> struct TwoOptWalker  // implements Walker
+  /**
+   * @brief [implements Walker] 2-opt strategy
+   *
+   * see: http://en.wikipedia.org/wiki/2-opt
+   * @param Matrix [implements Matrix]
+   */
+  template<typename Matrix> struct TwoOptWalker
   {
     /*template<typename Random>
     TwoOptWalker(const Matrix &_matrix, Random &random) : matrix(_matrix)
@@ -19,6 +25,10 @@ namespace tsp
       cycle_shuffle(cycle, matrix.size1(), random);
     }*/
 
+	/**
+	 * @param _matrix [implements Matrix] problem definition (distance matrix)
+	 * @param _cycle [implements Cycle] initial solution
+	 */
     template<typename Cycle>
     TwoOptWalker(const Matrix &_matrix, const Cycle &_cycle) :
         matrix(_matrix), cycle(_cycle)
@@ -28,11 +38,13 @@ namespace tsp
       current_fitness_ = fitness(matrix, cycle);
     }
 
+private:
     const Matrix &matrix;
     double current_fitness_, next_fitness_;
     std::vector<size_t> cycle;
     Split split;
 
+public:
     double current_fitness()
     {
       return current_fitness_;
@@ -42,6 +54,9 @@ namespace tsp
       return next_fitness_;
     }
 
+	/**
+	 * generates step as a reverse of a random cycle segment
+	 */
     template<typename Random> void prepare_step(double progress, Random &random)
     {
       size_t n = matrix.size1();

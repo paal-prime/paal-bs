@@ -8,12 +8,16 @@
 
 namespace tsp
 {
-	struct EuclidMatrix  // implements Matrix
+	/**
+	 * implements Matrix concept
+	 *
+	 * Represents distances between vertices on a 2D euclidian plane.
+	 */
+	struct EuclidMatrix
 	{
-		/*
-		Represents distances between vertices on a 2D euclidian plane.
-		*/
-
+		/**
+		 * @brief euclidian distance between pos_i and pos_j
+		 */
 		double operator()(size_t i, size_t j) const
 		{ return sqrt((pos[i]-pos[j]).sqr()); }
 
@@ -26,6 +30,11 @@ namespace tsp
 			pos.resize(_size);
 		}
 
+		/**
+		 * @brief generates a set of random points for the matrix from [0,1)^2
+		 * @param _size number of points to generate
+		 * @param random (Random concept)
+		 */
 		template<typename Random> void generate(size_t _size, Random &random)
 		{
 			pos.resize(_size);
@@ -35,7 +44,10 @@ namespace tsp
 			//for(Point &p : pos) std::cout << format("(%,%)\n",p.x,p.y);
 		}
 
-    	std::vector<Point> pos;
+		/**
+		 * @brief represented points
+		 */
+		std::vector<Point> pos;
 	};
 }
 
