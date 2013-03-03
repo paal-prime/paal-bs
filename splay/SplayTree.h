@@ -1,65 +1,109 @@
-#ifndef TSP_SPLAYTREE_H_
-#define TSP_SPLAYTREE_H_
+#ifndef SPLAY_SPLAYTREE_H_
+#define SPLAY_SPLAYTREE_H_
 
 #include <boost/utility.hpp>
 #include <boost/iterator.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <algorithm>
 
-namespace tsp {
+namespace splay {
 
+  /**
+   * @param node root of a subtree
+   * @returns size of subtree
+   **/
   template<typename N> inline size_t node_size(N node) {
     return (node == NULL) ? 0 : node->size();
   }
 
+  /**
+   * Node of a SplayTree.
+   *
+   * Left/right relaxation should be undersstood as follows.
+   * Meaning of left/right field changes iff xor of all bits on the path to the
+   * root is 1. This enables us to reverse entire subtree in constant time (by
+   * flippint bit in root). Normalization is needed to determine which child is
+   * the real left/right. */
   template<typename V> class Node {
     public:
       typedef V value_type;
       typedef Node<value_type> node_type;
 
+      /** @param val stored value */
       explicit Node(const value_type &val) : val_(val) {
       }
+
+      /** @returns parent node */
       node_type *parent() {
         return parent_;
       }
+
+      /** @brief detaches this node from parent */
       void make_root() {
         parent_ = NULL;
       }
+
+      /** @returns true left child pointer */
       node_type *left() {
         normalize();
         return left_;
       }
+
+      /**
+       * @brief sets true left child pointer
+       * @param node new child
+       **/
       void set_left(node_type *node) {
         normalize();
         set_left_internal(node);
         update_size();
       }
+
+      /**
+       * @brief sets left child pointer (no relaxation)
+       * @param node new child
+       **/
       void set_left_internal(node_type *node) {
         left_ = node;
         if (node != NULL) {
           node->parent_ = this;
         }
       }
+
+      /** @returns true right child pointer */
       node_type *right() {
         normalize();
         return right_;
       }
+
+      /**
+       * @brief sets true right child pointer
+       * @param node new child
+       **/
       void set_right(node_type *node) {
         normalize();
         set_right_internal(node);
         update_size();
       }
+
+      /**
+       * @brief sets right child pointer (no relaxation)
+       * @param node new child
+       **/
       void set_right_internal(node_type *node) {
         right_ = node;
         if (node != NULL) {
           node->parent_ = this;
         }
       }
+
+      /** @brief recomputes subtree size from sizes of children's subtrees */
       void update_size() {
         size_ = 1 + ((left_ != NULL) ? left_->size_ : 0)
                 + ((right_ != NULL) ? right_->size_ : 0);
       }
 
+      /** @returns next in same tree according to infix order */
       node_type *next() {
         normalize_root_path();
         node_type *node = right();
@@ -79,6 +123,8 @@ namespace tsp {
           }
         }
       }
+
+      /** @returns previous in same tree according to infix order */
       node_type *prev() {
         normalize_root_path();
         node_type *node = left();
@@ -98,6 +144,8 @@ namespace tsp {
           }
         }
       }
+
+      /** @returns first node in subtree according to infix order */
       node_type *subtree_min() {
         node_type *node = this;
         while (node->left() != NULL) {
@@ -105,6 +153,8 @@ namespace tsp {
         }
         return node;
       }
+
+      /** @returns last node in subtree according to infix order */
       node_type *subtree_max() {
         node_type *node = this;
         while (node->right() != NULL) {
@@ -113,12 +163,17 @@ namespace tsp {
         return node;
       }
 
+      /** @returns size of subtree */
       size_t size() {
         return size_;
       }
+
+      /** @brief lazily reverses order in subtree */
       void subtree_reverse() {
         reversed_ ^= 1;
       }
+
+      /** @brief locally relaxes tree */
       void normalize() {
         if (reversed_) {
           std::swap(left_, right_);
@@ -131,6 +186,8 @@ namespace tsp {
           reversed_ = false;
         }
       }
+
+      /** @brief relaxes all nodes on path from root to this */
       void normalize_root_path() {
         node_type *node = parent();
         if (node != NULL) {
@@ -143,25 +200,17 @@ namespace tsp {
 
     private:
       static const bool kDefLeft = 0;
-
-      bool left_index() {
-        int index = kDefLeft;
-        node_type *el = this;
-        while (el != NULL) {
-          if (el->reversed_) {
-            ++index;
-          }
-          el = el->parent();
-        }
-        return (index % 2);
-      }
-
       node_type *left_ = NULL, *right_ = NULL;
       node_type *parent_ = NULL;
       bool reversed_ = false;
       size_t size_ = 1;
   };
 
+  /**
+   * SplayTree elements iterator.
+   *
+   * Traversing order is determined by template argument.
+   **/
   template<typename V, bool IsForward> class Iterator
     : public boost::iterator_facade <
     Iterator<V, IsForward>,
@@ -172,16 +221,29 @@ namespace tsp {
       typedef V value_type;
       typedef Node<value_type> node_type;
 
+      /** @brief iterator after last element */
       Iterator() : current_(NULL) {
       }
+
+      /**
+       * @brief iterator to element in given node
+       * @param node node storing element pointed by iterator
+       **/
       explicit Iterator(node_type *node) : current_(node) {
       }
+
+      /**
+       * @brief copy constructor
+       * @param other iterator to be copied
+       **/
       Iterator(const Iterator<value_type, IsForward> &other) :
         current_(other.current_) {
       }
 
     private:
       friend class boost::iterator_core_access;
+
+      /** @brief increments iterator */
       void increment() {
         if (IsForward) {
           current_ = current_->next();
@@ -189,6 +251,8 @@ namespace tsp {
           current_ = current_->prev();
         }
       }
+
+      /** @brief decrements iterator */
       void decrement() {
         if (IsForward) {
           current_ = current_->prev();
@@ -196,21 +260,42 @@ namespace tsp {
           current_ = current_->next();
         }
       }
+
+      /**
+       * @param other iterator to be compared with
+       * @returns true iff iterators point to the same node
+       **/
       bool equal(const Iterator<value_type, IsForward> &other) const {
         return this->current_ == other.current_;
       }
+
+      /** @returns reference to pointed element */
       value_type& dereference() const {
         return current_->val_;
       }
+
+      /** pointed node */
       node_type* current_;
   };
 
+  /** @brief splay policy */
   enum SplayImplEnum {
+    /** splaying goes from root, resulting tree is less ballanced */
     kTopDownUnbalanced,
+    /** splaying goes from root */
     kTopDown,
+    /** splaying goes from node to become root */
     kBottomUp
   };
 
+  /**
+   * Splay trees with logarithmic reversing of any subsequence.
+   *
+   * All tree operations are amortized logarithmic time in size of tree,
+   * each element is indexed by number of smaller elements than this element.
+   * Note that lookups are also amortized logarithmic in size of tree. Order of
+   * elements is induced from infix ordering of nodes storing these elements.
+   **/
   template<typename T, enum SplayImplEnum SplayImpl = kTopDownUnbalanced>
   class SplayTree {
     public:
@@ -222,37 +307,68 @@ namespace tsp {
       typedef const Iterator<value_type, false> const_reverse_iterator;
 
       SplayTree() {}
+
+      /**
+       * @brief constructs tree from elements between two iterators
+       * @param b iterator to first element
+       * @param e iterator to element after last
+       **/
       template<typename I> SplayTree(const I b, const I e) {
         root_ = build_tree(b, e);
       }
+
+      /**
+       * @brief creates tree from elements in std::vector
+       * @param array vector container
+       **/
       template<typename A> explicit SplayTree(const A &array) {
         root_ = build_tree(array, 0, array.size());
       }
+
       ~SplayTree() {
         dispose_tree(root_);
       }
+
+      /** @returns forward iterator to first element in container */
       iterator begin() {
         return (root_ == NULL) ? end() : iterator(root_->subtree_min());
       }
+
+      /** @returns forward iterator to element after last in container */
       iterator end() {
         return iterator();
       }
+
+      /** @returns reverse iterator to last element in container */
       reverse_iterator rbegin() {
         return (root_ == NULL) ? rend()
                : reverse_iterator(root_->subtree_max());
       }
+
+      /** @returns reverse iterator to element before first in container */
       reverse_iterator rend() {
         return reverse_iterator();
       }
+
+      /** @returns number of elements in tree */
       size_t size() const {
         return (root_ == NULL) ? 0 : root_->size();
       }
+
+      /** @returns true iff tree contains no elements */
       bool empty() {
         return (root_ == NULL);
       }
+
+      /** @param i index of referenced element */
       value_type& operator[](size_t i) const {
         return find(i)->val_;
       }
+
+      /**
+       * @brief splays tree according to splay policy
+       * @param i index of element to become root
+       **/
       node_type *splay(size_t i) {
         switch (SplayImpl) {
           case kTopDownUnbalanced:
@@ -264,6 +380,12 @@ namespace tsp {
             return root_;
         }
       }
+
+      /**
+       * @brief splits sequence, modified this contains elements {0, ..., i}
+       * @param i index of last element of this after modification
+       * @returns tree containing elements {i+1, ...}
+       **/
       SplayTree<value_type, SplayImpl> split_higher(size_t i) {
         splay(i);
         node_type *new_root = root_->right();
@@ -273,6 +395,12 @@ namespace tsp {
         }
         return SplayTree<value_type, SplayImpl>(new_root);
       }
+
+      /**
+       * @brief splits sequence, modified this contains elements {i, ...}
+       * @param i index of first element of this after modification
+       * @returns tree containing elements {0, ..., i-1}
+       **/
       SplayTree<value_type, SplayImpl> split_lower(size_t i) {
         splay(i);
         node_type *new_root = root_->left();
@@ -282,8 +410,13 @@ namespace tsp {
         }
         return SplayTree<value_type, SplayImpl>(new_root);
       }
-      template<enum SplayImplEnum S> void merge_right(
-          SplayTree<value_type, S> &other) {  // NOLINT
+
+      /**
+       * @brief merges given tree on the right of biggest the  element of this
+       * @param other tree to be merged
+       **/
+      template<enum SplayImplEnum S>
+      void merge_right(SplayTree<value_type, S> &other) {
         if (other.root_ == NULL) {
           return;
         }
@@ -292,8 +425,13 @@ namespace tsp {
         root_->set_right(other.root_);
         other.root_ = NULL;
       }
-      template<enum SplayImplEnum S> void merge_left(
-          SplayTree<value_type, S> &other) {  // NOLINT
+
+      /**
+       * @brief merges given tree on the left of the smallest element of this
+       * @param other tree to be merged
+       **/
+      template<enum SplayImplEnum S>
+      void merge_left(SplayTree<value_type, S> &other) {
         if (other.root_ == NULL) {
           return;
         }
@@ -302,6 +440,12 @@ namespace tsp {
         root_->set_left(other.root_);
         other.root_ = NULL;
       }
+
+      /**
+       * @brief reverses subsequence of elements with indexes in {i, ..., j}
+       * @param index of first element of subsequence
+       * @param index of last element of subsequence
+       **/
       void reverse(size_t i, size_t j) {
         assert(i <= j);
         // split lower
@@ -316,8 +460,14 @@ namespace tsp {
       }
 
     private:
+      /** @brief creates tree with givedn node as a root */
       explicit SplayTree(node_type *root) : root_(root) {
       }
+
+      /**
+       * @brief splays given node to tree root
+       * @param node node of a tree to be moved to root
+       **/
       void splay_internal(node_type *const node) {
         node_type *const parent = node->parent();
         if (node == root_) {
@@ -346,6 +496,11 @@ namespace tsp {
         }
         splay_internal(node);
       }
+
+      /**
+       * @brief splays node with given index to tree root
+       * @param i index of a node to become root
+       **/
       node_type *splay_down(size_t i) {
         node_type *parent = root_;
         node_type second_tree(-1);
@@ -411,6 +566,11 @@ namespace tsp {
 
         return parent;
       }
+
+      /**
+       * @brief rotates tree right over given node
+       * @param parent pivot of rotation
+       **/
       void rotate_right(node_type *parent) {
         node_type *const node = parent->left(),
                          *const grand = parent->parent();
@@ -428,6 +588,11 @@ namespace tsp {
           node->make_root();
         }
       }
+
+      /**
+       * @brief rotates tree left over given node
+       * @param parent pivot of rotation
+       **/
       void rotate_left(node_type *parent) {
         node_type *const node = parent->right(),
                          *const grand = parent->parent();
@@ -445,6 +610,13 @@ namespace tsp {
           node->make_root();
         }
       }
+
+      /**
+       * @brief recursively creates ballanced tree from a structure described
+       *        by two random access iterators
+       * @param b iterator to first element
+       * @param e iterator to element after last
+       **/
       template<typename I> node_type *build_tree(const I b, const I e) {
         if (b >= e) {
           return NULL;
@@ -455,6 +627,14 @@ namespace tsp {
         node->set_right(build_tree(b + m + 1, e));
         return node;
       }
+
+      /**
+       * @brief recursively creates ballanced tree from a structure with random
+       *        access operator []
+       * @param array structure holding data to be copied into tree
+       * @param b index of first element in structure to be placed in tree
+       * @param e index of element after last to be placed in tree
+       **/
       template<typename A> node_type *build_tree(const A &array,
           const size_t b, const size_t e) {
         if (b >= e) {
@@ -466,6 +646,11 @@ namespace tsp {
         node->set_right(build_tree(array, m + 1, e));
         return node;
       }
+
+      /**
+       * @brief recursively removes subtree
+       * @param node pointer to subtree to be removed
+       **/
       void dispose_tree(node_type *node) {
         if (node == NULL) {
           return;
@@ -474,6 +659,12 @@ namespace tsp {
         dispose_tree(node->right());
         delete node;
       }
+
+      /**
+       * @brief find n-th element in tree (counting from zero)
+       * @param i number of elements smaller than element to be returned
+       * @returns pointer to found node or NULL if doesn't exist
+       **/
       node_type *find(size_t i) const {
         node_type *node = root_;
         for (;;) {
@@ -492,17 +683,21 @@ namespace tsp {
           }
         }
       }
-      template<typename S, typename V, enum SplayImplEnum I> friend S& operator<<(
-        S &s, SplayTree<V, I> &tree);
 
+      /**
+       * @brief SplayTree stream output operator
+       * @param stream output stream
+       * @param tree splay tree
+       **/
+      template<typename S, typename V, enum SplayImplEnum I>
+      friend S& operator<<(S &stream, SplayTree<V, I> &tree) {
+        tree.root_->print_tree(stream);
+        return stream;
+      }
+
+      /** root node of a tree */
       node_type *root_ = NULL;
   };
-
-  template<typename S, typename T, enum SplayImplEnum I> S& operator<<(S &s, SplayTree<T, I> &tree) {
-    tree.root_->print_tree(s);
-    return s;
-  }
 }
 
-#endif  // TSP_SPLAYTREE_H_
-
+#endif  // SPLAY_SPLAYTREE_H_

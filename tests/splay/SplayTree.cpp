@@ -7,12 +7,12 @@
 #include <utility>
 #include <vector>
 
-#include "tsp/SplayTree.h"
+#include "splay/SplayTree.h"
 
-using tsp::SplayTree;
-using tsp::SplayImplEnum;
+using splay::SplayTree;
+using splay::SplayImplEnum;
 
-template<typename T, typename I> bool check_content(T &t, I begin, I end) { // NOLINT
+template<typename T, typename I> bool check_content(T &t, I begin, I end) {
   if (!std::equal(begin, end, t.begin())) {
     return false;
   }
@@ -29,7 +29,7 @@ template<typename T, typename I> bool check_content(T &t, I begin, I end) { // N
   return true;
 }
 
-template<typename T, typename I> bool check_random_splay(T &t, I begin, // NOLINT
+template<typename T, typename I> bool check_random_splay(T &t, I begin,
     I end, const size_t kM) {
   const size_t kN = end - begin;
   for (size_t i = 0; i < kM; i++) {
@@ -163,7 +163,7 @@ TEST(SplayTree, Reverse) {
 
 class SplayTreePerformance : public ::testing::Test {
   public:
-    static const enum SplayImplEnum splay_impl = tsp::kTopDownUnbalanced;
+    static const enum SplayImplEnum splay_impl = splay::kTopDownUnbalanced;
 
     static const int kN = 104729, kM = 26669;
     const uint32_t seed = 331u;
