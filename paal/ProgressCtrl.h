@@ -8,8 +8,10 @@
 
 namespace paal
 {
-  struct IterationCtrl  // implements ProgressCtrl
+  /** @brief [implements ProgressCtrl] progress = iterations passed / iterations available*/
+  struct IterationCtrl
   {
+  	/** @param _available_it iterations available */
     explicit IterationCtrl(size_t _available_it) :
         passed_it(0), available_it(_available_it) {}
     size_t passed_it, available_it;
@@ -19,6 +21,7 @@ namespace paal
     }
   };
 
+  /** @brief wrapper around clock_gettime, providing realtime in seconds */
   inline double realtime_sec()
   {
     timespec tv;
@@ -26,15 +29,23 @@ namespace paal
     return tv.tv_sec + tv.tv_nsec*1e-9;
   }
 
-  struct TimeCtrl  // implements ProgressCtrl
+  /** @brief [implements ProgressCtrl] progress = time passed / time available;
+   * time checking granularity has to be provided
+   *
+   * Works well if expected execution time of each iteration is constant.
+   */
+  struct TimeCtrl
   {
+    /**
+	 * @param _available_sec available time in seconds
+	 * @param _granularity_it number of iterations between time checkings
+	 */
     TimeCtrl(double _available_sec, size_t _granularity_it) :
         start_sec(realtime_sec()), available_sec(_available_sec), progress_(-1),
         passed_it(1), granularity_it(_granularity_it) {}
     double start_sec, available_sec, progress_;
     size_t passed_it, granularity_it;
 
-    // assumes that expected execution time of each iteration is constant
     double progress(double current_fitness)
     {
       if (!--passed_it)
@@ -46,7 +57,12 @@ namespace paal
     }
   };
 
-  struct TimeAutoCtrl  // implements ProgressCtrl
+  /** @brief [implements ProgressCtrl] progress = time passed / time available;
+   * time checking granularity is adjusted automatically
+   *
+   * Works well if execution time of iteration doesn't change rapidly.
+   */
+  struct TimeAutoCtrl
   {
     explicit TimeAutoCtrl(double _available_sec) :
         start_sec(realtime_sec()), checkpoint_sec(start_sec),

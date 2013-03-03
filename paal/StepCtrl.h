@@ -6,7 +6,8 @@
 
 namespace paal
 {
-  struct HillClimb  // implements StepCtrl
+  /** @brief [implements StepCtrl] steps iff fitness is not worsening */
+  struct HillClimb
   {
     template<typename Random> bool step_decision(double current_fitness,
         double next_fitness, double, Random &)
@@ -15,16 +16,20 @@ namespace paal
     }
   };
 
-  struct Annealing  // implements StepCtrl
+  /** @brief [implements StepCtrl] steps according to annealing strategy
+    *
+	* see: http://en.wikipedia.org/wiki/Boltzmann_distribution
+	*/
+  struct Annealing
   {
-    // http://pl.wikipedia.org/wiki/Rozk%C5%82ad_Boltzmanna
     Annealing(double _t0, double _t1) : t0(_t0), t1(_t1), steps(0) {}
     double t0, t1, f;
     size_t steps;
     template<typename Random> bool step_decision(double current_fitness,
         double next_fitness, double progress, Random &random)
     {
-      if (!(steps++ % 100)) f = pow(t0 / t1, progress) / t0;  // magic number
+      //100 is arbitrary; pow() is time consuming
+	  if (!(steps++ % 100)) f = pow(t0 / t1, progress) / t0;
       return static_cast<double>(random()) / random.max() <=
              exp((current_fitness - next_fitness)*f);
     }

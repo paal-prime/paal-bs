@@ -1,7 +1,6 @@
 #ifndef TSP_TSPLIB_H_
 #define TSP_TSPLIB_H_
 
-// http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/
 
 #include <boost/numeric/ublas/matrix.hpp>
 
@@ -109,11 +108,13 @@ namespace tsp
   /**
    * @brief represents TSPLIB/ test case directory filled by
    * 	./download_TSPLIB.sh
+   *
+   * see: http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/
    */
   struct TSPLIB_Directory
   {
 	/**
-	 * @brief WARNING: loads test cases' descriptions from {dir}/index
+	 * @brief loads test cases' descriptions from {dir}/index
 	 * @param dir - path to the TSPLIB directory
 	 */
     explicit TSPLIB_Directory(const std::string &dir)

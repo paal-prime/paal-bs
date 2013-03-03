@@ -5,22 +5,27 @@
 
 namespace paal
 {
-  struct VoidLogger  // implements Logger
+  /** @brief [implements Logger] logger that does nothing */
+  struct VoidLogger
   {
     void log(double current_fitness) {}
   };
 
-  struct CountingLogger  // implements Logger
+  /** @brief [implements Logger] counts iterations passed */
+  struct CountingLogger
   {
     CountingLogger() : iterations(-1) {}
-    size_t iterations;
+    
+	/** @brief iteration counter */
+	size_t iterations;
     void log(double current_fitness)
     {
       iterations++;
     }
   };
 
-  struct ImprovementLogger  // implements Logger
+  /** @brief [implements Logger] logs fitness every time it gets lower than the previous best */
+  struct ImprovementLogger
   {
 	ImprovementLogger() : iterations(-1) {}
 	
@@ -32,7 +37,9 @@ namespace paal
 		double fitness;
 	};
 	
+	/** @brief iteration counter */
 	size_t iterations;
+	/** @brief recorded fitness improvements */
 	std::vector<Record> records;
 
 	void log(double current_fitness)

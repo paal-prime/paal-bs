@@ -3,6 +3,16 @@
 
 namespace paal
 {
+  /**
+   * @brief main function of the local search framework.
+   * @param walker [implements Walker]
+   * @param random [implements Random]
+   * @param progress_ctrl [implements ProgressCtrl]
+   * @param step_ctrl [implements StepCtrl]
+   * @param logger [implements Logger]
+   *
+   * shall I put the design in here?
+   */
   template < typename Walker, typename Random, typename ProgressCtrl,
   typename StepCtrl, typename Logger >
   void search(Walker &walker, Random &random, ProgressCtrl &progress_ctrl,
@@ -23,7 +33,7 @@ namespace paal
         walker.make_step();
       }
     }
-    std::cout << "steps done: " << steps_done << std::endl;
+    //std::cout << "steps done: " << steps_done << std::endl;
   }
 
   /*template < typename Walker, typename Random, typename ProgressCtrl,

@@ -9,9 +9,8 @@
 namespace tsp
 {
 	/**
-	 * implements Matrix concept
-	 *
-	 * Represents distances between vertices on a 2D euclidian plane.
+	 * @brief [implements Matrix]
+	 * represents distances between vertices on a 2D euclidian plane.
 	 */
 	struct EuclidMatrix
 	{
