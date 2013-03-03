@@ -61,7 +61,8 @@ struct Greedy  // implements Algo
 	{
 		size_t n = matrix.size1();
 		std::vector<size_t> cycle;
-		bool V[matrix.size1()]; for(auto &v : V) v = 0;
+		bool V[matrix.size1()]; 
+		for(size_t i=0; i<matrix.size1(); ++i) V[i] = 0;
 		cycle.push_back(0); V[0] = 1;
 		for(size_t i=1; i<n; ++i)
 		{

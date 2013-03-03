@@ -280,7 +280,7 @@ namespace tsp
       while (1)
       {
         assert(get_header(is, s));
-        if (s == header) return;
+		if (s == header) return;
         assert(std::getline(is, s));
       }
     }

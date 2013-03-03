@@ -17,7 +17,7 @@ TEST(tsp_util, fitness)
     {2, 5, 3, 0},
     {1, 4, 2, 7, 0}
   };
-  boost::numeric::ublas::matrix<int> matrix(5, 5);
+  boost::numeric::ublas::matrix<int> matrix(n, n);
   for (size_t i = 0; i < n; ++i)
     for (size_t j = i; j < n; ++j)
       matrix(i, j) = matrix(j, i) = A[j][i];

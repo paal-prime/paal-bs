@@ -40,7 +40,7 @@ $(DEPENDS) : %.d : %.cpp
 
 # link main objects
 $(MAIN) : % : %.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
 # link gtest objects
 $(GTEST) : % : $(GTESTOBJECTS)
