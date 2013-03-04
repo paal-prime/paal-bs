@@ -162,11 +162,45 @@ class AdjacencyMatrix
             std::unique_ptr<bool[]> adjs;
     };
 
+    template <typename V>
+    class Edge
+    {
+        public:
+        V source;
+        V target;
+        Edge(V s, V t) : source(s), target(t) {}
+
+        bool operator < (const Edge& rhs) const
+        {
+            if(this->source == rhs.source)
+            {
+                return this->target < rhs.source;
+            }
+            else
+            {
+                return this->source < rhs.source;
+            }
+        }
+    };
+
+    template <typename V, typename WW>
+    class WeightedEdge
+    {
+        public:
+        V source;
+        V target;
+        WW weight;
+        WeightedEdge(V s, V t, WW w) : source(s), target(t), weight(w) {}
+    };
+
     public:
         typedef size_t vertex_t;
         typedef W edge_weight_t;
         typedef AdjacencyIterator<AdjacencyMatrix<D, W> > adjacency_iterator_t;
         typedef EdgeIterator<AdjacencyMatrix<D, W>, W> edge_iterator_t;
+
+        typedef WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
+        typedef Edge<vertex_t> edge_t;
 
         AdjacencyMatrix(size_t size) : fields(size) {}
 

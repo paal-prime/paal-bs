@@ -8,5 +8,4 @@ namespace Graph
     struct unweighted {};
 }
 
-
 #endif /* _GRAPH_H */
