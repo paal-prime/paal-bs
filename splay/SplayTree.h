@@ -19,10 +19,10 @@ namespace splay {
   /**
    * Node of a SplayTree.
    *
-   * Left/right relaxation should be undersstood as follows.
+   * Left/right relaxation should be understood as follows.
    * Meaning of left/right field changes iff xor of all bits on the path to the
    * root is 1. This enables us to reverse entire subtree in constant time (by
-   * flippint bit in root). Normalization is needed to determine which child is
+   * flipping bit in the root). Normalization is needed to determine which child is
    * the real left/right. */
   template<typename V> class Node {
     public:
@@ -280,7 +280,7 @@ namespace splay {
 
   /** @brief splay policy */
   enum SplayImplEnum {
-    /** splaying goes from root, resulting tree is less ballanced */
+    /** splaying goes from root, resulting tree is less balanced */
     kTopDownUnbalanced,
     /** splaying goes from root */
     kTopDown,
@@ -412,7 +412,7 @@ namespace splay {
       }
 
       /**
-       * @brief merges given tree on the right of biggest the  element of this
+       * @brief merges given tree to the right of the biggest element of this
        * @param other tree to be merged
        **/
       template<enum SplayImplEnum S>
@@ -427,7 +427,7 @@ namespace splay {
       }
 
       /**
-       * @brief merges given tree on the left of the smallest element of this
+       * @brief merges given tree to the left of the smallest element of this
        * @param other tree to be merged
        **/
       template<enum SplayImplEnum S>
@@ -442,9 +442,9 @@ namespace splay {
       }
 
       /**
-       * @brief reverses subsequence of elements with indexes in {i, ..., j}
-       * @param index of first element of subsequence
-       * @param index of last element of subsequence
+       * @brief reverses subsequence of elements with indices in {i, ..., j}
+       * @param i index of first element of subsequence
+       * @param j index of last element of subsequence
        **/
       void reverse(size_t i, size_t j) {
         assert(i <= j);
@@ -460,7 +460,7 @@ namespace splay {
       }
 
     private:
-      /** @brief creates tree with givedn node as a root */
+      /** @brief creates tree with given node as a root */
       explicit SplayTree(node_type *root) : root_(root) {
       }
 
@@ -612,7 +612,7 @@ namespace splay {
       }
 
       /**
-       * @brief recursively creates ballanced tree from a structure described
+       * @brief recursively creates balanced tree from a structure described
        *        by two random access iterators
        * @param b iterator to first element
        * @param e iterator to element after last
@@ -629,7 +629,7 @@ namespace splay {
       }
 
       /**
-       * @brief recursively creates ballanced tree from a structure with random
+       * @brief recursively creates balanced tree from a structure with random
        *        access operator []
        * @param array structure holding data to be copied into tree
        * @param b index of first element in structure to be placed in tree

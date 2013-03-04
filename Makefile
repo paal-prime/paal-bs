@@ -6,6 +6,8 @@ CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTI
 LDFLAGS := -lrt
 LDFLAGS_GTEST := -lgtest -lgtest_main
 
+DOCS_DIR=./docs
+
 # sources
 SOURCES := $(shell find -name "*.cpp")
 # objects containing main() definition
@@ -46,7 +48,11 @@ $(MAIN) : % : %.o
 $(GTEST) : % : $(GTESTOBJECTS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@ $(GTESTOBJECTS)
 
+docs:
+	doxygen doxygen.conf
+
 clean:
 	-rm -f *.o $(MAIN) $(GTEST) $(ALLOBJECTS) $(DEPENDS)
+	-rm -rf $(DOCS_DIR)
 
-.PHONY: clean
+.PHONY: clean docs
