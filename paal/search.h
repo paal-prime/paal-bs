@@ -14,7 +14,7 @@ namespace paal
    * shall I put the design in here?
    */
   template < typename Walker, typename Random, typename ProgressCtrl,
-  typename StepCtrl, typename Logger >
+           typename StepCtrl, typename Logger >
   void search(Walker &walker, Random &random, ProgressCtrl &progress_ctrl,
       StepCtrl &step_ctrl, Logger &logger)
   {
@@ -33,7 +33,7 @@ namespace paal
         walker.make_step();
       }
     }
-    //std::cout << "steps done: " << steps_done << std::endl;
+    // std::cout << "steps done: " << steps_done << std::endl;
   }
 
   /*template < typename Walker, typename Random, typename ProgressCtrl,
@@ -51,6 +51,6 @@ namespace paal
     HillClimb step_ctrl;
     search(walker, random, progress_ctrl, step_ctrl);
   }*/
-}
+}  // namespace paal
 
 #endif  // PAAL_SEARCH_H_

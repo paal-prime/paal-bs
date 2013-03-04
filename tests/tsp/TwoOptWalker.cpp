@@ -28,26 +28,26 @@ void set_matrix(Matrix &matrix)
 
 TEST(tsp_TwoOptWalker, constructor)
 {
-	Matrix m;
-	std::vector<size_t> c = { 0, 4, 2, 1, 3 };
-	set_matrix(m);
-	tsp::TwoOptWalker<Matrix> walker(m,c);
-	EXPECT_EQ(tsp::fitness(m,c), walker.current_fitness());
+  Matrix m;
+  std::vector<size_t> c = { 0, 4, 2, 1, 3 };
+  set_matrix(m);
+  tsp::TwoOptWalker<Matrix> walker(m, c);
+  EXPECT_EQ(tsp::fitness(m, c), walker.current_fitness());
 }
 
 TEST(tsp_TwoOptWalker, CRASH_TEST)
 {
-	Matrix m;
-	std::vector<size_t> c = { 0, 4, 2, 1, 3 };
-	std::mt19937 random(7628342);
-	set_matrix(m);	
-	tsp::TwoOptWalker<Matrix> walker(m,c);
-	for(size_t i=20; i--;)
-	{
-		walker.prepare_step(i*.05,random);
-		walker.current_fitness();
-		walker.next_fitness();
-		if(i&1) walker.make_step();
-	}
+  Matrix m;
+  std::vector<size_t> c = { 0, 4, 2, 1, 3 };
+  std::mt19937 random(7628342);
+  set_matrix(m);
+  tsp::TwoOptWalker<Matrix> walker(m, c);
+  for (size_t i = 20; i--;)
+  {
+    walker.prepare_step(i * .05, random);
+    walker.current_fitness();
+    walker.next_fitness();
+    if (i & 1) walker.make_step();
+  }
 }
 

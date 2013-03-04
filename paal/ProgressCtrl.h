@@ -8,12 +8,14 @@
 
 namespace paal
 {
-  /** @brief [implements ProgressCtrl] progress = iterations passed / iterations available*/
+  /** @brief [implements ProgressCtrl]
+   * progress = iterations passed / iterations available
+   */
   struct IterationCtrl
   {
-  	/** @param _available_it iterations available */
+    /** @param _available_it iterations available */
     explicit IterationCtrl(size_t _available_it) :
-        passed_it(0), available_it(_available_it) {}
+      passed_it(0), available_it(_available_it) {}
     size_t passed_it, available_it;
     double progress(double current_fitness)
     {
@@ -26,7 +28,7 @@ namespace paal
   {
     timespec tv;
     assert(clock_gettime(CLOCK_REALTIME, &tv) != -1);
-    return tv.tv_sec + tv.tv_nsec*1e-9;
+    return tv.tv_sec + tv.tv_nsec * 1e-9;
   }
 
   /** @brief [implements ProgressCtrl] progress = time passed / time available;
@@ -37,12 +39,12 @@ namespace paal
   struct TimeCtrl
   {
     /**
-	 * @param _available_sec available time in seconds
-	 * @param _granularity_it number of iterations between time checkings
-	 */
+    * @param _available_sec available time in seconds
+    * @param _granularity_it number of iterations between time checkings
+    */
     TimeCtrl(double _available_sec, size_t _granularity_it) :
-        start_sec(realtime_sec()), available_sec(_available_sec), progress_(-1),
-        passed_it(1), granularity_it(_granularity_it) {}
+      start_sec(realtime_sec()), available_sec(_available_sec), progress_(-1),
+      passed_it(1), granularity_it(_granularity_it) {}
     double start_sec, available_sec, progress_;
     size_t passed_it, granularity_it;
 
@@ -65,9 +67,9 @@ namespace paal
   struct TimeAutoCtrl
   {
     explicit TimeAutoCtrl(double _available_sec) :
-        start_sec(realtime_sec()), checkpoint_sec(start_sec),
-        available_sec(_available_sec), progress_(0), passed_it(1),
-        granularity_it(0), checkpoint_count(0) {}
+      start_sec(realtime_sec()), checkpoint_sec(start_sec),
+      available_sec(_available_sec), progress_(0), passed_it(1),
+      granularity_it(0), checkpoint_count(0) {}
 
     double start_sec, checkpoint_sec, available_sec, progress_;
     size_t passed_it, granularity_it, checkpoint_count;
@@ -88,6 +90,6 @@ namespace paal
       return progress_;  // TODO(pompon): add linear interpolation if needed
     }
   };
-}
+}  // namespace paal
 
 #endif  // PAAL_PROGRESSCTRL_H_

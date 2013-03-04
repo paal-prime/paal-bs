@@ -19,5 +19,5 @@ TEST(paal_StepCtrl, Annealing_sanity)
   for (size_t i = 0; i < 50; ++i)
     EXPECT_TRUE(step_ctrl.step_decision(623, 611, .4, random));
   for (size_t i = 0; i < 50; ++i)
-    step_ctrl.step_decision(random() % 1000, random() % 1000, i*.02, random);
+    step_ctrl.step_decision(random() % 1000, random() % 1000, i * .02, random);
 }

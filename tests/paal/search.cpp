@@ -7,7 +7,7 @@ enum
   cfitness = 478232,
   nfitness = 872374,
   random_val = 728342,
-  random_max = 982734,
+  random_max = 982734
 };
 
 struct MyWalker

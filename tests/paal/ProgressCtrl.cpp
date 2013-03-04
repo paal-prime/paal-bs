@@ -18,7 +18,7 @@ TEST(paal_ProgressCtrl, TimeCtrl_sanity)
   enum { gr = 3, fitness = 82934 };
   paal::TimeCtrl progress_ctrl(.5, gr);
   double prev = 0;
-  for (size_t i = 0; i < 10*gr; ++i)
+  for (size_t i = 0; i < 10 * gr; ++i)
   {
     double prog = progress_ctrl.progress(fitness);
     if (i % gr) ASSERT_EQ(prev, prog);

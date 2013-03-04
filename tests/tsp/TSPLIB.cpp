@@ -35,12 +35,12 @@ TEST(TSPLIB_Directory, dist)
   tsp::TSPLIB_Directory dir(path);
   tsp::TSPLIB_Matrix mtx;
   size_t found = 0;
-  for (auto &g : dir.graphs)
+  for (auto & g : dir.graphs)
   {
-	for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 3; ++i)
       if (path + filenames[i] == g.filename)
       {
-	    found++;
+        found++;
         g.load(mtx);
         int fitness = 0;
         for (size_t j = 0; j < mtx.size1(); ++j)
@@ -48,6 +48,6 @@ TEST(TSPLIB_Directory, dist)
         EXPECT_EQ(fitnesses[i], fitness);
       }
   }
-  EXPECT_EQ(3,found);
+  EXPECT_EQ(3, found);
 }
 

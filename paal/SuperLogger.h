@@ -29,16 +29,16 @@ namespace paal
   struct SuperLogger
   {
     /** @brief internal representation of a single algorithm run */
-	struct Result
+    struct Result
     {
       Result(double _fitness, size_t _iterations) :
-          fitness(_fitness), iterations(_iterations) {}
+        fitness(_fitness), iterations(_iterations) {}
       double fitness;
       size_t iterations;
     };
 
     /** @brief internal representation of the algorithm */
-	struct Record
+    struct Record
     {
       explicit Record(const std::string &_name) : name(_name) {}
       std::string name;
@@ -46,11 +46,11 @@ namespace paal
     };
 
     /**
-	 * @brief runs the algorithms and collects the logs
-	 * @param name algorithm name used to label the Record structure
-	 * @param algo [implements Algo] algorithm to be run
-	 * @param times number of algorithm executions to perform
-	 */
+    * @brief runs the algorithms and collects the logs
+    * @param name algorithm name used to label the Record structure
+    * @param algo [implements Algo] algorithm to be run
+    * @param times number of algorithm executions to perform
+    */
     template<typename Algo> void test(
       const std::string &name, Algo algo, size_t times)
     {
@@ -65,13 +65,13 @@ namespace paal
 
     std::vector<Record> data;
 
-	/** @brief prints the logs in a human readable form */
+    /** @brief prints the logs in a human readable form */
     void dump(std::ostream &os)
     {
-      for (Record &r : data)
+      for (Record & r : data)
       {
         os << r.name;
-        for (Result &res : r.results)
+        for (Result & res : r.results)
           os << format(", %", res.fitness);
         os << '\n';
       }
@@ -84,37 +84,37 @@ namespace paal
   struct ImprovementSuperLogger
   {
     /** @brief internal representation of a single algorithm run */
-  	struct Record
-	{
-		Record(const std::string &_name) : name(_name) {}
-		std::string name;
-		ImprovementLogger logger;
-	};
+    struct Record
+    {
+      explicit Record(const std::string &_name) : name(_name) {}
+      std::string name;
+      ImprovementLogger logger;
+    };
 
-	std::vector<Record> records;
+    std::vector<Record> records;
 
     /**
-	 * @brief collects logs over single algorithm execution
-	 * @param name algorithm label for the Record object
-	 * @param algo [implements Algo] executed algorithm
-	 */
-	template<typename Algo> void test(const std::string &name, Algo algo)
-	{
-		records.push_back(Record(name));
-		algo.run(records.back().logger);
-	}
+    * @brief collects logs over single algorithm execution
+    * @param name algorithm label for the Record object
+    * @param algo [implements Algo] executed algorithm
+    */
+    template<typename Algo> void test(const std::string &name, Algo algo)
+    {
+      records.push_back(Record(name));
+      algo.run(records.back().logger);
+    }
 
-	/** @brief prints the logs in a human readable form */
-	void dump(std::ostream &os)
-	{
-		for(Record &r : records)
-		{
-			for(auto &rr : r.logger.records)
-				os << format("%, %, %\n",r.name,rr.iteration,rr.fitness);
-		}
-	}
+    /** @brief prints the logs in a human readable form */
+    void dump(std::ostream &os)
+    {
+      for (Record & r : records)
+      {
+        for (auto & rr : r.logger.records)
+          os << format("%, %, %\n", r.name, rr.iteration, rr.fitness);
+      }
+    }
   };
-}
+}  // namespace paal
 
 #endif  // PAAL_SUPERLOGGER_H_
 
