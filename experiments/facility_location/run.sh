@@ -11,5 +11,5 @@ fi
 
 for f in $(ls ${1}*.txt); do
   echo -ne "$f\t"
-  ./facility_location/runner $f
+  ./experiments/facility_location/runner $f
 done > "res-$(git rev-parse --short HEAD)-$(basename $1).txt"

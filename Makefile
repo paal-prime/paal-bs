@@ -1,10 +1,12 @@
 IGNORED_WARN := -Wno-vla -Wno-unused-parameter
-OPTIMIZATIONS := -g
+OPTIMIZATIONS := -O2
 
 CXX := g++ -I ./
 CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTIMIZATIONS)
 LDFLAGS := -lrt
 LDFLAGS_GTEST := -lgtest -lgtest_main
+
+DOCS_DIR=./docs
 
 # sources
 SOURCES := $(shell find -name "*.cpp")
@@ -22,8 +24,16 @@ DEPENDS := $(subst .cpp,.d,$(SOURCES))
 ALLOBJECTS := $(subst .cpp,.o,$(SOURCES))
 # intermediate objects
 OBJECTS := $(filter-out $(MAINOBJECTS) $(GTESTOBJECTS),$(ALLOBJECTS))
+# explicit dependencies
+EXPLICITDEPS := $(shell find -name "*.dep")
 
 all: $(DEPENDS) $(MAIN) $(GTEST)
+
+# include explicit dependencies
+-include $(EXPLICITDEPS)
+
+# include submakefiles
+-include $(DEPENDS)
 
 # create submakefiles
 $(DEPENDS) : %.d : %.cpp
@@ -38,10 +48,14 @@ $(MAIN) : % : %.o
 $(GTEST) : % : $(GTESTOBJECTS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@ $(GTESTOBJECTS)
 
-# include submakefiles
--include $(DEPENDS)
+docs: $(SOURCES)
+	doxygen doxygen.conf
 
 clean:
 	-rm -f *.o $(MAIN) $(GTEST) $(ALLOBJECTS) $(DEPENDS)
+	-rm -rf $(DOCS_DIR)
 
 .PHONY: clean
+
+.SUFFIXES:
+%: %.o

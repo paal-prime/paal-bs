@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include <fstream>
+#include <fstream>  // NOLINT
 #include <limits>
 
 namespace facility_location {
@@ -16,6 +16,8 @@ namespace facility_location {
   template<typename Value> using Matrix = boost::numeric::ublas::matrix<Value>;
   template<typename Value> using Vector = boost::numeric::ublas::vector<Value>;
 
+  /** @brief Implementation of SimpleFormat for UflLib, fulfils instance
+   * contract. */
   template<typename Cost = double> class SimpleFormat {
       const std::string kOptFileSuffix = ".opt";
     private:
@@ -25,6 +27,11 @@ namespace facility_location {
       Cost optimal_cost_;
     public:
       typedef Cost value_type;
+
+      /**
+       * @brief constructs instance from serialized file
+       * @param file path to file with instance
+       **/
       SimpleFormat(const std::string &file) {
         // read instance
         std::ifstream is(file.c_str());
@@ -59,42 +66,67 @@ namespace facility_location {
         isopt >> optimal_cost_;
         isopt.close();
       }
+
+      /** @returns number of cities */
       size_t cities_count() const {
         return connecting_cost_.size2();
       }
+
+      /** @returns number of facilities */
       size_t facilities_count() const {
         return opening_cost_.size();
       }
+
+      /**
+       * @param facility index of a facility
+       * @param city index of a city
+       * @returns cost of connecting the city with the facility
+       **/
       Cost operator()(size_t facility, size_t city) const {
         return connecting_cost_(facility, city);
       }
+
+      /**
+       * @param facility an index of a facility
+       * @returns cost of opening the facility
+       **/
       Cost operator()(size_t facility) const {
         return opening_cost_(facility);
       }
+
+      /**
+       * @param city an index of a city
+       * @returns index of facility assigned to the city in optimal (reference)
+       * assignment
+       **/
       size_t optimal_solution(size_t city) const {
         return optimal_solution_(city);
       }
+
+      /** @returns cost of optimal (reference) solution */
       Cost optimal_cost() const {
         return optimal_cost_;
       }
-      template<typename Stream> Stream& operator<< (Stream& os) const {
-        os << connecting_cost_.size1() << ' '
-           << connecting_cost_.size2() << " 0 \n";
-        for (int i = 0, n = connecting_cost_.size1(); i < n; i++) {
-          os << i + 1 << ' ' << opening_cost_(i) << ' ';
-          for (int j = 0, m = connecting_cost_.size2(); j < m; j++) {
-            os << connecting_cost_(i, j) << ' ';
+
+      /**
+       * @brief serializes SimpleFormat instance to given stream
+       * @param os output stream
+       * @param instance instance to serialize
+       **/
+      template<typename Stream, typename CostType> friend Stream& operator<< (Stream& os, const
+          SimpleFormat<CostType>& instance) {
+        os << instance.connecting_cost_.size1() << ' '
+           << instance.connecting_cost_.size2() << " 0 \n";
+        for (int i = 0, n = instance.connecting_cost_.size1(); i < n; i++) {
+          os << i + 1 << ' ' << instance.opening_cost_(i) << ' ';
+          for (int j = 0, m = instance.connecting_cost_.size2(); j < m; j++) {
+            os << instance.connecting_cost_(i, j) << ' ';
           }
           os << '\n';
         }
         return os;
       }
   };
-
-  template<typename Stream, typename Cost>
-  Stream& operator<< (Stream& os, const SimpleFormat<Cost>& instance) {
-    return instance.operator << (os);
-  }
 }
 
 #endif  // FACILITY_LOCATION_SIMPLEFORMAT_H_
