@@ -55,7 +55,8 @@ public:
 	// options for Solve()
 	struct GPMOptions
 	{
-		GPMOptions() : init_Delaunay(true), init_KNN(0), init_greedy(true), iter_max(0), euc_2d(true) {}
+		GPMOptions() : init_Delaunay(true), init_KNN(0), init_greedy(true), iter_max(0),
+		               euc_2d(false), ceil_2d(false), att_2d(false) {}
 
 		// three variables below determine the initial subset of edges. 
 		// Delaunay initialization seems to be more robust than K nearest neighbors
@@ -70,6 +71,8 @@ public:
 				            // Otherwise runs at most iter_max iterations, so the solution may be suboptimal. 
 				            // (iter_max=1 runs perfect matching just for the initial subset).
 		bool	euc_2d;
+		bool  ceil_2d;
+		bool  att_2d;
 	};
 	struct PerfectMatching::Options options;
 	struct GPMOptions gpm_options;
@@ -166,10 +169,12 @@ friend struct GPMKDTree;
 inline GeomPerfectMatching::REAL GeomPerfectMatching::Dist(REAL* coord1, REAL* coord2)
 {
 	REAL dist;
-	if(gpm_options.euc_2d) {
+	if (gpm_options.euc_2d) {
 		GPM_GET_DIST (dist,  coord1, coord2);
-	} else {
+	} else if(gpm_options.ceil_2d) {
 		dist = ceil(sqrt((coord1[0] - coord2[0])*(coord1[0] - coord2[0])+(coord1[1] - coord2[1])*(coord1[1] - coord2[1])));
+	} else if(gpm_options.att_2d) {
+	  dist = ceil(sqrt(((coord1[0] - coord2[0])*(coord1[0] - coord2[0])+(coord1[1] - coord2[1])*(coord1[1] - coord2[1]))/10));
 	}
 	return dist; 
 }
