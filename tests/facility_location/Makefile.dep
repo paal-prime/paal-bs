@@ -1,0 +1,13 @@
+UFLLIB_URL := "http://www.mpi-inf.mpg.de/departments/d1/projects/benchmarks/UflLib/data/bench/Euklid.tgz"
+UFLLIB_DIR := UflLib
+
+$(UFLLIB_DIR):
+	@-mkdir $(UFLLIB_DIR)
+	wget -O - -o /dev/null $(UFLLIB_URL) | tar xzf - -C $(UFLLIB_DIR)
+
+clean-ufllib:
+	rm -rf $(UFLLIB_DIR)
+
+clean: clean-ufllib
+
+.PHONY: clean-ufllib
