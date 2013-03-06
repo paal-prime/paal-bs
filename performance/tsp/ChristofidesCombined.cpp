@@ -1,4 +1,4 @@
-// Copyright 2013 <przed_deadlinem_zdarzymy>
+// Copyright 2013 <przed_deadlinem_zdazymy>
 #include <boost/program_options.hpp>
 
 #include <sys/time.h>
@@ -16,6 +16,7 @@
 
 #include "./format.h"
 
+using std::vector;
 namespace po = boost::program_options;
 
 static const int CHRIST_FLAG = 0x0001;

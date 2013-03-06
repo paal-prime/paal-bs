@@ -1,10 +1,9 @@
-// Copyright 2013 <przed_deadlinem_zdarzymy>
+// Copyright 2013 <przed_deadlinem_zdazymy>
 
 #ifndef TSP_CHRISTOFIDES_H_
 #define TSP_CHRISTOFIDES_H_
 
 #include<boost/graph/adjacency_list.hpp>
-#include<boost/foreach.hpp>
 
 #include<cstdint>
 #include<cstddef>
@@ -18,23 +17,6 @@
 #include "blossom5/PerfectMatching.h"
 #include "blossom5/GEOM/GeomPerfectMatching.h"
 
-
-using std::cout;
-using std::endl;
-using std::list;
-using std::unique_ptr;
-using std::vector;
-
-using boost::add_edge;
-using boost::adjacency_list;
-using boost::edge;
-using boost::graph_traits;
-using boost::num_edges;
-using boost::num_vertices;
-using boost::out_degree;
-using boost::out_edges;
-using boost::undirectedS;
-using boost::vecS;
 
 namespace tsp {
 
@@ -50,16 +32,12 @@ namespace tsp {
    */
   template<typename GraphIn, typename GraphOut>
   void mst_prim(const GraphIn &graph, GraphOut &out, size_t size) {
-    unique_ptr<int[]> edge(new int[size]);
-    unique_ptr<int[]> dist(new int[size]);
-
-    for (size_t i = 0; i < size; ++i) {
-      dist[i] = INT_MAX;
-    }
+    std::vector<int> edge(size);
+    std::vector<int> dist(size, INT_MAX);
 
     int current = 0;
     int min;
-    list<int> unused;
+    std::list<int> unused;
     // We are not adding 0, as it's starting point.
     for (size_t i = 1; i < size; ++i) {
         unused.push_back(i);
@@ -77,16 +55,17 @@ namespace tsp {
             next = it;
           }
       }
-      add_edge(*next, edge[*next], out);
+      boost::add_edge(*next, edge[*next], out);
       current = *next;
       unused.erase(next);
     }
 
 #ifdef DEBUG_CHRIST
-    typename graph_traits<GraphOut>::edge_iterator edgea, edgeb;
-    cout << "Minimum spanning tree:" << endl;
-    for (boost::tie(edgea, edgeb) = edges(out); edgea != edgeb; ++edgea) {
-      cout << *edgea << endl;
+    typename boost::graph_traits<GraphOut>::edge_iterator edgea, edgeb;
+    std::cout << "Minimum spanning tree:" << std::endl;
+    for (boost::tie(edgea, edgeb) = boost::edges(out); edgea != edgeb;
+         ++edgea) {
+      std::cout << *edgea << std::endl;
     }
     cout << endl;
 #endif
@@ -118,7 +97,7 @@ namespace tsp {
                          CoordType* Y = nullptr) {
     std::vector<int> oddV;
     for (size_t v = 0; v < graph.size1(); ++v) {
-      if (out_degree(v, out) % 2) {
+      if (boost::out_degree(v, out) % 2) {
         oddV.push_back(v);
       }
     }
@@ -160,7 +139,7 @@ namespace tsp {
         for (size_t i = 0; i < oddV.size(); ++i) {
           int m = oddV[gpm.GetMatch(i)];
           if (m > oddV[i])
-            add_edge(oddV[i], m, out);
+            boost::add_edge(oddV[i], m, out);
         }
     } else {
         PerfectMatching pm(oddV.size(), oddV.size() * oddV.size() / 2);
@@ -174,15 +153,16 @@ namespace tsp {
         for (size_t i = 0; i < oddV.size(); ++i) {
           int m = oddV[pm.GetMatch(i)];
           if (m > oddV[i])
-            add_edge(oddV[i], m, out);
+            boost::add_edge(oddV[i], m, out);
         }
     }
 
 #ifdef DEBUG_CHRIST
-    typename graph_traits<GraphOut>::edge_iterator edgea, edgeb;
-    cout << "Minimum perfect matching of odd vertices" << endl;
-    for (boost::tie(edgea, edgeb) = edges(out); edgea != edgeb; ++edgea) {
-      cout << *edgea << endl;
+    typename boost::graph_traits<GraphOut>::edge_iterator edgea, edgeb;
+    std::cout << "Minimum perfect matching of odd vertices" << std::endl;
+    for (boost::tie(edgea, edgeb) = boost::edges(out); edgea != edgeb;
+         ++edgea) {
+      std:cout << *edgea << std::endl;
     }
     cout << endl;
 #endif
@@ -210,18 +190,18 @@ namespace tsp {
    * @param start number of vertex to start looking for cycle
    */
   template<typename Graph>
-  int find_cycle(Graph* graph, CycleList cycle[], bool added[],
-                 list<CycleList*> &toCheck, int start) {
+  int find_cycle(Graph* graph, CycleList cycle[], std::vector<bool> &added,
+                 std::list<CycleList*> &toCheck, int start) {
 #ifdef DEBUG_CHRIST
     cout << "Starting from: " << start << endl;
 #endif
     int size = 0;
     int current = start;
-    typename graph_traits<Graph>::out_edge_iterator edge;
+    typename boost::graph_traits<Graph>::out_edge_iterator edge;
     while (out_degree(current, *graph)) {
-      edge = out_edges(current, *graph).first;
-      current = target(*edge, *graph);
-      remove_edge(edge, *graph);
+      edge = boost::out_edges(current, *graph).first;
+      current = boost::target(*edge, *graph);
+      boost::remove_edge(edge, *graph);
       cycle->vertex = current;
       cycle->next = cycle + 1;
       if (!added[current]) {
@@ -232,7 +212,7 @@ namespace tsp {
       ++size;
     }
 #ifdef DEBUG_CHRIST
-    cout << "Found cycle size: " << size << endl;
+    std::cout << "Found cycle size: " << size << std::endl;
     if (size == 0) {
       exit(0);
     }
@@ -251,9 +231,9 @@ namespace tsp {
    */
   template<typename Graph>
   void find_eulerian_cycle(Graph* graph, CycleList cycle[]) {
-    int to_do = num_edges(*graph) + 1;
-    unique_ptr<bool[]> added(new bool[num_vertices(*graph)]());
-    list<CycleList*> toCheck;
+    int to_do = boost::num_edges(*graph) + 1;
+    std::vector<bool> added(boost::num_vertices(*graph), false);
+    std::list<CycleList*> toCheck;
     int done_overall = 1, done_this_iter = 0;
     int start = 0;
     CycleList* ver;
@@ -261,7 +241,7 @@ namespace tsp {
     change->vertex = start;
     while (to_do != done_overall) {
       done_this_iter = find_cycle<Graph>(graph, cycle + done_overall,
-                                         added.get(), toCheck,
+                                         added, toCheck,
                                          change->vertex);
       (cycle + done_overall + done_this_iter - 1)->next = change->next;
       change->next = cycle + done_overall;
@@ -269,20 +249,20 @@ namespace tsp {
       while (toCheck.size()) {
         ver = toCheck.front();
         toCheck.pop_front();
-        if (out_degree(ver->vertex, *graph)) {
+        if (boost::out_degree(ver->vertex, *graph)) {
           change = ver;
           break;
         }
       }
     }
 #ifdef DEBUG_CHRIST
-    cout << "Eulerian cycle" << endl;
+    std::cout << "Eulerian cycle" << std::endl;
     CycleList* current = cycle;
     for (int i = 0; i < to_do; ++i) {
-      cout << current->vertex << " ";
+      std::cout << current->vertex << " ";
       current = current->next;
     }
-    cout << endl;
+    std::cout << std::endl;
 #endif
   }
 
@@ -298,10 +278,10 @@ namespace tsp {
    * @param vert_num number of vertices in graph
    */
   template<typename Cycle>
-  void find_hamiltonian_cycle(CycleList* eulerian_cycle, Cycle* out,
+  void find_hamiltonian_cycle(CycleList eulerian_cycle[], Cycle* out,
                               int edge_num, int vert_num) {
-    unique_ptr<bool[]> used(new bool[vert_num]());
-    CycleList* current = eulerian_cycle;
+    std::vector<bool> used(vert_num, false);
+    CycleList* current = &eulerian_cycle[0];
     int n = 0;
     for (int i = 0; i <= edge_num; ++i) {
       if (!used[current->vertex]) {
@@ -311,11 +291,11 @@ namespace tsp {
       current = current->next;
     }
 #ifdef DEBUG_CHRIST
-    cout << "Hamiltonian cycle:" << endl;
+    std::cout << "Hamiltonian cycle:" << std::endl;
     for (int i = 0; i < vert_num; ++i) {
-      cout << (*out)[i] << " ";
+      std::cout << (*out)[i] << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
 #endif
   }
 
@@ -345,14 +325,15 @@ namespace tsp {
   void christofides(const Graph &graph, Cycle &cycle, size_t size,
                     std::string ewt = "", CoordType* X = nullptr,
                     CoordType* Y = nullptr) {
-    typedef adjacency_list<vecS, vecS, undirectedS> AdjList;
+    typedef boost::adjacency_list<boost::vecS, boost::vecS,
+        boost::undirectedS> AdjList;
     AdjList _graph(size);
     // 1. Build minimum spanning tree.
     mst_prim<Graph, AdjList>(graph, _graph, size);
     // 2. Create minimum weight perfect mathing over odd vertices in tree.
     even_odd_vertices<Graph, AdjList, CoordType>(graph, _graph, ewt, X, Y);
     int edge_num = num_edges(_graph);
-    unique_ptr<CycleList[]> eulerian_cycle(new CycleList[edge_num + 1]);
+    std::unique_ptr<CycleList[]> eulerian_cycle(new CycleList[edge_num + 1]);
     // 3. Find eulerian cycle in created multigraph.
     find_eulerian_cycle<AdjList>(&_graph, eulerian_cycle.get());
     // 4. Create hamiltionian cycle from found eulerian cycle.
