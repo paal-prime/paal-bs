@@ -11,7 +11,7 @@ int main()
   tsp::TSPLIB_Matrix mtx;
 for (auto & g : dir.graphs)
   {
-    g.load(mtx);
+    g.second.load(mtx);
     if (mtx.dist_) continue;
     bool ok = 1;
     for (size_t i = 0; i < mtx.size1(); ++i)
@@ -22,7 +22,7 @@ for (auto & g : dir.graphs)
             i = j = k = mtx.size1();
             ok = 0;
           }
-    std::cout << format("% %", g.filename, ok ? "OK" : "INVALID") << std::endl;
+    std::cout << format("% %", g.second.filename, ok ? "OK" : "INVALID") << std::endl;
   }
   return 0;
 }

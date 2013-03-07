@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "tsp/util.h"
 #include "./format.h"
@@ -124,8 +125,8 @@ namespace tsp
       double optimal_fitness;
       std::string header;
       while (get_header(index, header) >> optimal_fitness)
-        graphs.push_back(
-          Graph(dir + "/" + header + ".tsp", optimal_fitness));
+        graphs[header] =
+          Graph(dir + "/" + header + ".tsp", optimal_fitness);
     }
 
     /**
@@ -172,8 +173,9 @@ namespace tsp
 
       /**
        * @brief loads test case from file to m
+       * @return ewt type of graph.
        */
-      void load(TSPLIB_Matrix &m)
+      std::string load(TSPLIB_Matrix &m)
       {
         std::ifstream is(filename.c_str());
         assert(is);
@@ -231,11 +233,11 @@ namespace tsp
           int _;
           for (size_t i = 0; i < n; ++i)
             assert(is >> _ >> pos[i].y >> pos[i].x);
-for (Point & p : pos) p = Point(geo_rad(p.x), geo_rad(p.y));
-          m.resize(n, n);
-          for (size_t i = 0; i < n; ++i)
-            for (size_t j = i; j < n; ++j)
-              m.mtx(i, j) = m.mtx(j, i) = geo_dist(pos[i], pos[j]);
+            for (Point & p : pos) p = Point(geo_rad(p.x), geo_rad(p.y));
+            m.resize(n, n);
+            for (size_t i = 0; i < n; ++i)
+              for (size_t j = i; j < n; ++j)
+                m.mtx(i, j) = m.mtx(j, i) = geo_dist(pos[i], pos[j]);
         }
         else  // NOLINT
         {
@@ -250,13 +252,14 @@ for (Point & p : pos) p = Point(geo_rad(p.x), geo_rad(p.y));
           for (size_t i = 0; i < n; ++i)
             assert(is >> _ >> m.pos[i].x >> m.pos[i].y);
         }
+        return ewt;
       }
     };
 
     /**
      * @brief descriptions of represented test cases
      */
-    std::vector<Graph> graphs;
+    std::map<std::string, Graph> graphs;
 
     static void expect(std::istream &is, const std::string &pattern)
     {
@@ -289,4 +292,3 @@ for (Point & p : pos) p = Point(geo_rad(p.x), geo_rad(p.y));
 }  // namespace tsp
 
 #endif  // TSP_TSPLIB_H_
-

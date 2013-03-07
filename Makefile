@@ -3,7 +3,7 @@ OPTIMIZATIONS := -O2
 
 CXX := g++ -I ./
 CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTIMIZATIONS)
-LDFLAGS := -lrt
+LDFLAGS := -lrt -lboost_program_options
 LDFLAGS_GTEST := -lgtest -lgtest_main
 
 DOCS_DIR=./docs
@@ -46,7 +46,7 @@ $(MAIN) : % : %.o
 
 # link gtest objects
 $(GTEST) : % : $(GTESTOBJECTS)
-	$(CXX) $(GTESTOBJECTS) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@
+	$(CXX) $(GTESTOBJECTS) $(BLOSSOM5_OBJECTS) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@
 
 docs:
 	doxygen doxygen.conf

@@ -38,10 +38,10 @@ TEST(TSPLIB_Directory, dist)
   for (auto & g : dir.graphs)
   {
     for (int i = 0; i < 3; ++i)
-      if (path + filenames[i] == g.filename)
+      if (path + filenames[i] == g.second.filename)
       {
         found++;
-        g.load(mtx);
+        g.second.load(mtx);
         int fitness = 0;
         for (size_t j = 0; j < mtx.size1(); ++j)
           fitness += mtx(j, (j + 1) % mtx.size1());
@@ -50,4 +50,3 @@ TEST(TSPLIB_Directory, dist)
   }
   EXPECT_EQ(3, found);
 }
-

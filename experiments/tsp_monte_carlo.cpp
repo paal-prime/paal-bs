@@ -85,11 +85,12 @@ struct Greedy  // implements Algo
 int main()
 {
   tsp::TSPLIB_Directory dir("./TSPLIB/symmetrical/");
-  std::vector<size_t> graph_ids = {9, 20, 21, 32, 65, 67, 91, 109};
+  std::vector<std::string> graph_ids = {"brazil58", "d2103", "d15112", "fl3795",
+      "pcb3038", "pla33810", "rl5934", "ulysses22"};
   Matrix M;
 
   paal::SuperLogger sl;
-for (size_t gid : graph_ids)
+for (auto& gid : graph_ids)
   {
     dir.graphs[gid].load(M);
     MonteCarlo<Matrix, std::mt19937, 0> MC0(M, random_, 15);
