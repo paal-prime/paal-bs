@@ -14,39 +14,9 @@ namespace tsp
   size_t size1() const;  // 1st dimension size
   size_t size2() cosnt;  // 2nd dimension size
 
-<<<<<<< HEAD
   double & operator()(size_t i, size_t j);
   size_t resize(size_t _size1, size_t _size2);  // resizes the matrix
   };
-=======
-	template<typename Cycle>
-		bool check_cycle(const Cycle &cycle, size_t size) {
-		if(size != cycle.size()) {
-			return false;
-		}
-		std::unique_ptr<bool[]> used(new bool[size]());
-		for(size_t i = 0; i < cycle.size(); ++i) {
-			if(cycle[i] >= size || used[cycle[i]])
-				return false;
-			else
-				used[cycle[i]] = true;
-		}
-		return true;
-	}
-
-	//generates a random cycle from values [0,n)
-	template<typename Cycle, typename Random>
-		void cycle_shuffle(Cycle &cycle, size_t n, Random &random)
-	{
-		cycle.resize(n);
-		for(size_t i=0; i<n; ++i)
-		{
-			size_t j = random()%(i+1);
-			cycle[i] = cycle[j];
-			cycle[j] = i;
-		}
-	}
->>>>>>> Christofides-PJ
 
   concept Cycle
   {

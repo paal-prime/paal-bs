@@ -3,4 +3,4 @@ BLOSSOM5_OBJECTS := $(filter-out $(MAINOBJECTS),$(subst .cpp,.o,$(shell find ./b
 
 blossom5/example: $(BLOSSOM5_OBJECTS)
 
-performance/tsp/ChristofidesCombined: $(BLOSSOM5_OBJECTS)
+experiments/tsp_christofides: $(BLOSSOM5_OBJECTS)
