@@ -11,21 +11,21 @@ namespace details
     {
         public:
         adj_list_AdjacencyIterator() {};
-        adj_list_AdjacencyIterator(T it) : it(it) {}
+        adj_list_AdjacencyIterator(T iterator) : iterator_(iterator) {}
         adj_list_AdjacencyIterator operator++(int)
         {
             adj_list_AdjacencyIterator tmp = *this;
-            it++;
+            iterator_++;
             return tmp;
         }
 
         template <typename V>
         V operator*()
         {
-            return it->first;
+            return iterator_->first;
         }
         private:
-        T it;
+        T iterator_;
     };
 
     template <typename W, typename V>
@@ -58,9 +58,9 @@ class AdjacencyLists
     class AdjacencyListsFields
     {
         public:
-        AdjacencyListsFields(V vertices) : vertices(vertices)
+        AdjacencyListsFields(V vertices) : vertices_(vertices)
         {
-            adj.reset(new std::list< EdgeEnd<V, WW> >[vertices]);
+            adj.reset(new std::list< EdgeEnd<V, WW> >[vertices_]);
         }
 
         bool getAdj(V u, V v) const
@@ -98,7 +98,7 @@ class AdjacencyLists
             adj[u].push_back(EdgeEnd<V, WW>(v, w));
         }
 
-        V vertices;
+        V vertices_;
         std::unique_ptr<std::list< EdgeEnd<V, WW> >[]> adj;
     };
 
@@ -106,9 +106,9 @@ class AdjacencyLists
     class AdjacencyListsFields<Graph::unweighted, V>
     {
         public:
-        AdjacencyListsFields(V vertices) : vertices(vertices)
+        AdjacencyListsFields(V vertices) : vertices_(vertices)
         {
-            adj.reset(new std::list<V>[vertices]);
+            adj.reset(new std::list<V>[vertices_]);
         }
 
         bool getAdj(V u, V v) const
@@ -131,7 +131,7 @@ class AdjacencyLists
             adj[u].push_back(v);
         }
 
-        V vertices;
+        V vertices_;
         std::unique_ptr<std::list<V>[]> adj;
     };
 
@@ -220,7 +220,7 @@ class AdjacencyLists
 
     size_t verticesCount() const
     {
-        return fields.vertices;
+        return fields.vertices_;
     };
 
     private:
