@@ -5,9 +5,22 @@
 #include <list>
 #include <utility>
 
+
+
 namespace details
 {
-  template <typename T>
+
+  template <typename V, typename WW>
+  class EdgeEnd
+  {
+    public:
+      V target;
+      WW weight;
+      EdgeEnd(V t, WW w) : target(t), weight(w) {}
+  };
+
+
+  template <typename T, typename V>
   class adj_list_AdjacencyIterator
   {
     public:
@@ -20,10 +33,19 @@ namespace details
         return tmp;
       }
 
-      template <typename V>
       V operator*()
       {
-        return iterator_->first;
+        return iterator_->target;
+      }
+
+      bool operator==(const adj_list_AdjacencyIterator& rhs) const
+      {
+        return this->iterator_ == rhs.iterator_;
+      }
+
+      bool operator!=(const adj_list_AdjacencyIterator& rhs) const
+      {
+        return !(this->operator==(rhs));
       }
     private:
       T iterator_;
@@ -32,8 +54,8 @@ namespace details
   template <typename W, typename V>
   struct adj_list_adjacency_iterator
   {
-    typedef adj_list_AdjacencyIterator<typename std::list<V>::iterator>
-    type;
+    typedef adj_list_AdjacencyIterator
+    <typename std::list< EdgeEnd<V, W> >::iterator, V> type;
   };
 
   template <typename V>
@@ -47,30 +69,22 @@ namespace details
 template <typename D = Graph::directed, typename W = Graph::unweighted>
 class AdjacencyLists
 {
-    template <typename V, typename WW>
-    class EdgeEnd
-    {
-      public:
-        V target;
-        WW weight;
-        EdgeEnd(V t, WW w) : target(t), weight(w) {}
-    };
-
     template <typename WW, typename V>
     class AdjacencyListsFields
     {
       public:
         explicit AdjacencyListsFields(V vertices) : vertices_(vertices)
         {
-          adj.reset(new std::list< EdgeEnd<V, WW> >[vertices_]);
+          adj.reset(new std::list< details::EdgeEnd<V, WW> >[vertices_]);
         }
 
         bool getAdj(V u, V v) const
         {
-          typename std::list<V>::iterator it = adj[u].begin();
+          typename std::list< details::EdgeEnd<V, WW> >::iterator it =
+            adj[u].begin();
           while (it != adj[u].end())
           {
-            if (it->first == v)
+            if (it->target == v)
             {
               return true;
             }
@@ -80,14 +94,15 @@ class AdjacencyLists
           return false;
         }
 
-        std::pair<bool, WW> edge(V u, V v)
+        std::pair<bool, WW> edge(V u, V v) const
         {
-          typename std::list<V>::iterator it = adj[u].begin();
+          typename std::list< details::EdgeEnd<V, WW> >::iterator it =
+            adj[u].begin();
           while (it != adj[u].end())
           {
-            if (it->first == v)
+            if (it->target == v)
             {
-              return *it;
+              return std::pair<bool, WW>(true, it->weight);
             }
             it++;
           }
@@ -97,11 +112,11 @@ class AdjacencyLists
 
         void addEdge(V u, V v, WW w)
         {
-          adj[u].push_back(EdgeEnd<V, WW>(v, w));
+          adj[u].push_back(details::EdgeEnd<V, WW>(v, w));
         }
 
         V vertices_;
-        std::unique_ptr<std::list< EdgeEnd<V, WW> >[]> adj;
+        std::unique_ptr<std::list< details::EdgeEnd<V, WW> >[]> adj;
     };
 
     template <typename V>
@@ -175,7 +190,7 @@ class AdjacencyLists
     typedef W edge_weight_t;
     typedef typename details::adj_list_adjacency_iterator<W, vertex_t>::type
     adjacency_iterator_t;
-    typedef typename std::list< EdgeEnd<vertex_t, W> >::iterator
+    typedef typename std::list< details::EdgeEnd<vertex_t, W> >::iterator
     edge_iterator_t;
 
     typedef WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
@@ -184,7 +199,7 @@ class AdjacencyLists
     explicit AdjacencyLists(size_t size) : fields(size) {}
 
     std::pair<adjacency_iterator_t, adjacency_iterator_t>
-    adjacent_vertices(const vertex_t& v)
+    adjacent_vertices(const vertex_t& v) const
     {
       return make_pair(adjacency_iterator_t(fields.adj[v].begin()),
              adjacency_iterator_t(fields.adj[v].end()));
@@ -203,7 +218,7 @@ class AdjacencyLists
 
     std::pair<bool, edge_weight_t> edge(vertex_t u, vertex_t v) const
     {
-      fields.edge(u, v);
+      return fields.edge(u, v);
     }
 
     void add_edge(vertex_t u, vertex_t v)

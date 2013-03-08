@@ -8,6 +8,15 @@
 template <typename D = Graph::directed, typename W = Graph::unweighted>
 class AdjacencyMatrix
 {
+    template <typename V, typename WW>
+    class EdgeEnd
+    {
+      public:
+        V target;
+        WW weight;
+        EdgeEnd(V t, WW w) : target(t), weight(w) {}
+    };
+
     template <typename M>
     class AdjacencyIterator
     {
@@ -96,9 +105,11 @@ class AdjacencyMatrix
         {
           return !(*this == rhs);
         }
-        std::pair<vertex_t, edge_weight_t> operator*()
+
+
+        const EdgeEnd<vertex_t, WW> operator*()
         {
-          return std::pair<vertex_t, edge_weight_t>(it.second,
+          return EdgeEnd<vertex_t, WW>(it.second,
                  adjMatrix_->edge(it.first, it.second).second);
         }
       private:
@@ -206,7 +217,7 @@ class AdjacencyMatrix
     explicit AdjacencyMatrix(size_t size) : fields(size) {}
 
     std::pair<adjacency_iterator_t, adjacency_iterator_t>
-    adjacent_vertices(const vertex_t& v)
+    adjacent_vertices(const vertex_t& v) const
     {
       return std::pair<adjacency_iterator_t, adjacency_iterator_t>(
           adjacency_iterator_t(v, 0, this),
