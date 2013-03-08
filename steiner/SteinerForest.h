@@ -213,7 +213,7 @@ void getParents(
 /**
  * @brief Removes useless edges from given unpruned Steiner Forest.
  * @param verticesCount Number of vertices in graph.
- * @param vertex_set Array that says whether some vertex v belongs to 
+ * @param vertex_set Array that says whether some vertex v belongs to
  * some set of terminals or not and if so to which one.
  * @param unpruned_forest_edges Edges of unpruned Steiner Forest.
  * @param forest_edges Output parameter that will store edges of pruned forest.
@@ -502,6 +502,7 @@ void retrieve_weighted_forest_edges(
   typedef typename G::edge_iterator_t edge_iterator_t;
   typedef typename G::vertex_t vertex_t;
   typedef typename G::edge_weight_t edge_weight_t;
+  typedef typename G::weighted_edge_t weighted_edge_t;
 
   size_t current_edge = 0;
   while (current_edge < forest_edges.size())
@@ -515,9 +516,8 @@ void retrieve_weighted_forest_edges(
     {
       if (forest_edges[current_edge].target == (*it).target)
       {
-        *steiner_forest_edges++ =
-          std::make_pair(std::make_pair(source, (*it).target),
-              (*it).weight);
+        *steiner_forest_edges++ = weighted_edge_t(source,
+            (*it).target, (*it).weight);
         current_edge += 1;
 
         if (current_edge >= forest_edges.size())

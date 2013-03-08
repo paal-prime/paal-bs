@@ -40,7 +40,8 @@ TEST_P(SteinerTest, Test)
     inputData >> sets[i];
   }
 
-  AdjacencyLists<Graph::undirected, double> graph(verticesCount);
+  typedef AdjacencyLists<Graph::undirected, double> graph_t;
+  graph_t graph(verticesCount);
   for (size_t i = 0; i < edgeCount; ++i)
   {
     size_t a, b;
@@ -57,8 +58,8 @@ TEST_P(SteinerTest, Test)
   double bestKnownSolution;
   solutionData >> bestKnownSolution;
   solutionData.close();
-  // TODO(lukasz): This type looks awful, use weighted_edge_t
-  std::vector< std::pair< std::pair<size_t, size_t>, double > >
+
+  std::vector<graph_t::weighted_edge_t>
   steiner_forest_edges;
 
   SteinerForest<>(graph, sets, std::back_inserter(steiner_forest_edges));
@@ -66,7 +67,7 @@ TEST_P(SteinerTest, Test)
   double solutionCost = 0.0;
   for (size_t i = 0; i < steiner_forest_edges.size(); ++i)
   {
-    solutionCost += steiner_forest_edges[i].second;
+    solutionCost += steiner_forest_edges[i].weight;
   }
 
   ASSERT_LE(solutionCost, 2 * bestKnownSolution);

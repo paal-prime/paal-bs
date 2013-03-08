@@ -178,8 +178,7 @@ class AdjacencyMatrix
     class Edge
     {
       public:
-        V source;
-        V target;
+        Edge() : source(0), target(0) {}
         Edge(V s, V t) : source(s), target(t) {}
 
         bool operator < (const Edge& rhs) const
@@ -193,6 +192,9 @@ class AdjacencyMatrix
             return this->source < rhs.source;
           }
         }
+
+        V source;
+        V target;
     };
 
     template <typename V, typename WW>
