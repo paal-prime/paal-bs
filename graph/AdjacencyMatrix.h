@@ -8,60 +8,64 @@
 template <typename D = Graph::directed, typename W = Graph::unweighted>
 class AdjacencyMatrix
 {
-    template <typename V, typename WW>
-    class EdgeEnd
-    {
-      public:
-        V target;
-        WW weight;
-        EdgeEnd(V t, WW w) : target(t), weight(w) {}
-    };
-
     template <typename M>
     class AdjacencyIterator
     {
       public:
         typedef typename M::vertex_t vertex_t;
+
         AdjacencyIterator() : adjMatrix_(NULL) {}
 
-        AdjacencyIterator(vertex_t a, vertex_t b, const M* adjMatrix) :
-          it(a, b), adjMatrix_(adjMatrix)
+        AdjacencyIterator(const vertex_t& source, const vertex_t& target, const M* adjMatrix)
+          : it_(source, target), adjMatrix_(adjMatrix)
         {
-          if (!adjMatrix_->adjacent(a, b) && b != adjMatrix_->verticesCount())
+          if (!adjMatrix_->adjacent(source, target)
+              && target != adjMatrix_->verticesCount())
           {
             next();
           }
         }
+
+        AdjacencyIterator& operator++()
+        {
+          next();
+          return *this;
+        }
+
         AdjacencyIterator operator++(int)
         {
-          AdjacencyIterator tmp = *this;
+          AdjacencyIterator prev = *this;
           next();
-          return tmp;
+          return prev;
         }
 
         void next()
         {
-          it.second += 1;
-          while (it.second < adjMatrix_->verticesCount()
-                 && !(adjMatrix_->adjacent(it.first, it.second)))
+          it_.second += 1;
+          while (it_.second < adjMatrix_->verticesCount()
+                 && !(adjMatrix_->adjacent(it_.first, it_.second)))
           {
-            it.second += 1;
+            it_.second += 1;
           }
         }
+
         bool operator==(const AdjacencyIterator& rhs) const
         {
-          return this->it == rhs.it && this->adjMatrix_ == rhs.adjMatrix_;
+          return this->it_ == rhs.it_ && this->adjMatrix_ == rhs.adjMatrix_;
         }
+
         bool operator!=(const AdjacencyIterator& rhs) const
         {
-          return !(*this == rhs);
+          return !operator==(rhs);
         }
-        vertex_t operator*()
+
+        const vertex_t& operator*() const
         {
-          return it.second;
+          return it_.second;
         }
+
       private:
-        std::pair<vertex_t, vertex_t> it;
+        std::pair<vertex_t, vertex_t> it_;
         const M * adjMatrix_;
     };
 
@@ -71,49 +75,60 @@ class AdjacencyMatrix
       public:
         typedef typename M::vertex_t vertex_t;
         typedef typename M::edge_weight_t edge_weight_t;
+
         EdgeIterator() : adjMatrix_(NULL) {}
 
-        EdgeIterator(vertex_t a, vertex_t b, const M* adjMatrix) :
-          it(a, b), adjMatrix_(adjMatrix)
+        EdgeIterator(const vertex_t& source, const vertex_t& target, const M* adjMatrix) :
+          it_(source, target), adjMatrix_(adjMatrix)
         {
-          if (!adjMatrix_->adjacent(a, b) && b != adjMatrix_->verticesCount())
+          if (!adjMatrix_->adjacent(source, target)
+              && target != adjMatrix_->verticesCount())
           {
             next();
           }
         }
+
+        EdgeIterator& operator++()
+        {
+          next();
+          return *this;
+        }
+
         EdgeIterator operator++(int)
         {
-          EdgeIterator tmp = *this;
+          EdgeIterator prev = *this;
           next();
-          return tmp;
+          return prev;
         }
 
         void next()
         {
-          it.second += 1;
-          while (it.second < adjMatrix_->verticesCount()
-                 && !(adjMatrix_->adjacent(it.first, it.second)))
+          it_.second += 1;
+          while (it_.second < adjMatrix_->verticesCount()
+                 && !(adjMatrix_->adjacent(it_.first, it_.second)))
           {
-            it.second += 1;
+            it_.second += 1;
           }
         }
-        bool operator==(const EdgeIterator& rhs)
+
+        bool operator==(const EdgeIterator& rhs) const
         {
-          return this->it == rhs.it && this->adjMatrix_ == rhs.adjMatrix_;
-        }
-        bool operator!=(const EdgeIterator& rhs)
-        {
-          return !(*this == rhs);
+          return this->it_ == rhs.it_ && this->adjMatrix_ == rhs.adjMatrix_;
         }
 
-
-        const EdgeEnd<vertex_t, WW> operator*()
+        bool operator!=(const EdgeIterator& rhs) const
         {
-          return EdgeEnd<vertex_t, WW>(it.second,
-                 adjMatrix_->edge(it.first, it.second).second);
+          return !operator==(rhs);
         }
+
+        const Graph::EdgeEnd<vertex_t, WW> operator*() const
+        {
+          return Graph::EdgeEnd<vertex_t, WW>(it_.second,
+                 adjMatrix_->edge(it_.first, it_.second).second);
+        }
+
       private:
-        std::pair<vertex_t, vertex_t> it;
+        std::pair<vertex_t, vertex_t> it_;
         const M * adjMatrix_;
     };
 
@@ -124,99 +139,67 @@ class AdjacencyMatrix
     class AdjacencyMatrixFields
     {
       public:
-        explicit AdjacencyMatrixFields(V vertices) : vertices_(vertices)
+        explicit AdjacencyMatrixFields(const V& vertices) : vertices_(vertices)
         {
-          weights.reset(new WW[vertices_ * vertices_]());
-          adjs.reset(new bool[vertices_ * vertices_]());
+          weights_.reset(new WW[vertices_ * vertices_]());
+          adjs_.reset(new bool[vertices_ * vertices_]());
         }
 
-        W getWeight(V u, V v) const
+        W getWeight(const V& u, const V& v) const
         {
-          return weights[u * vertices_ + v];
+          return weights_[u * vertices_ + v];
         }
 
-        bool getAdj(V u, V v) const
+        bool getAdj(const V& u, const V& v) const
         {
-          return adjs[u * vertices_ + v];
+          return adjs_[u * vertices_ + v];
         }
 
-        void addEdge(V u, V v, WW w)
+        void addEdge(const V& u, const V& v, const WW& w)
         {
-          adjs[u * vertices_ + v] = true;
-          weights[u * vertices_ + v] = w;
+          adjs_[u * vertices_ + v] = true;
+          weights_[u * vertices_ + v] = w;
         }
 
         const V vertices_;
-        std::unique_ptr<WW[]> weights;
-        std::unique_ptr<bool[]> adjs;
+        std::unique_ptr<WW[]> weights_;
+        std::unique_ptr<bool[]> adjs_;
     };
 
     template <typename V>
     class AdjacencyMatrixFields<Graph::unweighted, V>
     {
       public:
-        explicit AdjacencyMatrixFields(V vertices) : vertices_(vertices)
+        explicit AdjacencyMatrixFields(const V& vertices) : vertices_(vertices)
         {
-          adjs.reset(new bool[vertices_ * vertices_]());
+          adjs_.reset(new bool[vertices_ * vertices_]());
         }
 
-        bool getAdj(V u, V v) const
+        bool getAdj(const V& u, const V& v) const
         {
-          return adjs[u * vertices_ + v];
+          return adjs_[u * vertices_ + v];
         }
 
-        void addEdge(V u, V v)
+        void addEdge(const V& u, const V& v)
         {
-          adjs[u * vertices_ + v] = true;
+          adjs_[u * vertices_ + v] = true;
         }
 
         const V vertices_;
-        std::unique_ptr<bool[]> adjs;
-    };
-
-    template <typename V>
-    class Edge
-    {
-      public:
-        Edge() : source(0), target(0) {}
-        Edge(V s, V t) : source(s), target(t) {}
-
-        bool operator < (const Edge& rhs) const
-        {
-          if (this->source == rhs.source)
-          {
-            return this->target < rhs.source;
-          }
-          else
-          {
-            return this->source < rhs.source;
-          }
-        }
-
-        V source;
-        V target;
-    };
-
-    template <typename V, typename WW>
-    class WeightedEdge
-    {
-      public:
-        V source;
-        V target;
-        WW weight;
-        WeightedEdge(V s, V t, WW w) : source(s), target(t), weight(w) {}
+        std::unique_ptr<bool[]> adjs_;
     };
 
   public:
     typedef size_t vertex_t;
     typedef W edge_weight_t;
+
     typedef AdjacencyIterator<AdjacencyMatrix<D, W> > adjacency_iterator_t;
     typedef EdgeIterator<AdjacencyMatrix<D, W>, W> edge_iterator_t;
 
-    typedef WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
-    typedef Edge<vertex_t> edge_t;
+    typedef Graph::WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
+    typedef Graph::Edge<vertex_t> edge_t;
 
-    explicit AdjacencyMatrix(size_t size) : fields(size) {}
+    explicit AdjacencyMatrix(const size_t& size) : fields_(size) {}
 
     std::pair<adjacency_iterator_t, adjacency_iterator_t>
     adjacent_vertices(const vertex_t& v) const
@@ -234,41 +217,42 @@ class AdjacencyMatrix
           edge_iterator_t(v, verticesCount(), this));
     }
 
-    bool adjacent(vertex_t u, vertex_t v) const
+    bool adjacent(const vertex_t& u, const vertex_t& v) const
     {
-      return fields.getAdj(u, v);
+      return fields_.getAdj(u, v);
     }
 
-    std::pair<bool, edge_weight_t> edge(vertex_t u, vertex_t v) const
+    std::pair<bool, edge_weight_t> edge(const vertex_t& u, const vertex_t& v)
+    const
     {
-      return std::pair<bool, edge_weight_t>(fields.getAdj(u, v),
-             fields.getWeight(u, v));
+      return std::pair<bool, edge_weight_t>(fields_.getAdj(u, v),
+             fields_.getWeight(u, v));
     }
 
-    void add_edge(vertex_t u, vertex_t v)
+    void add_edge(const vertex_t& u, const vertex_t& v)
     {
-      fields.addEdge(u, v);
+      fields_.addEdge(u, v);
       if (!D::is_directed)
       {
-        fields.addEdge(v, u);
+        fields_.addEdge(v, u);
       }
     }
 
-    void add_edge(vertex_t u, vertex_t v, edge_weight_t w)
+    void add_edge(const vertex_t& u, const vertex_t& v, const edge_weight_t& w)
     {
-      fields.addEdge(u, v, w);
+      fields_.addEdge(u, v, w);
       if (!D::is_directed)
       {
-        fields.addEdge(v, u, w);
+        fields_.addEdge(v, u, w);
       }
     }
 
     size_t verticesCount() const
     {
-      return fields.vertices_;
+      return fields_.vertices_;
     }
   private:
-    AdjacencyMatrixFields<W, vertex_t> fields;
+    AdjacencyMatrixFields<W, vertex_t> fields_;
 };
 
 #endif  // GRAPH_ADJACENCYMATRIX_H_

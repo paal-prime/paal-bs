@@ -5,84 +5,76 @@
 #include <list>
 #include <utility>
 
-
-
-namespace details
-{
-
-  template <typename V, typename WW>
-  class EdgeEnd
-  {
-    public:
-      V target;
-      WW weight;
-      EdgeEnd(V t, WW w) : target(t), weight(w) {}
-  };
-
-
-  template <typename T, typename V>
-  class adj_list_AdjacencyIterator
-  {
-    public:
-      adj_list_AdjacencyIterator() {}
-      explicit adj_list_AdjacencyIterator(T iterator) : iterator_(iterator) {}
-      adj_list_AdjacencyIterator operator++(int)
-      {
-        adj_list_AdjacencyIterator tmp = *this;
-        iterator_++;
-        return tmp;
-      }
-
-      V operator*()
-      {
-        return iterator_->target;
-      }
-
-      bool operator==(const adj_list_AdjacencyIterator& rhs) const
-      {
-        return this->iterator_ == rhs.iterator_;
-      }
-
-      bool operator!=(const adj_list_AdjacencyIterator& rhs) const
-      {
-        return !(this->operator==(rhs));
-      }
-    private:
-      T iterator_;
-  };
-
-  template <typename W, typename V>
-  struct adj_list_adjacency_iterator
-  {
-    typedef adj_list_AdjacencyIterator
-    <typename std::list< EdgeEnd<V, W> >::iterator, V> type;
-  };
-
-  template <typename V>
-  struct adj_list_adjacency_iterator<Graph::unweighted, V>
-  {
-    typedef typename std::list<V>::iterator type;
-  };
-}  // namespace details
-
-
 template <typename D = Graph::directed, typename W = Graph::unweighted>
 class AdjacencyLists
 {
+    template <typename T, typename V>
+    class AdjacencyIterator
+    {
+      public:
+        AdjacencyIterator() {}
+        explicit AdjacencyIterator(const T& iterator) : iterator_(iterator) {}
+
+        AdjacencyIterator& operator++()
+        {
+          ++iterator_;
+          return *this;
+        }
+
+        AdjacencyIterator operator++(int)
+        {
+          AdjacencyIterator prev = *this;
+          iterator_++;
+          return prev;
+        }
+
+        const V& operator*() const
+        {
+          return iterator_->target;
+        }
+
+        bool operator==(const AdjacencyIterator& rhs) const
+        {
+          return this->iterator_ == rhs.iterator_;
+        }
+
+        bool operator!=(const AdjacencyIterator& rhs) const
+        {
+          return !operator==(rhs);
+        }
+      private:
+        T iterator_;
+    };
+
+    template <typename WW, typename V>
+    class AdjacencyIteratorTypeWrapper
+    {
+      public:
+        typedef AdjacencyIterator
+        <typename std::list< Graph::EdgeEnd<V, WW> >::iterator, V> type;
+    };
+
+    template <typename V>
+    class AdjacencyIteratorTypeWrapper<Graph::unweighted, V>
+    {
+      public:
+        typedef typename std::list<V>::iterator type;
+    };
+
     template <typename WW, typename V>
     class AdjacencyListsFields
     {
       public:
-        explicit AdjacencyListsFields(V vertices) : vertices_(vertices)
+        explicit AdjacencyListsFields(const V& vertices) : vertices_(vertices)
         {
-          adj.reset(new std::list< details::EdgeEnd<V, WW> >[vertices_]);
+          adj_.reset(new std::list< Graph::EdgeEnd<V, WW> >[vertices_]);
         }
 
-        bool getAdj(V u, V v) const
+        bool getAdj(const V& u, const V& v) const
         {
-          typename std::list< details::EdgeEnd<V, WW> >::iterator it =
-            adj[u].begin();
-          while (it != adj[u].end())
+          typename std::list< Graph::EdgeEnd<V, WW> >::iterator it =
+            adj_[u].begin();
+          while (it != adj_[u].end())
           {
             if (it->target == v)
             {
@@ -94,11 +86,11 @@ class AdjacencyLists
           return false;
         }
 
-        std::pair<bool, WW> edge(V u, V v) const
+        std::pair<bool, WW> edge(const V& u, const V& v) const
         {
-          typename std::list< details::EdgeEnd<V, WW> >::iterator it =
-            adj[u].begin();
-          while (it != adj[u].end())
+          typename std::list< Graph::EdgeEnd<V, WW> >::iterator it =
+            adj_[u].begin();
+          while (it != adj_[u].end())
           {
             if (it->target == v)
             {
@@ -110,28 +102,28 @@ class AdjacencyLists
           return std::make_pair(false, WW());
         }
 
-        void addEdge(V u, V v, WW w)
+        void addEdge(const V& u, const V& v, const WW& w)
         {
-          adj[u].push_back(details::EdgeEnd<V, WW>(v, w));
+          adj_[u].push_back(Graph::EdgeEnd<V, WW>(v, w));
         }
 
         V vertices_;
-        std::unique_ptr<std::list< details::EdgeEnd<V, WW> >[]> adj;
+        std::unique_ptr<std::list< Graph::EdgeEnd<V, WW> >[]> adj_;
     };
 
     template <typename V>
     class AdjacencyListsFields<Graph::unweighted, V>
     {
       public:
-        explicit AdjacencyListsFields(V vertices) : vertices_(vertices)
+        explicit AdjacencyListsFields(const V& vertices) : vertices_(vertices)
         {
-          adj.reset(new std::list<V>[vertices_]);
+          adj_.reset(new std::list<V>[vertices_]);
         }
 
-        bool getAdj(V u, V v) const
+        bool getAdj(const V& u, const V& v) const
         {
-          typename std::list<V>::iterator it = adj[u].begin();
-          while (it != adj[u].end())
+          typename std::list<V>::iterator it = adj_[u].begin();
+          while (it != adj_[u].end())
           {
             if (*it == v)
             {
@@ -143,110 +135,78 @@ class AdjacencyLists
           return false;
         }
 
-        void addEdge(V u, V v)
+        void addEdge(const V& u, const V& v)
         {
-          adj[u].push_back(v);
+          adj_[u].push_back(v);
         }
 
         V vertices_;
-        std::unique_ptr<std::list<V>[]> adj;
-    };
-
-
-    template <typename V>
-    class Edge
-    {
-      public:
-        Edge() : source(0), target(0) {}
-        Edge(V s, V t) : source(s), target(t) {}
-
-        bool operator < (const Edge& rhs) const
-        {
-          if (this->source == rhs.source)
-          {
-            return this->target < rhs.source;
-          }
-          else
-          {
-            return this->source < rhs.source;
-          }
-        }
-
-        V source;
-        V target;
-    };
-
-    template <typename V, typename WW>
-    class WeightedEdge
-    {
-      public:
-        V source;
-        V target;
-        WW weight;
-        WeightedEdge(V s, V t, WW w) : source(s), target(t), weight(w) {}
+        std::unique_ptr<std::list<V>[]> adj_;
     };
 
   public:
     typedef size_t vertex_t;
     typedef W edge_weight_t;
-    typedef typename details::adj_list_adjacency_iterator<W, vertex_t>::type
+
+    typedef typename AdjacencyIteratorTypeWrapper<W, vertex_t>::type
     adjacency_iterator_t;
-    typedef typename std::list< details::EdgeEnd<vertex_t, W> >::iterator
+    typedef typename std::list< Graph::EdgeEnd<vertex_t, W> >::iterator
     edge_iterator_t;
 
-    typedef WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
-    typedef Edge<vertex_t> edge_t;
+    typedef Graph::WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
+    typedef Graph::Edge<vertex_t> edge_t;
 
-    explicit AdjacencyLists(size_t size) : fields(size) {}
+    explicit AdjacencyLists(const size_t& size) : fields_(size) {}
 
     std::pair<adjacency_iterator_t, adjacency_iterator_t>
     adjacent_vertices(const vertex_t& v) const
     {
-      return make_pair(adjacency_iterator_t(fields.adj[v].begin()),
-             adjacency_iterator_t(fields.adj[v].end()));
+      return make_pair(adjacency_iterator_t(fields_.adj_[v].begin()),
+             adjacency_iterator_t(fields_.adj_[v].end()));
     }
 
     std::pair<edge_iterator_t, edge_iterator_t> out_edges(const vertex_t& v)
     const
     {
-      return std::make_pair(fields.adj[v].begin(), fields.adj[v].end());
+      return std::make_pair(fields_.adj_[v].begin(), fields_.adj_[v].end());
     }
 
-    bool adjacent(vertex_t u, vertex_t v) const
+    bool adjacent(const vertex_t& u, const vertex_t& v) const
     {
-      return fields.getAdj(u, v);
+      return fields_.getAdj(u, v);
     }
 
-    std::pair<bool, edge_weight_t> edge(vertex_t u, vertex_t v) const
+    std::pair<bool, edge_weight_t> edge(const vertex_t& u, const vertex_t& v)
+    const
     {
-      return fields.edge(u, v);
+      return fields_.edge(u, v);
     }
 
-    void add_edge(vertex_t u, vertex_t v)
+    void add_edge(const vertex_t& u, const vertex_t& v)
     {
-      fields.addEdge(u, v);
+      fields_.addEdge(u, v);
       if (!D::is_directed)
       {
-        fields.addEdge(v, u);
+        fields_.addEdge(v, u);
       }
     }
 
-    void add_edge(vertex_t u, vertex_t v, edge_weight_t w)
+    void add_edge(const vertex_t& u, const vertex_t& v, const edge_weight_t& w)
     {
-      fields.addEdge(u, v, w);
+      fields_.addEdge(u, v, w);
       if (!D::is_directed)
       {
-        fields.addEdge(v, u, w);
+        fields_.addEdge(v, u, w);
       }
     }
 
     size_t verticesCount() const
     {
-      return fields.vertices_;
+      return fields_.vertices_;
     };
 
   private:
-    AdjacencyListsFields<W, vertex_t> fields;
+    AdjacencyListsFields<W, vertex_t> fields_;
 };
 
 #endif  // GRAPH_ADJACENCYLISTS_H_
