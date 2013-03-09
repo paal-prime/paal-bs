@@ -25,7 +25,11 @@ namespace tsp {
 
     template<typename Stream> friend
     Stream& operator<<(Stream& out, const TSPMove& move) {
-      out << move.vertex_;
+      if (move.vertex_ != kNoVertex) {
+        out << move.vertex_;
+      } else {
+        out << "no_vertex";
+      }
       return out;
     }
   };
@@ -145,20 +149,24 @@ namespace tsp {
       }
   };
 
-  template<typename Random> class TSPPolicy {
+  template<typename Random = std::mt19937> class TSPPolicyLCB {
       const double kLCBParam = 1.0;
 
     private:
       Random& random_;
 
     public:
-      explicit TSPPolicy(Random& random) : random_(random) {
+      explicit TSPPolicyLCB(Random& random) : random_(random) {
       }
 
-      Fitness combine_estimate(Fitness estimate, Fitness sample,
-          size_t visits) {
-        return (visits == 1) ? sample :
-          (estimate * (visits - 1) + sample) / visits;
+      template<typename Node>
+      void update(Node* node, Fitness sample) {
+        if (node->visits_ == 1) {
+          node->estimate_ = sample;
+        } else {
+          node->estimate_ = (node->estimate_ * (node->visits_ - 1) + sample) /
+            node->visits_;
+        }
       }
 
       template<typename Node, typename State>
@@ -180,6 +188,88 @@ namespace tsp {
         }
         assert(best_node != NULL);
         return best_node;
+      }
+
+      std::mt19937& get_random() {
+        return random_;
+      }
+
+      template<typename Node, typename State> bool do_expand(const Node* node,
+          const State& state) {
+        return node->visits_ >= state.moves_count();
+      }
+  };
+
+  template<typename Random = std::mt19937> class TSPPolicyRND {
+    private:
+      Random& random_;
+
+    public:
+      explicit TSPPolicyRND(Random& random) : random_(random) {
+      }
+
+      template<typename Node>
+      void update(Node* node, Fitness sample) {
+        if (node->visits_ == 1) {
+          node->estimate_ = sample;
+        } else {
+          node->estimate_ = (node->estimate_ * (node->visits_ - 1) + sample) /
+            node->visits_;
+        }
+      }
+
+      template<typename Node, typename State>
+      Node* best_child(Node* parent, const State& state) {
+        assert(!parent->children_.empty());
+        Node* pick = parent->children_[random_() %
+          parent->children_.size()].get();
+        assert(pick != NULL);
+        return pick;
+      }
+
+      std::mt19937& get_random() {
+        return random_;
+      }
+
+      template<typename Node, typename State> bool do_expand(const Node* node,
+          const State& state) {
+        return node->visits_ >= state.moves_count();
+      }
+  };
+
+  template<typename Random = std::mt19937> class TSPPolicyRNDeBest {
+      const double bestPickProbability = 0.1;
+
+    private:
+      Random& random_;
+
+    public:
+      explicit TSPPolicyRNDeBest(Random& random) : random_(random) {
+      }
+
+      template<typename Node>
+      void update(Node* node, Fitness sample) {
+        if (node->visits_ == 1) {
+          node->estimate_ = sample;
+        } else {
+          node->estimate_ = (node->estimate_ * (node->visits_ - 1) + sample) /
+            node->visits_;
+        }
+      }
+
+      template<typename Node, typename State>
+      Node* best_child(Node* parent, const State& state) {
+        assert(!parent->children_.empty());
+        Node* pick = NULL;
+        if (parent->best_node_ != NULL
+            && bestPickProbability >= static_cast<double>(random_()) /
+              random_.max()) {
+          pick = parent->best_node_;
+        } else {
+          pick = parent->children_[random_() % parent->children_.size()].get();
+        }
+        assert(pick != NULL);
+        return pick;
       }
 
       std::mt19937& get_random() {

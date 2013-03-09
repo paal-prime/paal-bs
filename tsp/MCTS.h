@@ -16,6 +16,7 @@ namespace mcts {
     const Move move_;
     size_t visits_ = 0;
     Fitness estimate_ = 0;
+    node_type* best_node_ = NULL;
     std::vector<std::unique_ptr<node_type> > children_;
 
     Node() {}
@@ -25,9 +26,10 @@ namespace mcts {
       return children_.empty();
     }
 
-    template<typename Policy> void update(Policy& policy, Fitness estimate) {
+    template<typename PolicyType>
+    void update(PolicyType& policy, Fitness estimate) {
       visits_++;
-      estimate_ = policy.combine_estimate(estimate_, estimate, visits_);
+      policy.update(this, estimate);
     }
 
     template<typename State> void expand(const State& state) {
@@ -42,10 +44,9 @@ namespace mcts {
       }
     }
 
-    template<typename Stream, typename MoveType> friend
-    Stream& operator<<(Stream& out, const Node<MoveType>& node) {
-      out << node.move_ << "\tv:" << node.visits_ << "\te:"
-          << node.estimate_ << "\tl:" << node.is_leaf();
+    template<typename Stream> friend
+    Stream& operator<<(Stream& out, const Node<Move>& node) {
+      out << node.move_ << "\tl:" << node.is_leaf();
       return out;
     }
   };
@@ -66,10 +67,9 @@ namespace mcts {
         Stack& root_path) {
         State state(state_);
         node_type* node = root_.get();
-        root_path.push_back(node);
         while (!node->is_leaf()) {
-          node = policy_.best_child(node, state);
           root_path.push_back(node);
+          node = policy_.best_child(node, state);
           state.apply(node->move_);
         }
         if (!state.is_terminal()
@@ -80,15 +80,24 @@ namespace mcts {
           node = policy_.best_child(node, state);
           state.apply(node->move_);
         }
+        root_path.push_back(node);
         return state;
       }
 
       template<typename Stack> void update_back(Stack& root_path,
           Fitness estimate) {
+        node_type* previous, * node = NULL;
         while (!root_path.empty()) {
-          node_type* node = root_path.back();
+          previous = node;
+          node = root_path.back();
           root_path.pop_back();
           node->update(policy_, estimate);
+          if (previous != NULL) {
+            if (node->best_node_ == NULL
+                || node->best_node_->estimate_ > previous->estimate_) {
+              node->best_node_ = previous;
+            }
+          }
         }
       }
 
@@ -108,16 +117,8 @@ namespace mcts {
           assert(root_path.front() == root_.get());
           update_back(root_path, estimate);
         }
-        Fitness best_fit = std::numeric_limits<Fitness>::infinity();
-        node_type* best_node = NULL;
-        for (auto& node : root_->children_) {
-          if (node->estimate_ < best_fit) {
-            best_fit = node->estimate_;
-            best_node = node.get();
-          }
-        }
-        assert(best_node != NULL);
-        return best_node->move_;
+        assert(root_->best_node_ != NULL);
+        return root_->best_node_->move_;
       }
 
       void apply(const Move& move) {
@@ -134,8 +135,8 @@ namespace mcts {
         }
       }
 
-      template<typename Stream, typename M, typename S, typename P>
-      friend Stream& operator<<(Stream& out, const MCTS<M, S, P>& tree) {
+      template<typename Stream> friend
+      Stream& operator<<(Stream& out, const MCTS<Move, State, Policy>& tree) {
         out << "root: " << *tree.root_ << '\n';
         for (auto& node : tree.root_->children_) {
           out << *node << '\n';
