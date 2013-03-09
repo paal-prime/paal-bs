@@ -5,6 +5,13 @@
 #include <memory>
 #include "graph/Graph.h"
 
+/**
+ * Representation of graph using adjacenty matrix.
+ * @tparam D determines whether graph is directed or not.
+ * Possible values are Graph::directed and Graph::undirected.
+ * @tparam W codomain of weight/cost function,
+ * use Graph::unweighted for unweighted graphs.
+ **/
 template <typename D = Graph::directed, typename W = Graph::unweighted>
 class AdjacencyMatrix
 {
@@ -16,7 +23,8 @@ class AdjacencyMatrix
 
         AdjacencyIterator() : adjMatrix_(NULL) {}
 
-        AdjacencyIterator(const vertex_t& source, const vertex_t& target, const M* adjMatrix)
+        AdjacencyIterator(const vertex_t& source, const vertex_t& target,
+            const M* adjMatrix)
           : it_(source, target), adjMatrix_(adjMatrix)
         {
           if (!adjMatrix_->adjacent(source, target)
@@ -78,7 +86,8 @@ class AdjacencyMatrix
 
         EdgeIterator() : adjMatrix_(NULL) {}
 
-        EdgeIterator(const vertex_t& source, const vertex_t& target, const M* adjMatrix) :
+        EdgeIterator(const vertex_t& source, const vertex_t& target,
+            const M* adjMatrix) :
           it_(source, target), adjMatrix_(adjMatrix)
         {
           if (!adjMatrix_->adjacent(source, target)
@@ -199,8 +208,13 @@ class AdjacencyMatrix
     typedef Graph::WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
     typedef Graph::Edge<vertex_t> edge_t;
 
-    explicit AdjacencyMatrix(const size_t& size) : fields_(size) {}
+    explicit AdjacencyMatrix(const size_t& verticesCount)
+      : fields_(verticesCount) {}
 
+    /**
+     * @returns pair of iterators to list of vertices adjacent to `v`,
+     * first points to beginning of the list and second to end of the list.
+     **/
     std::pair<adjacency_iterator_t, adjacency_iterator_t>
     adjacent_vertices(const vertex_t& v) const
     {
@@ -209,6 +223,10 @@ class AdjacencyMatrix
           adjacency_iterator_t(v, verticesCount(), this));
     }
 
+    /**
+     * @returns pair of iterators to list of vertex's `v` out edges,
+     * first points to beginning of the list and second to end of the list.
+     **/
     std::pair<edge_iterator_t, edge_iterator_t> out_edges(const vertex_t& v)
     const
     {
@@ -217,11 +235,19 @@ class AdjacencyMatrix
           edge_iterator_t(v, verticesCount(), this));
     }
 
+    /**
+     * @returns true if there exists edge (u, v) in graph, false otherwise.
+     **/
     bool adjacent(const vertex_t& u, const vertex_t& v) const
     {
       return fields_.getAdj(u, v);
     }
 
+    /**
+     * @returns pair of values. First value is true if there exists
+     * edge (u, v) in graph and false otherwise. If first value is true
+     * then second value is weight of the edge, otherwise it's undefined.
+     **/
     std::pair<bool, edge_weight_t> edge(const vertex_t& u, const vertex_t& v)
     const
     {
@@ -229,6 +255,9 @@ class AdjacencyMatrix
              fields_.getWeight(u, v));
     }
 
+   /**
+    * @brief adds edge (u, v). If graph is undirected it also adds edge (v, u).
+    **/
     void add_edge(const vertex_t& u, const vertex_t& v)
     {
       fields_.addEdge(u, v);
@@ -238,6 +267,10 @@ class AdjacencyMatrix
       }
     }
 
+    /**
+     * @brief adds edge (u, v) of weight w. If graph is undirected it also adds edge (v, u)
+     * of the same weight.
+     **/
     void add_edge(const vertex_t& u, const vertex_t& v, const edge_weight_t& w)
     {
       fields_.addEdge(u, v, w);
@@ -247,10 +280,14 @@ class AdjacencyMatrix
       }
     }
 
+    /**
+     * @returns number of vertices in graph.
+     **/
     size_t verticesCount() const
     {
       return fields_.vertices_;
     }
+
   private:
     AdjacencyMatrixFields<W, vertex_t> fields_;
 };

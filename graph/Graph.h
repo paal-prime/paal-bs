@@ -1,6 +1,9 @@
 #ifndef GRAPH_GRAPH_H_
 #define GRAPH_GRAPH_H_
 
+/**
+ * Common classes/types of AdjacencyMatrix and AdjacencyLists.
+ **/
 namespace Graph
 {
   struct directed
