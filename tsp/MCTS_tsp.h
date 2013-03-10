@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <vector>
 #include <functional>
+#include <utility>
 
 namespace tsp {
 
@@ -54,7 +55,7 @@ namespace tsp {
         // assertion: left_vertices is sorted asceding
         Fitness accumulator = initial;
         do {
-          Fitness cost = 0;
+          Fitness cost = cost_;
           size_t last = last_vertex_;
           for (auto v : left_vertices) {
             cost += matrix_(last, v);
@@ -62,6 +63,7 @@ namespace tsp {
           }
           cost += matrix_(last, first_vertex_);
           accumulator = combine(accumulator, cost);
+          min_found_ = std::min(min_found_, cost);
         } while (std::next_permutation(left_vertices.begin(),
               left_vertices.end()));
         return accumulator;
@@ -69,10 +71,12 @@ namespace tsp {
 
     public:
       Fitness cost_;
+      Fitness min_found_;
 
       explicit TSPState(const Matrix& matrix) : matrix_(matrix),
       left_count_(matrix.size1() - 1), first_vertex_(matrix.size1() - 1),
-      last_vertex_(first_vertex_), cost_(0) {
+      last_vertex_(first_vertex_), cost_(0),
+      min_found_(std::numeric_limits<double>::infinity()) {
         in_path_.resize(matrix.size1(), false);
         in_path_[first_vertex_] = true;
       }
@@ -93,20 +97,21 @@ namespace tsp {
         }
       }
 
-      template<typename Random> Fitness default_playout(Random& random) {
+      template<typename Random>
+      std::pair<Fitness, Fitness> default_playout(Random& random) {
         if (!is_terminal()) {
           auto left_moves = moves();
           std::shuffle(left_moves.begin(), left_moves.end(), random);
           for (auto m : left_moves) {
             if (moves_count() < 4) {
-              exhaustive_search_mean();
+              exhaustive_search_min();
               break;
             }
             apply(m);
           }
         }
         assert(is_terminal());
-        return cost_;
+        return std::make_pair(cost_, min_found_);
       }
 
       template<typename Move = TSPMove> const std::vector<Move> moves() const {
@@ -129,20 +134,7 @@ namespace tsp {
         assert(!is_terminal());
         Fitness best_cost = exhaustive_accumulate(min<Fitness>(),
             std::numeric_limits<Fitness>::infinity());
-        cost_ += best_cost;
-        // we're not reproducing moves sequence but making state terminal
-        left_count_ = 0;
-        assert(is_terminal());
-      }
-
-      void exhaustive_search_mean() {
-        assert(!is_terminal());
-        size_t total_count = 1;
-        for (size_t i = moves_count(); i > 1; i--) {
-          total_count *= i;
-        }
-        Fitness total_cost = exhaustive_accumulate(std::plus<Fitness>(), 0);
-        cost_ += total_cost / total_count;
+        cost_ = best_cost;
         // we're not reproducing moves sequence but making state terminal
         left_count_ = 0;
         assert(is_terminal());
@@ -238,7 +230,7 @@ namespace tsp {
   };
 
   template<typename Random = std::mt19937> class TSPPolicyRNDeBest {
-      const double bestPickProbability = 0.1;
+      const double bestPickProbability = 0.05;
 
     private:
       Random& random_;

@@ -5,6 +5,7 @@
 #include <limits>
 #include <vector>
 #include <utility>
+#include <algorithm>
 
 namespace mcts {
 
@@ -60,7 +61,10 @@ namespace mcts {
       std::unique_ptr<node_type> root_;  // it does not hold any move in fact
 
       Fitness default_policy(State& state) {
-        return state.default_playout(policy_.get_random());
+        auto found = state.default_playout(policy_.get_random());
+        Fitness fit = found.first, best = found.second;
+        best_found_ = std::min(best_found_, best);
+        return fit;
       }
 
       template<typename Stack> State tree_policy(
@@ -103,8 +107,10 @@ namespace mcts {
 
     public:
       State state_;
+      Fitness best_found_;
 
-      MCTS(const State& state, Policy policy) : policy_(policy), state_(state) {
+      MCTS(const State& state, Policy policy) : policy_(policy), state_(state),
+      best_found_(std::numeric_limits<Fitness>::infinity()) {
         root_.reset(new node_type());
         root_->expand(state_);
       }

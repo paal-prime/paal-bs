@@ -27,7 +27,7 @@ TYPED_TEST(MCTS_TSPPolicy, Performance_eil51) {
   std::mt19937 random;
   TypeParam policy(random);
   mcts::MCTS<TSPMove, TSPState<TSPLIB_Matrix>, TypeParam> mct(state, policy);
-  size_t samples = 30000;
+  size_t samples = 50000;
   double q = .95;
   while (!mct.state_.is_terminal()) {
     if (mct.state_.moves_count() < 10) {
@@ -38,5 +38,6 @@ TYPED_TEST(MCTS_TSPPolicy, Performance_eil51) {
     mct.apply(move);
     samples *= q;
   }
-  std::cout << "res: " << mct.state_.cost_ << std::endl;
+  std::cout << "res: " << mct.state_.cost_ << " min: " << mct.best_found_ <<
+    std::endl;
 }
