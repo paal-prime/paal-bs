@@ -208,8 +208,8 @@ class AdjacencyMatrix
     typedef Graph::WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
     typedef Graph::Edge<vertex_t> edge_t;
 
-    explicit AdjacencyMatrix(const size_t& verticesCount)
-      : fields_(verticesCount) {}
+    explicit AdjacencyMatrix(const size_t& vertices_count)
+      : fields_(vertices_count) {}
 
     /**
      * @returns pair of iterators to list of vertices adjacent to `v`,
