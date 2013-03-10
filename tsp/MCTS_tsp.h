@@ -1,7 +1,8 @@
 #ifndef TSP_MCTS_TSP_H_
 #define TSP_MCTS_TSP_H_
 
-#include <tsp/MCTS.h>
+#include <mcts/MonteCarloTree.h>
+
 #include <limits>
 #include <cmath>
 #include <algorithm>

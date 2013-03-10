@@ -1,11 +1,12 @@
-#ifndef TSP_MCTS_H_
-#define TSP_MCTS_H_
+#ifndef MCTS_MONTECARLOTREE_H_
+#define MCTS_MONTECARLOTREE_H_
 
 #include <cassert>
 #include <limits>
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <memory>
 
 namespace mcts {
 
@@ -58,7 +59,7 @@ namespace mcts {
   };
 
   template<typename Move, typename State, typename Policy>
-  class MCTS {
+  class MonteCarloTree {
     private:
       typedef Node<Move> node_type;
 
@@ -108,8 +109,8 @@ namespace mcts {
       State state_;
       Fitness best_found_;
 
-      MCTS(const State& state, Policy policy) : policy_(policy), state_(state),
-      best_found_(std::numeric_limits<Fitness>::infinity()) {
+      MonteCarloTree(const State& state, Policy policy) : policy_(policy),
+      state_(state), best_found_(std::numeric_limits<Fitness>::infinity()) {
         root_.reset(new node_type());
         root_->expand(state_);
       }
@@ -140,8 +141,8 @@ namespace mcts {
         }
       }
 
-      template<typename Stream> friend
-      Stream& operator<<(Stream& out, const MCTS<Move, State, Policy>& tree) {
+      template<typename Stream> friend Stream&
+      operator<<(Stream& out, const MonteCarloTree<Move, State, Policy>& tree) {
         out << "root: " << *tree.root_ << '\n';
         for (auto& node : tree.root_->children_) {
           out << *node << '\n';
@@ -151,4 +152,4 @@ namespace mcts {
   };
 }
 
-#endif  // TSP_MCTS_H_
+#endif  // MCTS_MONTECARLOTREE_H_
