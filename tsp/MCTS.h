@@ -28,9 +28,14 @@ namespace mcts {
     }
 
     template<typename PolicyType>
-    void update(PolicyType& policy, Fitness estimate) {
+    void update(PolicyType& policy, Fitness estimate, node_type* previous) {
       visits_++;
       policy.update(this, estimate);
+      if (previous != NULL) {
+        if (best_node_ == NULL || best_node_->estimate_ > previous->estimate_) {
+          best_node_ = previous;
+        }
+      }
     }
 
     template<typename State> void expand(const State& state) {
@@ -95,13 +100,7 @@ namespace mcts {
           previous = node;
           node = root_path.back();
           root_path.pop_back();
-          node->update(policy_, estimate);
-          if (previous != NULL) {
-            if (node->best_node_ == NULL
-                || node->best_node_->estimate_ > previous->estimate_) {
-              node->best_node_ = previous;
-            }
-          }
+          node->update(policy_, estimate, previous);
         }
       }
 
