@@ -6,6 +6,8 @@
 
 #include <algorithm>
 #include <vector>
+#include <utility>
+#include <algorithm>
 
 typedef int TestMove;
 
@@ -15,16 +17,48 @@ struct TestState {
   const std::vector<TestMove> moves() const {
     return moves_;
   }
-};
 
-struct TestPolicy {
-  template<typename Node> void update(Node* node, double sample) {
-    node->estimate_ = (node->visits_ == 1) ? sample : std::min(node->estimate_,
-        sample);
+  void apply(const TestMove& move) {
+    moves_.erase(std::find(moves_.begin(), moves_.end(), move));
+  }
+
+  bool is_terminal() {
+    return moves_.empty();
+  }
+
+  std::pair<double, double> default_playout(std::mt19937& random) {
+    moves_.empty();
+    return std::make_pair(100, 50);
   }
 };
 
-TEST(MonteCarloTree, Node) {
+struct TestPolicy {
+  std::mt19937 random_;
+
+  double update(size_t visits, double estimate, double sample) {
+    return (visits == 1) ? sample : std::min(estimate, sample);
+  }
+
+  template<typename Node, typename State> bool do_expand(const Node* node,
+      const State& state) {
+    return true;
+  }
+
+  template<typename Node>
+  Node* best_child(Node* parent, const TestState& state) {
+    assert(parent->children_.size() > 0);
+    return parent->children_[0].get();
+  }
+
+  std::mt19937& get_random() {
+    return random_;
+  }
+};
+
+class MonteCarloTreeTests : public testing::Test {
+};
+
+TEST_F(MonteCarloTreeTests, Node) {
   using mcts::Node;
 
   Node<TestMove> node(-1);
@@ -55,6 +89,37 @@ TEST(MonteCarloTree, Node) {
   ASSERT_EQ(50, node.estimate_);
 }
 
-TEST(MonteCarloTree, Tree) {
-  // TODO(stupaq)
+TEST_F(MonteCarloTreeTests, Tree) {
+  using mcts::MonteCarloTree;
+
+  TestState state;
+  TestPolicy policy;
+  MonteCarloTree<TestMove, TestState, TestPolicy> tree(state, policy);
+  TestMove move;
+  move = tree.search(50);
+  ASSERT_EQ(0, move);
+  ASSERT_EQ(50, tree.best_found_);
+  tree.apply(move);
+  move = tree.search(50);
+  ASSERT_EQ(1, move);
+  ASSERT_EQ(50, tree.best_found_);
+  tree.apply(move);
+  move = tree.search(50);
+  ASSERT_EQ(2, move);
+  ASSERT_EQ(50, tree.best_found_);
+  tree.apply(move);
+  move = tree.search(50);
+  ASSERT_EQ(3, move);
+  ASSERT_EQ(50, tree.best_found_);
+  tree.apply(move);
+  move = tree.search(50);
+  ASSERT_EQ(4, move);
+  ASSERT_EQ(50, tree.best_found_);
+  tree.apply(move);
+  move = tree.search(50);
+  ASSERT_EQ(5, move);
+  ASSERT_EQ(50, tree.best_found_);
+  tree.apply(move);
+
+  ASSERT_TRUE(tree.state_.is_terminal());
 }

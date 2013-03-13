@@ -143,23 +143,18 @@ namespace tsp {
   };
 
   template<typename Random = std::mt19937> class TSPPolicyLCB {
-      const double kLCBParam = 1.0;
-
     private:
       Random& random_;
+      const double kLCBParam;
 
     public:
-      explicit TSPPolicyLCB(Random& random) : random_(random) {
+      explicit TSPPolicyLCB(Random& random, double lcb_param = 1.0) :
+        random_(random), kLCBParam(lcb_param) {
       }
 
-      template<typename Node>
-      void update(Node* node, Fitness sample) {
-        if (node->visits_ == 1) {
-          node->estimate_ = sample;
-        } else {
-          node->estimate_ = (node->estimate_ * (node->visits_ - 1) + sample) /
-            node->visits_;
-        }
+      Fitness update(size_t visits, Fitness estimate, Fitness sample) {
+        return (visits == 1) ? sample
+          : (estimate * (visits - 1) + sample) / visits;
       }
 
       template<typename Node, typename State>
@@ -201,14 +196,9 @@ namespace tsp {
       explicit TSPPolicyRND(Random& random) : random_(random) {
       }
 
-      template<typename Node>
-      void update(Node* node, Fitness sample) {
-        if (node->visits_ == 1) {
-          node->estimate_ = sample;
-        } else {
-          node->estimate_ = (node->estimate_ * (node->visits_ - 1) + sample) /
-            node->visits_;
-        }
+      Fitness update(size_t visits, Fitness estimate, Fitness sample) {
+        return (visits == 1) ? sample
+          : (estimate * (visits - 1) + sample) / visits;
       }
 
       template<typename Node, typename State>
@@ -231,23 +221,18 @@ namespace tsp {
   };
 
   template<typename Random = std::mt19937> class TSPPolicyRNDeBest {
-      const double bestPickProbability = 0.05;
-
     private:
       Random& random_;
+      const double bestPickProbability;
 
     public:
-      explicit TSPPolicyRNDeBest(Random& random) : random_(random) {
+      explicit TSPPolicyRNDeBest(Random& random, double best_ratio = 0.05) :
+        random_(random), bestPickProbability(best_ratio) {
       }
 
-      template<typename Node>
-      void update(Node* node, Fitness sample) {
-        if (node->visits_ == 1) {
-          node->estimate_ = sample;
-        } else {
-          node->estimate_ = (node->estimate_ * (node->visits_ - 1) + sample) /
-            node->visits_;
-        }
+      Fitness update(size_t visits, Fitness estimate, Fitness sample) {
+        return (visits == 1) ? sample
+          : (estimate * (visits - 1) + sample) / visits;
       }
 
       template<typename Node, typename State>

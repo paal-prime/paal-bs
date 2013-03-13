@@ -1,6 +1,8 @@
 #ifndef MCTS_MONTECARLOTREE_H_
 #define MCTS_MONTECARLOTREE_H_
 
+#include <gtest/gtest.h>
+
 #include <cassert>
 #include <limits>
 #include <vector>
@@ -21,7 +23,7 @@ namespace mcts {
     node_type* best_node_ = NULL;
     std::vector<std::unique_ptr<node_type> > children_;
 
-    Node() {}
+    Node() : move_() {}
     explicit Node(const Move& move) : move_(move) {}
 
     bool is_leaf() const {
@@ -31,7 +33,7 @@ namespace mcts {
     template<typename PolicyType>
     void update(PolicyType& policy, Fitness estimate, node_type* previous) {
       visits_++;
-      policy.update(this, estimate);
+      estimate_ = policy.update(visits_, estimate_, estimate);
       if (previous != NULL) {
         if (best_node_ == NULL || best_node_->estimate_ > previous->estimate_) {
           best_node_ = previous;
@@ -60,6 +62,7 @@ namespace mcts {
 
   template<typename Move, typename State, typename Policy>
   class MonteCarloTree {
+      FRIEND_TEST(MonteCarloTreeTest, Tree);
     private:
       typedef Node<Move> node_type;
 
