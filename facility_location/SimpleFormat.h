@@ -23,7 +23,7 @@ namespace facility_location {
     private:
       Matrix<Cost> connecting_cost_;
       Vector<Cost> opening_cost_;
-      Vector<Cost> optimal_solution_;
+      Vector<size_t> optimal_solution_;
       Cost optimal_cost_;
     public:
       typedef Cost value_type;
