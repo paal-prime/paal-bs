@@ -689,8 +689,8 @@ namespace splay {
        * @param stream output stream
        * @param tree splay tree
        **/
-      template<typename S, typename V, enum SplayImplEnum I>
-      friend S& operator<<(S &stream, SplayTree<V, I> &tree) {
+      template<typename S>
+      friend S& operator<<(S &stream, SplayTree<T, SplayImpl> &tree) {
         tree.root_->print_tree(stream);
         return stream;
       }

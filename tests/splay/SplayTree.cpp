@@ -163,7 +163,7 @@ TEST(SplayTree, Reverse) {
 
 class SplayTreePerformance : public ::testing::Test {
   public:
-    static const enum SplayImplEnum splay_impl = splay::kTopDownUnbalanced;
+    static const enum SplayImplEnum splay_impl = splay::kTopDown;
 
     static const int kN = 104729, kM = 26669;
     const uint32_t seed = 331u;
