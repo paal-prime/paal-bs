@@ -84,6 +84,7 @@ namespace mcts
         if (!node.is_leaf())
         {
           size_t chosen_idx = policy_.choose(node, state);
+          assert(chosen_idx < node.size());
           node_type &chosen = *node.children_[chosen_idx];
           state.apply(chosen.move());
           estimate = playout(chosen, state, iteration, level + 1);
@@ -119,6 +120,7 @@ namespace mcts
           ++iteration;
         }
         size_t best_idx = policy_.best_child(*root_.get());
+        assert(best_idx < root_->size());
         return root_->children_[best_idx]->move();
       }
 
