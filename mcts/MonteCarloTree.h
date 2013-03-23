@@ -1,7 +1,7 @@
 #ifndef MCTS_MONTECARLOTREE_H_
 #define MCTS_MONTECARLOTREE_H_
 
-#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
 
 #include <cassert>
 #include <limits>
@@ -92,17 +92,12 @@ namespace mcts
         else
         {
           estimate = state.estimate_playout(policy_.get_random());
-          policy_.update(node, NULL, estimate);
+          policy_.update(node, (ssize_t) (-1), estimate);
         }
         return estimate;
       }
 
     public:
-      /* TODO(stupaq)
-      tree_type& operator=(const tree_type& other) = delete;
-      explicit MonteCarloTree(const tree_type& other) = delete;
-      */
-
       MonteCarloTree(const State& state, Policy policy) : policy_(policy),
         root_state_(state)
       {
