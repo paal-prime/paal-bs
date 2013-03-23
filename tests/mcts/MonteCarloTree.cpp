@@ -10,7 +10,8 @@
 #include <utility>
 #include <algorithm>
 
-typedef double Fitness;
+using mcts::Fitness;
+using mcts::kMaxFitness;
 
 typedef int TestMove;
 
@@ -35,7 +36,7 @@ struct TestPolicy
   typedef struct
   {
     size_t visits_ = 0;
-    Fitness estimate_ = std::numeric_limits<Fitness>::max();
+    Fitness estimate_ = kMaxFitness;
   } Payload;
 
   std::mt19937 random_;
@@ -56,7 +57,7 @@ struct TestPolicy
   template<typename Node> size_t best_child(const Node &parent)
   {
     assert(!parent.is_leaf());
-    Fitness best = std::numeric_limits<Fitness>::max();
+    Fitness best = kMaxFitness;
     ssize_t index = -1;
     for (size_t i = 0; i < parent.size(); i++)
     {

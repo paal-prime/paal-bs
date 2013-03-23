@@ -13,6 +13,7 @@
 namespace mcts
 {
   typedef double Fitness;
+  static const Fitness kMaxFitness = std::numeric_limits<Fitness>::infinity();
 
   template<typename Move, typename State, typename Policy>
   class MonteCarloTree;
@@ -55,6 +56,7 @@ namespace mcts
       template<typename State> void expand(State &state)
       {
         assert(is_leaf());
+        assert(!state.is_terminal());
         auto moves = state.moves();
         children_.resize(moves.size(), NULL);
         size_t i = 0;
@@ -75,7 +77,7 @@ namespace mcts
       Fitness playout(node_type &node, State &state,
           size_t iteration, size_t level)
       {
-        if (node.is_leaf()
+        if (node.is_leaf() && !state.is_terminal()
             && policy_.expand(node, state, iteration, level))
         {
           node.expand(state);
@@ -111,7 +113,7 @@ namespace mcts
       {
         size_t iteration = 0;
         double progress = 0;
-        Fitness best = std::numeric_limits<Fitness>::max();
+        Fitness best = kMaxFitness;
         while ((progress = progress_ctrl.progress(best)) <= 1)
         {
           State state = root_state_;

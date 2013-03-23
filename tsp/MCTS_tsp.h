@@ -7,12 +7,14 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
+#include <numeric>
 #include <functional>
 #include <utility>
 
 namespace tsp
 {
-  typedef mcts::Fitness Fitness;
+  using mcts::Fitness;
+  using mcts::kMaxFitness;
 
   typedef size_t TSPMove;
 
@@ -108,7 +110,7 @@ namespace tsp
         assert(!is_terminal());
         Fitness best_cost = exhaustive_accumulate(
               [](Fitness a, Fitness b) -> Fitness { return (a < b) ? a : b; },
-              std::numeric_limits<Fitness>::infinity());
+              kMaxFitness);
         cost_ = best_cost;
         // we're not reproducing moves sequence but making state terminal
         left_count_ = 0;
@@ -127,7 +129,7 @@ namespace tsp
       typedef struct
       {
         size_t visits_ = 0;
-        Fitness estimate_ = std::numeric_limits<Fitness>::max();
+        Fitness estimate_ = kMaxFitness;
       } Payload;
 
       explicit TSPPolicyRandMean(Random& random) : random_(random) {}
@@ -153,7 +155,7 @@ namespace tsp
 
       template<typename Node> size_t best_child(const Node &parent)
       {
-        Fitness best = std::numeric_limits<Fitness>::max();
+        Fitness best = kMaxFitness;
         ssize_t index = -1;
         for (size_t i = 0; i < parent.size(); i++)
         {
@@ -183,7 +185,7 @@ namespace tsp
       typedef struct
       {
         size_t visits_ = 0;
-        Fitness estimate_ = std::numeric_limits<Fitness>::max();
+        Fitness estimate_ = kMaxFitness;
       } Payload;
 
       explicit TSPPolicyRandEpsMean(Random& random,
@@ -213,7 +215,7 @@ namespace tsp
 
       template<typename Node> size_t best_child(const Node &parent)
       {
-        Fitness best = std::numeric_limits<Fitness>::max();
+        Fitness best = kMaxFitness;
         ssize_t index = -1;
         for (size_t i = 0; i < parent.size(); i++)
         {
@@ -243,9 +245,9 @@ namespace tsp
       typedef struct
       {
         size_t visits_ = 0;
-        Fitness estimate_ = std::numeric_limits<Fitness>::max();
+        Fitness estimate_ = kMaxFitness;
         size_t best_child_ = 0;
-        Fitness best_estimate_ = std::numeric_limits<Fitness>::max();
+        Fitness best_estimate_ = kMaxFitness;
       } Payload;
 
       explicit TSPPolicyRandEpsBest(Random& random,
@@ -278,6 +280,86 @@ namespace tsp
       template<typename Node> size_t best_child(const Node &parent)
       {
         return parent().best_child_;
+      }
+
+      template<typename Node, typename State> bool expand(const Node& node,
+          const State& state, size_t iteration, size_t level)
+      {
+        return node().visits_ >= state.moves_count();
+      }
+  };
+
+  template<typename Random = std::mt19937> class TSPPolicyMuSigma
+  {
+    private:
+      Random& random_;
+      size_t samples_count_;
+      double discovery_factor_;
+
+    public:
+      typedef struct
+      {
+        size_t visits_ = 0;
+        size_t last_ = 0;
+        std::vector<Fitness> samples_;
+      } Payload;
+
+    private:
+      double eval(const Payload&  payload) {
+        auto &samples = payload.samples_;
+        if (samples.size() <= 1) { return 0; }
+        double mean = std::accumulate(samples.begin(), samples.end(), 0)
+          / samples.size();
+        double stddev = sqrt(std::accumulate(samples.begin(), samples.end(), 0,
+              [&mean](double acc, double x) -> double {
+                return pow(mean - x, 2);
+              }) / (samples.size() - 1));
+        return mean + discovery_factor_ * stddev;
+      }
+
+    public:
+      explicit TSPPolicyMuSigma(Random& random, size_t samples_count = 10,
+          double discovery_factor = 1.0)
+        : random_(random), samples_count_(samples_count),
+        discovery_factor_(discovery_factor) {}
+
+      std::mt19937& get_random() { return random_; }
+
+      template<typename Node>
+      void update(Node& parent, ssize_t chosen, Fitness estimate)
+      {
+        Payload& payload = parent();
+        auto &samples = payload.samples_;
+        if (samples.size() < samples_count_)
+        {
+          samples.push_back(estimate);
+        }
+        else
+        {
+          samples.at(payload.last_++) = estimate;
+          payload.last_ %= samples.size();
+        }
+        payload.visits_++;
+      }
+
+      template<typename Node, typename State> size_t choose(const Node& parent,
+          const State &state)
+      { return best_child(parent); }
+
+      template<typename Node> size_t best_child(const Node &parent)
+      {
+        Fitness best = kMaxFitness;
+        ssize_t index = -1;
+        for (size_t i = 0; i < parent.size(); i++)
+        {
+          Fitness estimate = eval(parent[i]());
+          if (best > estimate)
+          {
+            best = estimate;
+            index = i;
+          }
+        }
+        return static_cast<size_t>(index);
       }
 
       template<typename Node, typename State> bool expand(const Node& node,

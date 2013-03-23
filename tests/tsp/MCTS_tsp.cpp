@@ -32,6 +32,7 @@ template<typename Policy>
 class MCTS_TSPPolicy : public ::testing::Test {};
 
 typedef ::testing::Types <
+    tsp::TSPPolicyMuSigma<>,
     tsp::TSPPolicyRandMean<>,
     tsp::TSPPolicyRandEpsMean<>,
     tsp::TSPPolicyRandEpsBest<>
