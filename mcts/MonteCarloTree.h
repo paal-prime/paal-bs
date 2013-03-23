@@ -10,16 +10,18 @@
 #include <algorithm>
 #include <memory>
 
-namespace mcts {
+namespace mcts
+{
   typedef double Fitness;
 
   template<typename Move, typename State, typename Policy>
   class MonteCarloTree;
 
-  template<typename Move, class Policy> class Node {
-      template<typename M, typename S, typename P>
-      friend class MonteCarloTree;
+  template<typename Move, class Policy> class Node
+  {
+      template<typename M, typename S, typename P> friend class MonteCarloTree;
       FRIEND_TEST(MonteCarloTreeTests, Node);
+      FRIEND_TEST(MonteCarloTreeTests, Tree);
     private:
       typedef Node<Move, Policy> node_type;
       const Move move_;
@@ -33,10 +35,9 @@ namespace mcts {
       Node() : move_() {}
 
       explicit Node(const Move& move) : move_(move) {}
-      ~Node() {
-        for (auto n : children_) {
-          delete n;
-        }
+      ~Node()
+      {
+        for (auto n : children_) { delete n; }
       }
 
       typename Policy::Payload& operator()() { return payload_; }
@@ -51,19 +52,18 @@ namespace mcts {
 
       bool is_leaf() const { return children_.empty(); }
 
-      template<typename State> void expand(State &state) {
+      template<typename State> void expand(State &state)
+      {
         assert(is_leaf());
         auto moves = state.moves();
         children_.resize(moves.size(), NULL);
         size_t i = 0;
-        for (auto m : moves) {
-          children_[i++] = new node_type(m);
-        }
+        for (auto m : moves) { children_[i++] = new node_type(m); }
       }
   };
 
-  template<typename Move, typename State, typename Policy>
-  class MonteCarloTree {
+  template<typename Move, typename State, typename Policy> class MonteCarloTree
+  {
       FRIEND_TEST(MonteCarloTreeTests, Tree);
     private:
       typedef Node<Move, Policy> node_type;
@@ -72,20 +72,25 @@ namespace mcts {
       std::unique_ptr<node_type> root_;  // does not hold any move in fact
       State root_state_;
 
-      Fitness playout(node_type &node, State &state, size_t iteration,
-          size_t level) {
+      Fitness playout(node_type &node, State &state,
+          size_t iteration, size_t level)
+      {
         if (node.is_leaf()
-            && policy_.expand(node, state, iteration, level)) {
+            && policy_.expand(node, state, iteration, level))
+        {
           node.expand(state);
         }
         Fitness estimate;
-        if (!node.is_leaf()) {
+        if (!node.is_leaf())
+        {
           size_t chosen_idx = policy_.choose(node, state);
           node_type &chosen = *node.children_[chosen_idx];
           state.apply(chosen.move());
           estimate = playout(chosen, state, iteration, level + 1);
           policy_.update(node, chosen_idx, estimate);
-        } else {
+        }
+        else
+        {
           estimate = state.estimate_playout(policy_.get_random());
           policy_.update(node, NULL, estimate);
         }
@@ -99,17 +104,20 @@ namespace mcts {
       */
 
       MonteCarloTree(const State& state, Policy policy) : policy_(policy),
-        root_state_(state) {
+        root_state_(state)
+      {
         root_.reset(new node_type());
         root_->expand(root_state_);
       }
 
       template<typename ProgressCtrl>
-      Move search(ProgressCtrl &progress_ctrl) {
+      Move search(ProgressCtrl &progress_ctrl)
+      {
         size_t iteration = 0;
         double progress = 0;
         Fitness best = std::numeric_limits<Fitness>::max();
-        while ((progress = progress_ctrl.progress(best)) <= 1) {
+        while ((progress = progress_ctrl.progress(best)) <= 1)
+        {
           State state = root_state_;
           Fitness estimate = playout(*root_.get(), state, iteration, 0);
           best = std::min(best, estimate);
@@ -119,14 +127,18 @@ namespace mcts {
         return root_->children_[best_idx]->move();
       }
 
-      void apply(const Move& move) {
-        for (node_type *&node : root_->children_) {
-          if (move == node->move()) {
+      void apply(const Move& move)
+      {
+        for (node_type *&node : root_->children_)
+        {
+          if (move == node->move())
+          {
             node_type* new_root = node;
-            node = NULL;  // this detaches subtree, so it is not deleted
+            node = NULL;  // detach subtree before disposing entire tree
             root_.reset(new_root);  // this invokes old root destructor
             root_state_.apply(move);
-            if (root_->is_leaf() && !root_state_.is_terminal()) {
+            if (root_->is_leaf() && !root_state_.is_terminal())
+            {
               root_->expand(root_state_);
             }
             break;
@@ -134,7 +146,8 @@ namespace mcts {
         }
       }
 
-      State &root_state() {
+      State &root_state()
+      {
         return root_state_;
       }
   };

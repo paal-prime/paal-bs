@@ -4,7 +4,7 @@
 #include <tsp/TSPLIB.h>
 #include <tsp/MCTS_tsp.h>
 
-#include <algorithm>
+#include <limits>
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -14,64 +14,78 @@ typedef double Fitness;
 
 typedef int TestMove;
 
-struct TestState {
+struct TestState
+{
   std::vector<TestMove> moves_ = {0, 1, 2, 3, 4, 5};
 
-  const std::vector<TestMove> moves() const {
+  const std::vector<TestMove> moves() const
+  {
     return moves_;
   }
 
-  void apply(const TestMove& move) {
+  void apply(const TestMove& move)
+  {
     moves_.erase(std::find(moves_.begin(), moves_.end(), move));
   }
 
-  bool is_terminal() {
+  bool is_terminal()
+  {
     return moves_.empty();
   }
 
-  Fitness estimate_playout(std::mt19937& random) {
+  Fitness estimate_playout(std::mt19937& random)
+  {
     return 100;
   }
 };
 
-struct TestPolicy {
-  typedef struct {
+struct TestPolicy
+{
+  typedef struct
+  {
     size_t visits_ = 0;
     Fitness estimate_ = std::numeric_limits<Fitness>::max();
   } Payload;
 
   std::mt19937 random_;
 
-  std::mt19937& get_random() {
+  std::mt19937& get_random()
+  {
     return random_;
   }
 
   template<typename Node>
-    void update(Node& parent, ssize_t chosen, Fitness estimate) {
-      Payload& payload = parent();
-      payload.visits_++;
-      payload.estimate_ = std::min(payload.estimate_, estimate);
-    }
+  void update(Node& parent, ssize_t chosen, Fitness estimate)
+  {
+    Payload& payload = parent();
+    payload.visits_++;
+    payload.estimate_ = std::min(payload.estimate_, estimate);
+  }
 
   template<typename Node, typename State> size_t choose(const Node& parent,
-      const State &state) {
+      const State &state)
+  {
     return 0;
   }
 
-  template<typename Node> size_t best_child(const Node &parent) {
+  template<typename Node> size_t best_child(const Node &parent)
+  {
     return 0;
   }
 
   template<typename Node, typename State> bool expand(const Node& node,
-      const State& state, size_t iteration, size_t level) {
+      const State& state, size_t iteration, size_t level)
+  {
     return true;
   }
 };
 
-class MonteCarloTreeTests : public testing::Test {
+class MonteCarloTreeTests : public testing::Test
+{
 };
 
-TEST_F(MonteCarloTreeTests, Node) {
+TEST_F(MonteCarloTreeTests, Node)
+{
   using mcts::Node;
 
   Node<TestMove, TestPolicy> node(-1);
@@ -79,7 +93,8 @@ TEST_F(MonteCarloTreeTests, Node) {
   ASSERT_GT(state.moves().size(), 2);
   node.expand(state);
   ASSERT_EQ(state.moves().size(), node.children_.size());
-  for (size_t i = 0; i < state.moves().size(); i++) {
+  for (size_t i = 0; i < state.moves().size(); i++)
+  {
     ASSERT_EQ(state.moves_[i], node[i].move());
   }
   ASSERT_EQ(NULL, node.best_node_);
@@ -102,7 +117,8 @@ TEST_F(MonteCarloTreeTests, Node) {
   ASSERT_EQ(50, node.estimate_);
 }
 
-TEST_F(MonteCarloTreeTests, Tree) {
+TEST_F(MonteCarloTreeTests, Tree)
+{
   // TODO(stupaq): friend test
   using mcts::MonteCarloTree;
 

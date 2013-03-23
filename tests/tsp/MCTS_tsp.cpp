@@ -6,16 +6,19 @@
 #include <paal/ProgressCtrl.h>
 
 #include <random>
-#include <iostream>
+#include <iostream>  // NOLINT(readability/streams)
 
 template<typename Move, typename State, typename Policy>
 mcts::MonteCarloTree<Move, State, Policy>
-run_mcts(State& state, Policy& policy) {
+run_mcts(State& state, Policy& policy)
+{
   mcts::MonteCarloTree<Move, State, Policy> mct(state, policy);
   size_t samples = 50000;
   double q = .95;
-  while (!mct.root_state().is_terminal()) {
-    if (mct.root_state().moves_count() < 10) {
+  while (!mct.root_state().is_terminal())
+  {
+    if (mct.root_state().moves_count() < 10)
+    {
       mct.root_state().exhaustive_search_min();
       break;
     }
@@ -28,17 +31,19 @@ run_mcts(State& state, Policy& policy) {
 }
 
 template<typename Policy>
-class MCTS_TSPPolicy : public ::testing::Test {
+class MCTS_TSPPolicy : public ::testing::Test
+{
 };
 
 /* TODO(stupaq): benchmarks for all policies
 typedef ::testing::Types<tsp::TSPPolicyLCB<>, tsp::TSPPolicyRND<>,
         tsp::TSPPolicyRNDeBest<> > PoliciesList; */
-typedef ::testing::Types<tsp::TSPPolicyRND<>, tsp::TSPPolicyRND<>,
+typedef ::testing::Types < tsp::TSPPolicyRND<>, tsp::TSPPolicyRND<>,
         tsp::TSPPolicyRND<> > PoliciesList;
 TYPED_TEST_CASE(MCTS_TSPPolicy, PoliciesList);
 
-TYPED_TEST(MCTS_TSPPolicy, Performance_eil51) {
+TYPED_TEST(MCTS_TSPPolicy, Performance_eil51)
+{
   using tsp::TSPLIB_Directory;
   using tsp::TSPLIB_Matrix;
   using tsp::TSPState;
