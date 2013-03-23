@@ -16,6 +16,18 @@ namespace tsp
   using mcts::Fitness;
   using mcts::kMaxFitness;
 
+  template<typename Node, typename Funct>
+  ssize_t min_child(const Node &parent, Funct fun) {
+    Fitness best = kMaxFitness;
+    ssize_t index = -1;
+    for (size_t i = 0; i < parent.size(); i++)
+    {
+      Fitness estimate = fun(parent[i]());
+      if (best > estimate) { best = estimate; index = i; }
+    }
+    return index;
+  }
+
   typedef size_t TSPMove;
 
   template<typename Matrix> class TSPState
@@ -143,8 +155,7 @@ namespace tsp
         payload.visits_++;
         payload.estimate_ = (payload.visits_ == 1)
           ? estimate
-          : payload.estimate_ = (payload.estimate_ * payload.visits_ + estimate)
-              / (payload.visits_ + 1);
+          : payload.estimate_ + (estimate - payload.estimate_) / payload.visits_;
       }
 
       template<typename Node, typename State> size_t choose(const Node& parent,
@@ -155,16 +166,8 @@ namespace tsp
 
       template<typename Node> size_t best_child(const Node &parent)
       {
-        Fitness best = kMaxFitness;
-        ssize_t index = -1;
-        for (size_t i = 0; i < parent.size(); i++)
-        {
-          if (best > parent[i]().estimate_)
-          {
-            best = parent[i]().estimate_;
-            index = i;
-          }
-        }
+        ssize_t index = min_child(parent, [](const Payload& payload)
+            -> double { return payload.estimate_; });
         return static_cast<size_t>(index);
       }
 
@@ -201,8 +204,7 @@ namespace tsp
         payload.visits_++;
         payload.estimate_ = (payload.visits_ == 1)
           ? estimate
-          : payload.estimate_ = (payload.estimate_ * payload.visits_ + estimate)
-              / (payload.visits_ + 1);
+          : payload.estimate_ + (estimate - payload.estimate_) / payload.visits_;
       }
 
       template<typename Node, typename State> size_t choose(const Node& parent,
@@ -215,16 +217,8 @@ namespace tsp
 
       template<typename Node> size_t best_child(const Node &parent)
       {
-        Fitness best = kMaxFitness;
-        ssize_t index = -1;
-        for (size_t i = 0; i < parent.size(); i++)
-        {
-          if (best > parent[i]().estimate_)
-          {
-            best = parent[i]().estimate_;
-            index = i;
-          }
-        }
+        ssize_t index = min_child(parent, [](const Payload& payload)
+            -> double { return payload.estimate_; });
         return static_cast<size_t>(index);
       }
 
@@ -300,24 +294,10 @@ namespace tsp
       typedef struct
       {
         size_t visits_ = 0;
-        size_t last_ = 0;
-        std::vector<Fitness> samples_;
+        double mean_ = 0;
+        double interm_ = 0;
       } Payload;
 
-    private:
-      double eval(const Payload&  payload) {
-        auto &samples = payload.samples_;
-        if (samples.size() <= 1) { return 0; }
-        double mean = std::accumulate(samples.begin(), samples.end(), 0)
-          / samples.size();
-        double stddev = sqrt(std::accumulate(samples.begin(), samples.end(), 0,
-              [&mean](double acc, double x) -> double {
-                return pow(mean - x, 2);
-              }) / (samples.size() - 1));
-        return mean + discovery_factor_ * stddev;
-      }
-
-    public:
       explicit TSPPolicyMuSigma(Random& random, size_t samples_count = 10,
           double discovery_factor = 1.0)
         : random_(random), samples_count_(samples_count),
@@ -328,18 +308,11 @@ namespace tsp
       template<typename Node>
       void update(Node& parent, ssize_t chosen, Fitness estimate)
       {
-        Payload& payload = parent();
-        auto &samples = payload.samples_;
-        if (samples.size() < samples_count_)
-        {
-          samples.push_back(estimate);
-        }
-        else
-        {
-          samples.at(payload.last_++) = estimate;
-          payload.last_ %= samples.size();
-        }
+        Payload &payload = parent();
         payload.visits_++;
+        double delta = estimate - payload.mean_;
+        payload.mean_ += delta / payload.visits_;
+        payload.interm_ += delta * (estimate - payload.mean_);
       }
 
       template<typename Node, typename State> size_t choose(const Node& parent,
@@ -348,17 +321,13 @@ namespace tsp
 
       template<typename Node> size_t best_child(const Node &parent)
       {
-        Fitness best = kMaxFitness;
-        ssize_t index = -1;
-        for (size_t i = 0; i < parent.size(); i++)
-        {
-          Fitness estimate = eval(parent[i]());
-          if (best > estimate)
-          {
-            best = estimate;
-            index = i;
-          }
-        }
+        double factor = discovery_factor_;
+        ssize_t index = min_child(parent, [&factor]
+            (const Payload& payload) -> double {
+            return payload.mean_ + ((payload.visits_ <= 1) ? 0
+              : factor * sqrt(payload.interm_ / (payload.visits_ - 1)));
+            });
+        assert(index >= 0);
         return static_cast<size_t>(index);
       }
 
