@@ -13,36 +13,10 @@
 namespace tsp {
 
   typedef mcts::Fitness Fitness;
-  static const size_t kNoVertex = -1;
 
-  struct TSPMove {
-    size_t vertex_;
-
-    TSPMove() : vertex_(kNoVertex) {}
-    explicit TSPMove(size_t vertex) : vertex_(vertex) {}
-
-    bool operator==(const TSPMove& other) const {
-      return vertex_ == other.vertex_;
-    }
-
-    template<typename Stream> friend
-    Stream& operator<<(Stream& out, const TSPMove& move) {
-      if (move.vertex_ != kNoVertex) {
-        out << move.vertex_;
-      } else {
-        out << "no_vertex";
-      }
-      return out;
-    }
-  };
+  typedef size_t TSPMove;
 
   template<typename Matrix> class TSPState {
-      template<typename T> struct min {
-        const T& operator() (const T& a, const T& b) const {
-          return (a < b) ? a : b;
-        }
-      };
-
     private:
       const Matrix& matrix_;
       size_t left_count_;
@@ -64,7 +38,6 @@ namespace tsp {
           }
           cost += matrix_(last, first_vertex_);
           accumulator = combine(accumulator, cost);
-          min_found_ = std::min(min_found_, cost);
         } while (std::next_permutation(left_vertices.begin(),
               left_vertices.end()));
         return accumulator;
@@ -72,12 +45,10 @@ namespace tsp {
 
     public:
       Fitness cost_;
-      Fitness min_found_;
 
       explicit TSPState(const Matrix& matrix) : matrix_(matrix),
       left_count_(matrix.size1() - 1), first_vertex_(matrix.size1() - 1),
-      last_vertex_(first_vertex_), cost_(0),
-      min_found_(std::numeric_limits<double>::infinity()) {
+      last_vertex_(first_vertex_), cost_(0) {
         in_path_.resize(matrix.size1(), false);
         in_path_[first_vertex_] = true;
       }
@@ -88,18 +59,17 @@ namespace tsp {
 
       void apply(const TSPMove& move) {
         assert(!is_terminal());
-        assert(!in_path_[move.vertex_]);
-        in_path_[move.vertex_] = true;
+        assert(!in_path_[move]);
+        in_path_[move] = true;
         left_count_--;
-        cost_ += matrix_(last_vertex_, move.vertex_);
-        last_vertex_ = move.vertex_;
+        cost_ += matrix_(last_vertex_, move);
+        last_vertex_ = move;
         if (is_terminal()) {
           cost_ += matrix_(last_vertex_, first_vertex_);
         }
       }
 
-      template<typename Random>
-      std::pair<Fitness, Fitness> default_playout(Random& random) {
+      template<typename Random> Fitness estimate_playout(Random& random) {
         if (!is_terminal()) {
           auto left_moves = moves();
           std::shuffle(left_moves.begin(), left_moves.end(), random);
@@ -112,7 +82,7 @@ namespace tsp {
           }
         }
         assert(is_terminal());
-        return std::make_pair(cost_, min_found_);
+        return cost_;
       }
 
       template<typename Move = TSPMove> const std::vector<Move> moves() const {
@@ -127,64 +97,19 @@ namespace tsp {
         return ms;
       }
 
-      size_t moves_count() const {
-        return left_count_;
-      }
-
       void exhaustive_search_min() {
         assert(!is_terminal());
-        Fitness best_cost = exhaustive_accumulate(min<Fitness>(),
+        Fitness best_cost = exhaustive_accumulate(
+            [](Fitness a, Fitness b) -> Fitness { return (a < b) ? a : b; },
             std::numeric_limits<Fitness>::infinity());
         cost_ = best_cost;
         // we're not reproducing moves sequence but making state terminal
         left_count_ = 0;
         assert(is_terminal());
       }
-  };
 
-  template<typename Random = std::mt19937> class TSPPolicyLCB {
-    private:
-      Random& random_;
-      const double kLCBParam;
-
-    public:
-      explicit TSPPolicyLCB(Random& random, double lcb_param = 1.0) :
-        random_(random), kLCBParam(lcb_param) {
-      }
-
-      Fitness update(size_t visits, Fitness estimate, Fitness sample) {
-        return (visits == 1) ? sample
-          : (estimate * (visits - 1) + sample) / visits;
-      }
-
-      template<typename Node, typename State>
-      Node* best_child(Node* parent, const State& state) {
-        Fitness best_est = std::numeric_limits<Fitness>::infinity();
-        Node* best_node = NULL;
-        assert(!parent->children_.empty());
-        for (auto& node : parent->children_) {
-          Fitness lcb = node->estimate_;
-          if (parent->visits_ == 0 || node->visits_ == 0) {
-            lcb -= std::numeric_limits<Fitness>::infinity();
-          } else {
-            lcb *= 1 - kLCBParam * sqrt(log(parent->visits_) / node->visits_);
-          }
-          if (lcb < best_est) {
-            best_est = lcb;
-            best_node = node.get();
-          }
-        }
-        assert(best_node != NULL);
-        return best_node;
-      }
-
-      std::mt19937& get_random() {
-        return random_;
-      }
-
-      template<typename Node, typename State> bool do_expand(const Node* node,
-          const State& state) {
-        return node->visits_ >= state.moves_count();
+      size_t moves_count() const {
+        return left_count_;
       }
   };
 
@@ -193,70 +118,52 @@ namespace tsp {
       Random& random_;
 
     public:
-      explicit TSPPolicyRND(Random& random) : random_(random) {
-      }
+      typedef struct {
+        size_t visits_ = 0;
+        Fitness estimate_ = std::numeric_limits<Fitness>::max();
+      } Payload;
 
-      Fitness update(size_t visits, Fitness estimate, Fitness sample) {
-        return (visits == 1) ? sample
-          : (estimate * (visits - 1) + sample) / visits;
-      }
-
-      template<typename Node, typename State>
-      Node* best_child(Node* parent, const State& state) {
-        assert(!parent->children_.empty());
-        Node* pick = parent->children_[random_() %
-          parent->children_.size()].get();
-        assert(pick != NULL);
-        return pick;
-      }
+      explicit TSPPolicyRND(Random& random) : random_(random) {}
 
       std::mt19937& get_random() {
         return random_;
       }
 
-      template<typename Node, typename State> bool do_expand(const Node* node,
-          const State& state) {
-        return node->visits_ >= state.moves_count();
-      }
-  };
-
-  template<typename Random = std::mt19937> class TSPPolicyRNDeBest {
-    private:
-      Random& random_;
-      const double bestPickProbability;
-
-    public:
-      explicit TSPPolicyRNDeBest(Random& random, double best_ratio = 0.05) :
-        random_(random), bestPickProbability(best_ratio) {
-      }
-
-      Fitness update(size_t visits, Fitness estimate, Fitness sample) {
-        return (visits == 1) ? sample
-          : (estimate * (visits - 1) + sample) / visits;
-      }
-
-      template<typename Node, typename State>
-      Node* best_child(Node* parent, const State& state) {
-        assert(!parent->children_.empty());
-        Node* pick = NULL;
-        if (parent->best_node_ != NULL
-            && bestPickProbability >= static_cast<double>(random_()) /
-              random_.max()) {
-          pick = parent->best_node_;
+      template<typename Node>
+      void update(Node& parent, ssize_t chosen, Fitness estimate) {
+        Payload& payload = parent();
+        payload.visits_++;
+        if (payload.visits_ == 1) {
+          payload.estimate_ = estimate;
         } else {
-          pick = parent->children_[random_() % parent->children_.size()].get();
+          payload.estimate_ = (payload.estimate_ * payload.visits_ + estimate)
+            / (payload.visits_ + 1);
         }
-        assert(pick != NULL);
-        return pick;
       }
 
-      std::mt19937& get_random() {
-        return random_;
+      template<typename Node, typename State> size_t choose(const Node& parent,
+          const State &state) {
+        assert(!parent.is_leaf());
+        return (random_() % parent.size());
       }
 
-      template<typename Node, typename State> bool do_expand(const Node* node,
-          const State& state) {
-        return node->visits_ >= state.moves_count();
+      template<typename Node> size_t best_child(const Node &parent) {
+        assert(!parent.is_leaf());
+        Fitness best = std::numeric_limits<Fitness>::max();
+        ssize_t index = -1;
+        for (size_t i = 0; i < parent.size(); i++) {
+          if (best > parent[i]().estimate_) {
+            best = parent[i]().estimate_;
+            index = i;
+          }
+        }
+        assert(index >= 0);
+        return static_cast<size_t>(index);
+      }
+
+      template<typename Node, typename State> bool expand(const Node& node,
+          const State& state, size_t iteration, size_t level) {
+        return node().visits_ >= state.moves_count();
       }
   };
 }

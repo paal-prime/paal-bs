@@ -1,8 +1,8 @@
 IGNORED_WARN := -Wno-vla -Wno-unused-parameter
 OPTIMIZATIONS := -O2 -g
 
-CXX := g++ -I ./
-CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTIMIZATIONS)
+CXX := clang++ -I ./
+CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=c++11 $(IGNORED_WARN) $(OPTIMIZATIONS)
 LDFLAGS := -lrt
 LDFLAGS_GTEST := -lgtest -lgtest_main
 
