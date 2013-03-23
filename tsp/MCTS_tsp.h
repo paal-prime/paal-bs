@@ -153,9 +153,8 @@ namespace tsp
       {
         Payload& payload = parent();
         payload.visits_++;
-        payload.estimate_ = (payload.visits_ == 1)
-          ? estimate
-          : payload.estimate_ + (estimate - payload.estimate_) / payload.visits_;
+        payload.estimate_ = (payload.visits_ == 1) ? estimate :
+          payload.estimate_ + (estimate - payload.estimate_) / payload.visits_;
       }
 
       template<typename Node, typename State> size_t choose(const Node& parent,
@@ -202,9 +201,8 @@ namespace tsp
       {
         Payload& payload = parent();
         payload.visits_++;
-        payload.estimate_ = (payload.visits_ == 1)
-          ? estimate
-          : payload.estimate_ + (estimate - payload.estimate_) / payload.visits_;
+        payload.estimate_ = (payload.visits_ == 1) ? estimate :
+          payload.estimate_ + (estimate - payload.estimate_) / payload.visits_;
       }
 
       template<typename Node, typename State> size_t choose(const Node& parent,
