@@ -14,11 +14,10 @@
 namespace tsp
 {
   using mcts::Fitness;
-  using mcts::kMaxFitness;
 
   template<typename Node, typename Funct>
   ssize_t min_child(const Node &parent, Funct fun) {
-    Fitness best = kMaxFitness;
+    Fitness best = std::numeric_limits<Fitness>::infinity();
     ssize_t index = -1;
     for (size_t i = 0; i < parent.size(); i++)
     {
@@ -27,8 +26,6 @@ namespace tsp
     }
     return index;
   }
-
-  typedef size_t TSPMove;
 
   template<typename Matrix> class TSPState
   {
@@ -42,7 +39,7 @@ namespace tsp
       template<typename Combine>
       Fitness exhaustive_accumulate(Combine combine, Fitness initial)
       {
-        auto left_vertices = moves<size_t>();
+        auto left_vertices = moves();
         // assertion: left_vertices vector is sorted in asceding order
         Fitness accumulator = initial;
         do
@@ -63,6 +60,8 @@ namespace tsp
       }
 
     public:
+      typedef size_t Move;
+
       Fitness cost_;
 
       explicit TSPState(const Matrix& matrix) : matrix_(matrix),
@@ -75,7 +74,7 @@ namespace tsp
 
       bool is_terminal() const { return left_count_ == 0; }
 
-      void apply(const TSPMove& move)
+      void apply(const Move& move)
       {
         assert(!is_terminal());
         assert(!in_path_[move]);
@@ -105,7 +104,7 @@ namespace tsp
         return cost_;
       }
 
-      template<typename Move = TSPMove> const std::vector<Move> moves() const
+      const std::vector<Move> moves() const
       {
         assert(!is_terminal());
         std::vector<Move> ms;
@@ -122,7 +121,7 @@ namespace tsp
         assert(!is_terminal());
         Fitness best_cost = exhaustive_accumulate(
               [](Fitness a, Fitness b) -> Fitness { return (a < b) ? a : b; },
-              kMaxFitness);
+              std::numeric_limits<Fitness>::infinity());
         cost_ = best_cost;
         // we're not reproducing moves sequence but making state terminal
         left_count_ = 0;
@@ -141,7 +140,7 @@ namespace tsp
       typedef struct
       {
         size_t visits_ = 0;
-        Fitness estimate_ = kMaxFitness;
+        Fitness estimate_ = std::numeric_limits<Fitness>::infinity();
       } Payload;
 
       explicit TSPPolicyRandMean(Random& random) : random_(random) {}
@@ -187,7 +186,7 @@ namespace tsp
       typedef struct
       {
         size_t visits_ = 0;
-        Fitness estimate_ = kMaxFitness;
+        Fitness estimate_ = std::numeric_limits<Fitness>::infinity();
       } Payload;
 
       explicit TSPPolicyRandEpsMean(Random& random,
@@ -237,9 +236,9 @@ namespace tsp
       typedef struct
       {
         size_t visits_ = 0;
-        Fitness estimate_ = kMaxFitness;
+        Fitness estimate_ = std::numeric_limits<Fitness>::infinity();
         size_t best_child_ = 0;
-        Fitness best_estimate_ = kMaxFitness;
+        Fitness best_estimate_ = std::numeric_limits<Fitness>::infinity();
       } Payload;
 
       explicit TSPPolicyRandEpsBest(Random& random,

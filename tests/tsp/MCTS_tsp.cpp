@@ -8,11 +8,11 @@
 #include <random>
 #include <iostream>  // NOLINT(readability/streams)
 
-template<typename Move, typename State, typename Policy>
-mcts::MonteCarloTree<Move, State, Policy>
+template<typename State, typename Policy>
+mcts::MonteCarloTree<State, Policy>
 run_mcts(State& state, Policy& policy, size_t samples, double progression = 1.0)
 {
-  mcts::MonteCarloTree<Move, State, Policy> mct(state, policy);
+  mcts::MonteCarloTree<State, Policy> mct(state, policy);
   while (!mct.root_state().is_terminal())
   {
     if (mct.root_state().moves_count() < 10)
@@ -21,7 +21,7 @@ run_mcts(State& state, Policy& policy, size_t samples, double progression = 1.0)
       break;
     }
     paal::IterationCtrl ctrl(samples);
-    Move move = mct.search(ctrl);
+    typename State::Move move = mct.search(ctrl);
     mct.apply(move);
     samples *= progression;
   }
@@ -44,7 +44,6 @@ TYPED_TEST(MCTS_TSPPolicy, Performance_eil51)
   using tsp::TSPLIB_Directory;
   using tsp::TSPLIB_Matrix;
   using tsp::TSPState;
-  using tsp::TSPMove;
 
   TSPLIB_Directory dir("./TSPLIB/symmetrical/");
   TSPLIB_Matrix matrix;
@@ -54,7 +53,7 @@ TYPED_TEST(MCTS_TSPPolicy, Performance_eil51)
   std::mt19937 random;
   TSPState<TSPLIB_Matrix> state(matrix);
   TypeParam policy(random);
-  auto mct = run_mcts<TSPMove>(state, policy, samples, 0.95);
+  auto mct = run_mcts<>(state, policy, samples, 0.95);
   std::cout << "samples: " << samples << " res: " << mct.root_state().cost_
     << std::endl;
 }

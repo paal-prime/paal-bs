@@ -13,98 +13,97 @@
 namespace mcts
 {
   typedef double Fitness;
-  static const Fitness kMaxFitness = std::numeric_limits<Fitness>::infinity();
 
-  template<typename Move, typename State, typename Policy>
-  class MonteCarloTree;
-
-  template<typename Move, class Policy> class Node
+  template<typename State, typename Policy> class MonteCarloTree
   {
-      template<typename M, typename S, typename P> friend class MonteCarloTree;
       FRIEND_TEST(MonteCarloTreeTests, Node);
       FRIEND_TEST(MonteCarloTreeTests, Tree);
-    private:
-      typedef Node<Move, Policy> node_type;
-      const Move move_;
-      std::vector<node_type*> children_;
-      typename Policy::Payload payload_;
-
+      typedef typename State::Move Move;
+      typedef typename Policy::Payload Payload;
     public:
-      node_type& operator=(const node_type& other) = delete;
-      explicit Node(const node_type& other) = delete;
-
-      Node() : move_() {}
-
-      explicit Node(const Move& move) : move_(move) {}
-      ~Node()
+      class Node
       {
-        for (auto n : children_) { delete n; }
-      }
+          friend class MonteCarloTree;
+          FRIEND_TEST(MonteCarloTreeTests, Node);
+          FRIEND_TEST(MonteCarloTreeTests, Tree);
+        private:
+          const Move move_;
+          std::vector<std::unique_ptr<Node> > children_;
+          Payload payload_;
 
-      typename Policy::Payload& operator()() { return payload_; }
-      const typename Policy::Payload& operator()() const { return payload_; }
+        public:
+          Node& operator=(const Node& other) = delete;
+          explicit Node(const Node& other) = delete;
 
-      node_type& operator[](ssize_t i) { return *children_.at(i); }
-      const node_type& operator[](ssize_t i) const { return *children_.at(i); }
+          Node() : move_() {}
 
-      size_t size() const { return children_.size(); }
+          explicit Node(const Move& move) : move_(move) {}
 
-      const Move& move() const { return move_; }
+          Payload& operator()() { return payload_; }
+          const Payload& operator()() const { return payload_; }
 
-      bool is_leaf() const { return children_.empty(); }
+          Node& operator[](ssize_t i) {
+            assert(i >= 0 && i < (ssize_t) children_.size());
+            return *children_[i].get();
+          }
+          const Node& operator[](ssize_t i) const {
+            assert(i >= 0 && i < (ssize_t) children_.size());
+            return *children_[i].get();
+          }
 
-      template<typename State> void expand(State &state)
-      {
-        assert(is_leaf());
-        assert(!state.is_terminal());
-        auto moves = state.moves();
-        children_.resize(moves.size(), NULL);
-        size_t i = 0;
-        for (auto m : moves) { children_[i++] = new node_type(m); }
-      }
-  };
+          size_t size() const { return children_.size(); }
 
-  template<typename Move, typename State, typename Policy> class MonteCarloTree
-  {
-      FRIEND_TEST(MonteCarloTreeTests, Tree);
+          const Move& move() const { return move_; }
+
+          bool is_leaf() const { return children_.empty(); }
+
+          void expand(State &state)
+          {
+            assert(is_leaf());
+            auto moves = state.moves();
+            assert(!moves.empty());
+            children_.resize(moves.size());
+            size_t i = 0;
+            for (auto m : moves) { children_[i++].reset(new Node(m)); }
+          }
+
+          Fitness playout(Policy &policy, State &state, size_t iteration,
+              size_t level)
+          {
+            if (is_leaf() && !state.is_terminal()
+                && policy.expand(*this, state, iteration, level))
+            {
+              expand(state);
+            }
+            Fitness estimate;
+            if (!is_leaf())
+            {
+              size_t chosen_idx = policy.choose(*this, state);
+              assert(chosen_idx < size());
+              Node &chosen = *children_[chosen_idx].get();
+              state.apply(chosen.move());
+              estimate = chosen.playout(policy, state, iteration, level + 1);
+              policy.update(*this, chosen_idx, estimate);
+            }
+            else
+            {
+              estimate = state.estimate_playout(policy.get_random());
+              policy.update(*this, (ssize_t) (-1), estimate);
+            }
+            return estimate;
+          }
+      };
+
     private:
-      typedef Node<Move, Policy> node_type;
-      typedef MonteCarloTree<Move, State, Policy> tree_type;
       Policy policy_;
-      std::unique_ptr<node_type> root_;  // does not hold any move in fact
+      std::unique_ptr<Node> root_;  // does not hold any move in fact
       State root_state_;
 
-      Fitness playout(node_type &node, State &state,
-          size_t iteration, size_t level)
-      {
-        if (node.is_leaf() && !state.is_terminal()
-            && policy_.expand(node, state, iteration, level))
-        {
-          node.expand(state);
-        }
-        Fitness estimate;
-        if (!node.is_leaf())
-        {
-          size_t chosen_idx = policy_.choose(node, state);
-          assert(chosen_idx < node.size());
-          node_type &chosen = *node.children_[chosen_idx];
-          state.apply(chosen.move());
-          estimate = playout(chosen, state, iteration, level + 1);
-          policy_.update(node, chosen_idx, estimate);
-        }
-        else
-        {
-          estimate = state.estimate_playout(policy_.get_random());
-          policy_.update(node, (ssize_t) (-1), estimate);
-        }
-        return estimate;
-      }
-
     public:
-      MonteCarloTree(const State& state, Policy policy) : policy_(policy),
-        root_state_(state)
+      MonteCarloTree(const State& state, const Policy &policy)
+        : policy_(policy), root_state_(state)
       {
-        root_.reset(new node_type());
+        root_.reset(new Node());
         root_->expand(root_state_);
       }
 
@@ -113,11 +112,11 @@ namespace mcts
       {
         size_t iteration = 0;
         double progress = 0;
-        Fitness best = kMaxFitness;
+        Fitness best = std::numeric_limits<Fitness>::infinity();
         while ((progress = progress_ctrl.progress(best)) <= 1)
         {
           State state = root_state_;
-          Fitness estimate = playout(*root_.get(), state, iteration, 0);
+          Fitness estimate = root_->playout(policy_, state, iteration, 0);
           best = std::min(best, estimate);
           ++iteration;
         }
@@ -128,12 +127,11 @@ namespace mcts
 
       void apply(const Move& move)
       {
-        for (node_type *&node : root_->children_)
+        for (auto &node : root_->children_)
         {
           if (move == node->move())
           {
-            node_type* new_root = node;
-            node = NULL;  // detach subtree before disposing entire tree
+            Node* new_root = node.release();
             root_.reset(new_root);  // this invokes old root destructor
             root_state_.apply(move);
             if (root_->is_leaf() && !root_state_.is_terminal())
@@ -145,10 +143,7 @@ namespace mcts
         }
       }
 
-      State &root_state()
-      {
-        return root_state_;
-      }
+      State &root_state() { return root_state_; }
   };
 }
 

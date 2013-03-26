@@ -11,17 +11,16 @@
 #include <algorithm>
 
 using mcts::Fitness;
-using mcts::kMaxFitness;
-
-typedef int TestMove;
 
 struct TestState
 {
-  std::vector<TestMove> moves_ = {0, 1, 2, 3, 4, 5};
+  typedef int Move;
 
-  const std::vector<TestMove> moves() const { return moves_; }
+  std::vector<Move> moves_ = {0, 1, 2, 3, 4, 5};
 
-  void apply(const TestMove& move)
+  const std::vector<Move> moves() const { return moves_; }
+
+  void apply(const Move& move)
   {
     moves_.erase(std::find(moves_.begin(), moves_.end(), move));
   }
@@ -36,7 +35,7 @@ struct TestPolicy
   typedef struct
   {
     size_t visits_ = 0;
-    Fitness estimate_ = kMaxFitness;
+    Fitness estimate_ = std::numeric_limits<Fitness>::infinity();
   } Payload;
 
   std::mt19937 random_;
@@ -57,7 +56,7 @@ struct TestPolicy
   template<typename Node> size_t best_child(const Node &parent)
   {
     assert(!parent.is_leaf());
-    Fitness best = kMaxFitness;
+    Fitness best = std::numeric_limits<Fitness>::infinity();
     ssize_t index = -1;
     for (size_t i = 0; i < parent.size(); i++)
     {
@@ -79,8 +78,7 @@ class MonteCarloTreeTests : public testing::Test {};
 
 TEST_F(MonteCarloTreeTests, Node)
 {
-  using mcts::Node;
-  typedef Node<TestMove, TestPolicy> node_type;
+  typedef mcts::MonteCarloTree<TestState, TestPolicy>::Node node_type;
 
   node_type node(-1);
   TestState state;
@@ -114,8 +112,8 @@ TEST_F(MonteCarloTreeTests, Tree)
 
   TestState state;
   TestPolicy policy;
-  MonteCarloTree<TestMove, TestState, TestPolicy> tree(state, policy);
-  TestMove move;
+  MonteCarloTree<TestState, TestPolicy> tree(state, policy);
+  typename TestState::Move move;
   for (size_t i = 0; i < 6; i++)
   {
     paal::IterationCtrl ctrl(50);
