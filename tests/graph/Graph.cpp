@@ -214,7 +214,7 @@ TEST_P(UnweightedGraphTest, AdjacencyMatrix)
 
   if (param.is_directed_)
   {
-    typedef AdjacencyMatrix<Graph::undirected, Graph::unweighted> graph_t;
+    typedef AdjacencyMatrix<graph::undirected, graph::unweighted> graph_t;
     graph_t graph(param.verticesCount_);
     ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
     initUnweightedGraphTest(graph, param, edges, adjacent_vertices);
@@ -222,7 +222,7 @@ TEST_P(UnweightedGraphTest, AdjacencyMatrix)
   }
   else
   {
-    typedef AdjacencyMatrix<Graph::directed, Graph::unweighted> graph_t;
+    typedef AdjacencyMatrix<graph::directed, graph::unweighted> graph_t;
     graph_t graph(param.verticesCount_);
     ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
     initUnweightedGraphTest(graph, param, edges, adjacent_vertices);
@@ -239,7 +239,7 @@ TEST_P(UnweightedGraphTest, AdjacencyLists)
 
   if (param.is_directed_)
   {
-    typedef AdjacencyLists<Graph::undirected, Graph::unweighted> graph_t;
+    typedef AdjacencyLists<graph::undirected, graph::unweighted> graph_t;
     graph_t graph(param.verticesCount_);
     ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
     initUnweightedGraphTest(graph, param, edges, adjacent_vertices);
@@ -247,7 +247,7 @@ TEST_P(UnweightedGraphTest, AdjacencyLists)
   }
   else
   {
-    typedef AdjacencyLists<Graph::directed, Graph::unweighted> graph_t;
+    typedef AdjacencyLists<graph::directed, graph::unweighted> graph_t;
     graph_t graph(param.verticesCount_);
     ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
     initUnweightedGraphTest(graph, param, edges, adjacent_vertices);
@@ -265,7 +265,7 @@ TEST_P(WeightedGraphTest, AdjacencyMatrix)
 
   if (param.is_directed_)
   {
-    typedef AdjacencyMatrix<Graph::undirected, int> graph_t;
+    typedef AdjacencyMatrix<graph::undirected, int> graph_t;
     graph_t graph(param.verticesCount_);
     ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
     initWeightedGraphTest(graph, param, edges, adjacent_vertices,
@@ -274,7 +274,7 @@ TEST_P(WeightedGraphTest, AdjacencyMatrix)
   }
   else
   {
-    typedef AdjacencyMatrix<Graph::directed, int> graph_t;
+    typedef AdjacencyMatrix<graph::directed, int> graph_t;
     graph_t graph(param.verticesCount_);
     ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
     initWeightedGraphTest(graph, param, edges, adjacent_vertices,
@@ -295,7 +295,7 @@ TEST_P(WeightedGraphTest, AdjacencyLists)
 
   if (param.is_directed_)
   {
-    typedef AdjacencyLists<Graph::undirected, int> graph_t;
+    typedef AdjacencyLists<graph::undirected, int> graph_t;
     graph_t graph(param.verticesCount_);
     ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
     initWeightedGraphTest(graph, param, edges, adjacent_vertices,
@@ -304,7 +304,7 @@ TEST_P(WeightedGraphTest, AdjacencyLists)
   }
   else
   {
-    typedef AdjacencyLists<Graph::directed, int> graph_t;
+    typedef AdjacencyLists<graph::directed, int> graph_t;
     graph_t graph(param.verticesCount_);
     ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
     initWeightedGraphTest(graph, param, edges, adjacent_vertices,

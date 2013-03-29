@@ -4,7 +4,7 @@
 /**
  * Common classes/types of AdjacencyMatrix and AdjacencyLists.
  **/
-namespace Graph
+namespace graph
 {
   struct directed
   {
@@ -59,6 +59,6 @@ namespace Graph
       W weight;
   };
 
-}  // namespace Graph
+}  // namespace graph
 
 #endif  // GRAPH_GRAPH_H_

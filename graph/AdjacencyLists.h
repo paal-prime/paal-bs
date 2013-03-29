@@ -8,11 +8,11 @@
 /**
  * Representation of graph using adjacency lists.
  * @tparam D determines whether graph is directed or not.
- * Possible values are Graph::directed and Graph::undirected.
+ * Possible values are graph::directed and graph::undirected.
  * @tparam W codomain of weight/cost function,
- * use Graph::unweighted for unweighted graphs.
+ * use graph::unweighted for unweighted graphs.
  **/
-template <typename D = Graph::directed, typename W = Graph::unweighted>
+template <typename D = graph::directed, typename W = graph::unweighted>
 class AdjacencyLists
 {
     template <typename T, typename V>
@@ -59,11 +59,11 @@ class AdjacencyLists
     {
       public:
         typedef AdjacencyIterator
-        <typename std::list< Graph::EdgeEnd<V, WW> >::iterator, V> type;
+        <typename std::list< graph::EdgeEnd<V, WW> >::iterator, V> type;
     };
 
     template <typename V>
-    class AdjacencyIteratorTypeWrapper<Graph::unweighted, V>
+    class AdjacencyIteratorTypeWrapper<graph::unweighted, V>
     {
       public:
         typedef typename std::list<V>::iterator type;
@@ -75,12 +75,12 @@ class AdjacencyLists
       public:
         explicit AdjacencyListsFields(const V& vertices) : vertices_(vertices)
         {
-          adj_.reset(new std::list< Graph::EdgeEnd<V, WW> >[vertices_]);
+          adj_.reset(new std::list< graph::EdgeEnd<V, WW> >[vertices_]);
         }
 
         bool getAdj(const V& u, const V& v) const
         {
-          typename std::list< Graph::EdgeEnd<V, WW> >::iterator it =
+          typename std::list< graph::EdgeEnd<V, WW> >::iterator it =
             adj_[u].begin();
           while (it != adj_[u].end())
           {
@@ -96,7 +96,7 @@ class AdjacencyLists
 
         std::pair<bool, WW> edge(const V& u, const V& v) const
         {
-          typename std::list< Graph::EdgeEnd<V, WW> >::iterator it =
+          typename std::list< graph::EdgeEnd<V, WW> >::iterator it =
             adj_[u].begin();
           while (it != adj_[u].end())
           {
@@ -112,15 +112,15 @@ class AdjacencyLists
 
         void addEdge(const V& u, const V& v, const WW& w)
         {
-          adj_[u].push_back(Graph::EdgeEnd<V, WW>(v, w));
+          adj_[u].push_back(graph::EdgeEnd<V, WW>(v, w));
         }
 
         V vertices_;
-        std::unique_ptr<std::list< Graph::EdgeEnd<V, WW> >[]> adj_;
+        std::unique_ptr<std::list< graph::EdgeEnd<V, WW> >[]> adj_;
     };
 
     template <typename V>
-    class AdjacencyListsFields<Graph::unweighted, V>
+    class AdjacencyListsFields<graph::unweighted, V>
     {
       public:
         explicit AdjacencyListsFields(const V& vertices) : vertices_(vertices)
@@ -158,11 +158,11 @@ class AdjacencyLists
 
     typedef typename AdjacencyIteratorTypeWrapper<W, vertex_t>::type
     adjacency_iterator_t;
-    typedef typename std::list< Graph::EdgeEnd<vertex_t, W> >::iterator
+    typedef typename std::list< graph::EdgeEnd<vertex_t, W> >::iterator
     edge_iterator_t;
 
-    typedef Graph::WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
-    typedef Graph::Edge<vertex_t> edge_t;
+    typedef graph::WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
+    typedef graph::Edge<vertex_t> edge_t;
 
     explicit AdjacencyLists(const size_t& vertices_count)
       : fields_(vertices_count) {}

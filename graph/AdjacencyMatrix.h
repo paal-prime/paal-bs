@@ -8,11 +8,11 @@
 /**
  * Representation of graph using adjacenty matrix.
  * @tparam D determines whether graph is directed or not.
- * Possible values are Graph::directed and Graph::undirected.
+ * Possible values are graph::directed and graph::undirected.
  * @tparam W codomain of weight/cost function,
- * use Graph::unweighted for unweighted graphs.
+ * use graph::unweighted for unweighted graphs.
  **/
-template <typename D = Graph::directed, typename W = Graph::unweighted>
+template <typename D = graph::directed, typename W = graph::unweighted>
 class AdjacencyMatrix
 {
     template <typename M>
@@ -130,9 +130,9 @@ class AdjacencyMatrix
           return !operator==(rhs);
         }
 
-        const Graph::EdgeEnd<vertex_t, WW> operator*() const
+        const graph::EdgeEnd<vertex_t, WW> operator*() const
         {
-          return Graph::EdgeEnd<vertex_t, WW>(it_.second,
+          return graph::EdgeEnd<vertex_t, WW>(it_.second,
                  adjMatrix_->edge(it_.first, it_.second).second);
         }
 
@@ -142,7 +142,7 @@ class AdjacencyMatrix
     };
 
     template <typename M>
-    class EdgeIterator<M, Graph::unweighted>;
+    class EdgeIterator<M, graph::unweighted>;
 
     template <typename WW, typename V>
     class AdjacencyMatrixFields
@@ -176,7 +176,7 @@ class AdjacencyMatrix
     };
 
     template <typename V>
-    class AdjacencyMatrixFields<Graph::unweighted, V>
+    class AdjacencyMatrixFields<graph::unweighted, V>
     {
       public:
         explicit AdjacencyMatrixFields(const V& vertices) : vertices_(vertices)
@@ -205,8 +205,8 @@ class AdjacencyMatrix
     typedef AdjacencyIterator<AdjacencyMatrix<D, W> > adjacency_iterator_t;
     typedef EdgeIterator<AdjacencyMatrix<D, W>, W> edge_iterator_t;
 
-    typedef Graph::WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
-    typedef Graph::Edge<vertex_t> edge_t;
+    typedef graph::WeightedEdge<vertex_t, edge_weight_t> weighted_edge_t;
+    typedef graph::Edge<vertex_t> edge_t;
 
     explicit AdjacencyMatrix(const size_t& vertices_count)
       : fields_(vertices_count) {}

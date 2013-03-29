@@ -40,7 +40,7 @@ TEST_P(SteinerTest, Test)
     inputData >> sets[i];
   }
 
-  typedef AdjacencyLists<Graph::undirected, double> graph_t;
+  typedef AdjacencyLists<graph::undirected, double> graph_t;
   graph_t graph(verticesCount);
   for (size_t i = 0; i < edgeCount; ++i)
   {
