@@ -1,0 +1,19 @@
+TSPLIB_URL := "http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/tsp/ALL_tsp.tar.gz"
+TSPLIB_DIR := TSPLIB
+TSPLIB_SYMMETRICAL_DIR := $(TSPLIB_DIR)/symmetrical
+TSPLIB_SYMMETRICAL_INDEX := tests/tsp/TSPLIB_symmetrical_index
+
+$(TSPLIB_DIR):
+	mkdir -p $(TSPLIB_SYMMETRICAL_DIR)
+	cp $(TSPLIB_SYMMETRICAL_INDEX) $(TSPLIB_SYMMETRICAL_DIR)/index
+	wget $(TSPLIB_URL)
+	tar xf ALL_tsp.tar.gz -C $(TSPLIB_SYMMETRICAL_DIR)
+	gunzip $(TSPLIB_SYMMETRICAL_DIR)/*.gz
+	rm ALL_tsp.tar.gz
+
+clean-TSPLIB:
+	rm -rf $(TSPLIB_DIR)
+
+clean: clean-TSPLIB
+
+.PHONY: clean-TSPLIB
