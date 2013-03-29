@@ -6,8 +6,11 @@
 namespace facility_location
 {
 
-/** @brief [implements Walker] */
+/*
+	concept FacilitySet : std::forward_iterator<bool>
+*/
 
+/** @brief [implements Walker] */
 template<typename Instance> struct FLWalker
 {
 	template<typename FacilitySet>
@@ -32,7 +35,7 @@ private:
 			if(fs[f]) fitness += instance(f);
 		for(size_t c=0; c<instance.cities_count(); ++c)
 		{
-			double best_cost = 1/0.;
+			double best_cost = std::numeric_limits<double>::infinity();
 			for(size_t f=0; f<fs.size(); ++f) if(fs[f])
 				best_cost = std::min(best_cost, instance(f,c));
 			fitness += best_cost;
