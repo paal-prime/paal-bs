@@ -34,13 +34,13 @@ namespace graph
 
       bool operator < (const Edge& rhs) const
       {
-        if (this->source == rhs.source)
+        if (source == rhs.source)
         {
-          return this->target < rhs.source;
+          return target < rhs.target;
         }
         else
         {
-          return this->source < rhs.source;
+          return source < rhs.source;
         }
       }
 
