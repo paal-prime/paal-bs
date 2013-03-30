@@ -29,7 +29,7 @@ namespace graph
   class Edge
   {
     public:
-      Edge() : source(0), target(0) {}
+      Edge() : source(V()), target(V()) {}
       Edge(V s, V t) : source(s), target(t) {}
 
       bool operator < (const Edge& rhs) const
