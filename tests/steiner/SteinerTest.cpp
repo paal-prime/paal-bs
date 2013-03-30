@@ -12,12 +12,12 @@
 class SteinerParam
 {
   public:
-    SteinerParam(std::string input, std::string output) : inputFilepath(input),
-      outputFilepath(output)
+    SteinerParam(std::string input, std::string output) : input_filepath(input),
+      output_filepath(output)
     {
     }
-    std::string inputFilepath;
-    std::string outputFilepath;
+    std::string input_filepath;
+    std::string output_filepath;
 };
 
 class SteinerTest : public ::testing::TestWithParam<SteinerParam>
@@ -27,51 +27,51 @@ class SteinerTest : public ::testing::TestWithParam<SteinerParam>
 TEST_P(SteinerTest, Test)
 {
   SteinerParam param = GetParam();
-  std::ifstream inputData(param.inputFilepath);
+  std::ifstream input_data(param.input_filepath);
 
-  ASSERT_TRUE(inputData.is_open());
+  ASSERT_TRUE(input_data.is_open());
 
-  size_t verticesCount, edgeCount;
-  inputData >> verticesCount >> edgeCount;
+  size_t vertices_count, edge_count;
+  input_data >> vertices_count >> edge_count;
 
-  int sets[verticesCount];
-  for (size_t i = 0; i < verticesCount; ++i)
+  int sets[vertices_count];
+  for (size_t i = 0; i < vertices_count; ++i)
   {
-    inputData >> sets[i];
+    input_data >> sets[i];
   }
 
   typedef AdjacencyLists<graph::undirected, double> graph_t;
-  graph_t graph(verticesCount);
-  for (size_t i = 0; i < edgeCount; ++i)
+  graph_t graph(vertices_count);
+  for (size_t i = 0; i < edge_count; ++i)
   {
     size_t a, b;
     double w;
-    inputData >> a >> b >> w;
+    input_data >> a >> b >> w;
     graph.add_edge(a, b, w);
   }
 
-  inputData.close();
+  input_data.close();
 
-  std::ifstream solutionData(param.outputFilepath);
-  ASSERT_TRUE(solutionData.is_open());
+  std::ifstream solution_data(param.output_filepath);
+  ASSERT_TRUE(solution_data.is_open());
 
-  double bestKnownSolution;
-  solutionData >> bestKnownSolution;
-  solutionData.close();
+  double best_known_solution;
+  solution_data >> best_known_solution;
+  solution_data.close();
 
   std::vector<graph_t::weighted_edge_t>
   steiner_forest_edges;
 
-  SteinerForest<>(graph, sets, std::back_inserter(steiner_forest_edges));
+  steiner_forest<>(graph, sets, std::back_inserter(steiner_forest_edges));
 
-  double solutionCost = 0.0;
+  double solution_cost = 0.0;
   for (size_t i = 0; i < steiner_forest_edges.size(); ++i)
   {
-    solutionCost += steiner_forest_edges[i].weight;
+    solution_cost += steiner_forest_edges[i].weight;
   }
 
-  ASSERT_LE(solutionCost, 2 * bestKnownSolution);
-  ASSERT_GE(solutionCost, bestKnownSolution);
+  ASSERT_LE(solution_cost, 2 * best_known_solution);
+  ASSERT_GE(solution_cost, best_known_solution);
 }
 
 INSTANTIATE_TEST_CASE_P(SteinerTree, SteinerTest,

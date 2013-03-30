@@ -37,15 +37,15 @@ template <typename E>
 class GraphParam
 {
   public:
-    GraphParam(size_t verticesCount, directed_t is_directed,
-        weighted_t is_weighted, std::vector< std::vector <E> > adjList)
-      : verticesCount_(verticesCount), is_directed_(is_directed),
-        is_weighted_(is_weighted), adjList_(adjList) {}
+    GraphParam(size_t vertices_count, directed_t is_directed,
+        weighted_t is_weighted, std::vector< std::vector <E> > adj_list)
+      : vertices_count_(vertices_count), is_directed_(is_directed),
+        is_weighted_(is_weighted), adj_list_(adj_list) {}
 
-    size_t verticesCount_;
+    size_t vertices_count_;
     directed_t is_directed_;
     weighted_t is_weighted_;
-    std::vector< std::vector<E> > adjList_;
+    std::vector< std::vector<E> > adj_list_;
 };
 
 class UnweightedGraphTest: public ::testing::TestWithParam
@@ -59,16 +59,16 @@ class WeightedGraphTest: public ::testing::TestWithParam
 };
 
 template <typename G, typename P>
-void initUnweightedGraphTest(G& graph, const P& param,
+void init_unweighted_graph_test(G& graph, const P& param,
     std::set< std::pair<size_t, size_t> >& edges, std::map < size_t,
     std::set<size_t> >& adjacent_vertices)
 {
-  for (size_t source = 0; source < param.adjList_.size(); ++source)
+  for (size_t source = 0; source < param.adj_list_.size(); ++source)
   {
-    for (size_t neighbour = 0; neighbour < param.adjList_[source].size();
+    for (size_t neighbour = 0; neighbour < param.adj_list_[source].size();
          ++neighbour)
     {
-      size_t target = param.adjList_[source][neighbour].target;
+      size_t target = param.adj_list_[source][neighbour].target;
 
       edges.insert(std::make_pair(source, target));
       adjacent_vertices[source].insert(target);
@@ -85,18 +85,18 @@ void initUnweightedGraphTest(G& graph, const P& param,
 
 
 template <typename G, typename P>
-void initWeightedGraphTest(G& graph, const P& param,
+void init_weighted_graph_test(G& graph, const P& param,
     std::set< std::pair<size_t, size_t> >& edges,
     std::map<size_t, std::set<size_t> >& adjacent_vertices,
     std::map< std::pair<size_t, size_t>, int >& edges_weights)
 {
-  for (size_t source = 0; source < param.adjList_.size(); ++source)
+  for (size_t source = 0; source < param.adj_list_.size(); ++source)
   {
-    for (size_t neighbour = 0; neighbour < param.adjList_[source].size();
+    for (size_t neighbour = 0; neighbour < param.adj_list_[source].size();
          ++neighbour)
     {
-      size_t target = param.adjList_[source][neighbour].target;
-      int weight = param.adjList_[source][neighbour].weight;
+      size_t target = param.adj_list_[source][neighbour].target;
+      int weight = param.adj_list_[source][neighbour].weight;
 
       edges.insert(std::make_pair(source, target));
       edges_weights[std::make_pair(source, target)] = weight;
@@ -114,7 +114,7 @@ void initWeightedGraphTest(G& graph, const P& param,
 }
 
 template <typename G, typename P>
-void testUnweightedGraph(const G& graph, const P& param,
+void test_unweighted_graph(const G& graph, const P& param,
     std::set< std::pair<size_t, size_t> >& edges,
     std::map<size_t, std::set<size_t> >& adjacent_vertices)
 {
@@ -126,16 +126,16 @@ void testUnweightedGraph(const G& graph, const P& param,
   typedef typename graph_t::edge_t edge_t;
   typedef typename graph_t::weighted_edge_t weighted_edge_t;
 
-  for (size_t source = 0; source < param.verticesCount_; ++source)
+  for (size_t source = 0; source < param.vertices_count_; ++source)
   {
-    for (size_t target = 0; target < param.verticesCount_; ++target)
+    for (size_t target = 0; target < param.vertices_count_; ++target)
     {
       bool adjacent = edges.count(std::make_pair(source, target)) > 0;
       ASSERT_EQ(graph.adjacent(source, target), adjacent);
     }
   }
 
-  for (size_t source = 0; source < param.verticesCount_; ++source)
+  for (size_t source = 0; source < param.vertices_count_; ++source)
   {
     std::pair<adjacency_iterator_t, adjacency_iterator_t> it =
       graph.adjacent_vertices(source);
@@ -155,7 +155,7 @@ void testUnweightedGraph(const G& graph, const P& param,
 
 template <typename G, typename P>
 
-void testWeightedGraph(const G& graph, const P& param,
+void test_weighted_graph(const G& graph, const P& param,
     std::set< std::pair<size_t, size_t> >& edges,
     std::map<size_t, std::set<size_t> >& adjacent_vertices,
     std::map< std::pair<size_t, size_t>, int >& edges_weights)
@@ -163,11 +163,11 @@ void testWeightedGraph(const G& graph, const P& param,
   typedef typename G::edge_weight_t edge_weight_t;
   typedef typename G::edge_iterator_t edge_iterator_t;
 
-  testUnweightedGraph(graph, param, edges, adjacent_vertices);
+  test_unweighted_graph(graph, param, edges, adjacent_vertices);
 
-  for (size_t source = 0; source < param.verticesCount_; ++source)
+  for (size_t source = 0; source < param.vertices_count_; ++source)
   {
-    for (size_t target = 0; target < param.verticesCount_; ++target)
+    for (size_t target = 0; target < param.vertices_count_; ++target)
     {
       std::pair<bool, edge_weight_t> result = graph.edge(source, target);
       bool is_edge = edges.count(std::make_pair(source, target)) > 0;
@@ -179,10 +179,10 @@ void testWeightedGraph(const G& graph, const P& param,
     }
   }
 
-  for (size_t source = 0; source < param.verticesCount_; ++source)
+  for (size_t source = 0; source < param.vertices_count_; ++source)
   {
     std::set< std::pair<size_t, int> > out_edges;
-    for (size_t target = 0; target < param.verticesCount_; ++target)
+    for (size_t target = 0; target < param.vertices_count_; ++target)
     {
       if (edges.count(std::make_pair(source, target)) > 0)
       {
@@ -193,15 +193,15 @@ void testWeightedGraph(const G& graph, const P& param,
 
     std::pair<edge_iterator_t, edge_iterator_t> it = graph.out_edges(source);
 
-    std::set< std::pair<size_t, int> > edgeEnds;
+    std::set< std::pair<size_t, int> > edge_ends;
     while (it.first != it.second)
     {
-      edgeEnds.insert(std::pair<size_t, int>((*it.first).target,
+      edge_ends.insert(std::pair<size_t, int>((*it.first).target,
           (*it.first).weight));
       it.first++;
     }
 
-    ASSERT_EQ(edgeEnds, out_edges);
+    ASSERT_EQ(edge_ends, out_edges);
   }
 }
 
@@ -215,18 +215,18 @@ TEST_P(UnweightedGraphTest, AdjacencyMatrix)
   if (param.is_directed_)
   {
     typedef AdjacencyMatrix<graph::undirected, graph::unweighted> graph_t;
-    graph_t graph(param.verticesCount_);
-    ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
-    initUnweightedGraphTest(graph, param, edges, adjacent_vertices);
-    testUnweightedGraph(graph, param, edges, adjacent_vertices);
+    graph_t graph(param.vertices_count_);
+    ASSERT_EQ(graph.get_vertices_count(), param.vertices_count_);
+    init_unweighted_graph_test(graph, param, edges, adjacent_vertices);
+    test_unweighted_graph(graph, param, edges, adjacent_vertices);
   }
   else
   {
     typedef AdjacencyMatrix<graph::directed, graph::unweighted> graph_t;
-    graph_t graph(param.verticesCount_);
-    ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
-    initUnweightedGraphTest(graph, param, edges, adjacent_vertices);
-    testUnweightedGraph(graph, param, edges, adjacent_vertices);
+    graph_t graph(param.vertices_count_);
+    ASSERT_EQ(graph.get_vertices_count(), param.vertices_count_);
+    init_unweighted_graph_test(graph, param, edges, adjacent_vertices);
+    test_unweighted_graph(graph, param, edges, adjacent_vertices);
   }
 }
 
@@ -240,18 +240,18 @@ TEST_P(UnweightedGraphTest, AdjacencyLists)
   if (param.is_directed_)
   {
     typedef AdjacencyLists<graph::undirected, graph::unweighted> graph_t;
-    graph_t graph(param.verticesCount_);
-    ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
-    initUnweightedGraphTest(graph, param, edges, adjacent_vertices);
-    testUnweightedGraph(graph, param, edges, adjacent_vertices);
+    graph_t graph(param.vertices_count_);
+    ASSERT_EQ(graph.get_vertices_count(), param.vertices_count_);
+    init_unweighted_graph_test(graph, param, edges, adjacent_vertices);
+    test_unweighted_graph(graph, param, edges, adjacent_vertices);
   }
   else
   {
     typedef AdjacencyLists<graph::directed, graph::unweighted> graph_t;
-    graph_t graph(param.verticesCount_);
-    ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
-    initUnweightedGraphTest(graph, param, edges, adjacent_vertices);
-    testUnweightedGraph(graph, param, edges, adjacent_vertices);
+    graph_t graph(param.vertices_count_);
+    ASSERT_EQ(graph.get_vertices_count(), param.vertices_count_);
+    init_unweighted_graph_test(graph, param, edges, adjacent_vertices);
+    test_unweighted_graph(graph, param, edges, adjacent_vertices);
   }
 }
 
@@ -266,20 +266,20 @@ TEST_P(WeightedGraphTest, AdjacencyMatrix)
   if (param.is_directed_)
   {
     typedef AdjacencyMatrix<graph::undirected, int> graph_t;
-    graph_t graph(param.verticesCount_);
-    ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
-    initWeightedGraphTest(graph, param, edges, adjacent_vertices,
+    graph_t graph(param.vertices_count_);
+    ASSERT_EQ(graph.get_vertices_count(), param.vertices_count_);
+    init_weighted_graph_test(graph, param, edges, adjacent_vertices,
         edges_weights);
-    testWeightedGraph(graph, param, edges, adjacent_vertices, edges_weights);
+    test_weighted_graph(graph, param, edges, adjacent_vertices, edges_weights);
   }
   else
   {
     typedef AdjacencyMatrix<graph::directed, int> graph_t;
-    graph_t graph(param.verticesCount_);
-    ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
-    initWeightedGraphTest(graph, param, edges, adjacent_vertices,
+    graph_t graph(param.vertices_count_);
+    ASSERT_EQ(graph.get_vertices_count(), param.vertices_count_);
+    init_weighted_graph_test(graph, param, edges, adjacent_vertices,
         edges_weights);
-    testWeightedGraph(graph, param, edges, adjacent_vertices, edges_weights);
+    test_weighted_graph(graph, param, edges, adjacent_vertices, edges_weights);
   }
 }
 
@@ -296,20 +296,20 @@ TEST_P(WeightedGraphTest, AdjacencyLists)
   if (param.is_directed_)
   {
     typedef AdjacencyLists<graph::undirected, int> graph_t;
-    graph_t graph(param.verticesCount_);
-    ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
-    initWeightedGraphTest(graph, param, edges, adjacent_vertices,
+    graph_t graph(param.vertices_count_);
+    ASSERT_EQ(graph.get_vertices_count(), param.vertices_count_);
+    init_weighted_graph_test(graph, param, edges, adjacent_vertices,
         edges_weights);
-    testWeightedGraph(graph, param, edges, adjacent_vertices, edges_weights);
+    test_weighted_graph(graph, param, edges, adjacent_vertices, edges_weights);
   }
   else
   {
     typedef AdjacencyLists<graph::directed, int> graph_t;
-    graph_t graph(param.verticesCount_);
-    ASSERT_EQ(graph.verticesCount(), param.verticesCount_);
-    initWeightedGraphTest(graph, param, edges, adjacent_vertices,
+    graph_t graph(param.vertices_count_);
+    ASSERT_EQ(graph.get_vertices_count(), param.vertices_count_);
+    init_weighted_graph_test(graph, param, edges, adjacent_vertices,
         edges_weights);
-    testWeightedGraph(graph, param, edges, adjacent_vertices, edges_weights);
+    test_weighted_graph(graph, param, edges, adjacent_vertices, edges_weights);
   }
 }
 

@@ -78,7 +78,7 @@ class AdjacencyLists
           adj_.reset(new std::list< graph::EdgeEnd<V, WW> >[vertices_]);
         }
 
-        bool getAdj(const V& u, const V& v) const
+        bool get_adj(const V& u, const V& v) const
         {
           typename std::list< graph::EdgeEnd<V, WW> >::iterator it =
             adj_[u].begin();
@@ -110,7 +110,7 @@ class AdjacencyLists
           return std::make_pair(false, WW());
         }
 
-        void addEdge(const V& u, const V& v, const WW& w)
+        void add_edge(const V& u, const V& v, const WW& w)
         {
           adj_[u].push_back(graph::EdgeEnd<V, WW>(v, w));
         }
@@ -128,7 +128,7 @@ class AdjacencyLists
           adj_.reset(new std::list<V>[vertices_]);
         }
 
-        bool getAdj(const V& u, const V& v) const
+        bool get_adj(const V& u, const V& v) const
         {
           typename std::list<V>::iterator it = adj_[u].begin();
           while (it != adj_[u].end())
@@ -143,7 +143,7 @@ class AdjacencyLists
           return false;
         }
 
-        void addEdge(const V& u, const V& v)
+        void add_edge(const V& u, const V& v)
         {
           adj_[u].push_back(v);
         }
@@ -193,7 +193,7 @@ class AdjacencyLists
      **/
     bool adjacent(const vertex_t& u, const vertex_t& v) const
     {
-      return fields_.getAdj(u, v);
+      return fields_.get_adj(u, v);
     }
 
     /**
@@ -212,10 +212,10 @@ class AdjacencyLists
     **/
     void add_edge(const vertex_t& u, const vertex_t& v)
     {
-      fields_.addEdge(u, v);
+      fields_.add_edge(u, v);
       if (!D::is_directed)
       {
-        fields_.addEdge(v, u);
+        fields_.add_edge(v, u);
       }
     }
 
@@ -225,17 +225,17 @@ class AdjacencyLists
      **/
     void add_edge(const vertex_t& u, const vertex_t& v, const edge_weight_t& w)
     {
-      fields_.addEdge(u, v, w);
+      fields_.add_edge(u, v, w);
       if (!D::is_directed)
       {
-        fields_.addEdge(v, u, w);
+        fields_.add_edge(v, u, w);
       }
     }
 
     /**
      * @returns number of vertices in graph.
      **/
-    size_t verticesCount() const
+    size_t get_vertices_count() const
     {
       return fields_.vertices_;
     };

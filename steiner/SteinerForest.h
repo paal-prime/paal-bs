@@ -18,7 +18,7 @@
 /**
  * @brief Picks edges that Steiner Forest must contain given unpruned forest.
  * @param adj_lists Graph in form of adjacency lists.
- * @param verticesCount Number of vertices in graph.
+ * @param vertices_count Number of vertices in graph.
  * @param vertex_value special precomputed vertices values that help find
  * essential edges.
  * @param forest_edges Output parameter that will store essential edges.
@@ -26,63 +26,63 @@
 template <typename G>
 void pick_forest_edges(
   const std::vector< std::list<typename G::vertex_t> >& adj_lists,
-  const size_t verticesCount,
+  const size_t vertices_count,
   const int vertex_value[],
   std::vector<typename G::edge_t>& forest_edges)
 {
   typedef typename G::vertex_t vertex_t;
   typedef typename G::edge_t edge_t;
 
-  bool visited[verticesCount];
-  memset(visited, false, sizeof(visited[0]) * verticesCount);
+  bool visited[vertices_count];
+  memset(visited, false, sizeof(visited[0]) * vertices_count);
   typedef typename std::list<vertex_t>::const_iterator list_it_t;
-  std::stack< std::pair<vertex_t, list_it_t> > dfsStack;
+  std::stack< std::pair<vertex_t, list_it_t> > dfs_stack;
 
-  int vertex_sum[verticesCount];
-  memset(vertex_sum, 0, sizeof(vertex_sum[0]) * verticesCount);
+  int vertex_sum[vertices_count];
+  memset(vertex_sum, 0, sizeof(vertex_sum[0]) * vertices_count);
 
   // XXX: Hidden dependency - we take advantage of fact that every
   // connected compound was rooted at vertex with the lowest number
   // when computing LCA
-  for (size_t i = 0; i < verticesCount; ++i)
+  for (size_t i = 0; i < vertices_count; ++i)
   {
     if (visited[i])
     {
       continue;
     }
 
-    dfsStack.push(std::pair<vertex_t, list_it_t>(i, adj_lists[i].begin()));
+    dfs_stack.push(std::pair<vertex_t, list_it_t>(i, adj_lists[i].begin()));
 
     visited[i] = true;
 
-    while (!dfsStack.empty())
+    while (!dfs_stack.empty())
     {
-      std::pair<vertex_t, list_it_t> &currentVertex = dfsStack.top();
+      std::pair<vertex_t, list_it_t> &current_vertex = dfs_stack.top();
 
-      if (currentVertex.second == adj_lists[currentVertex.first].end())
+      if (current_vertex.second == adj_lists[current_vertex.first].end())
       {
-        vertex_sum[currentVertex.first] = vertex_value[currentVertex.first];
-        for (list_it_t it = adj_lists[currentVertex.first].begin();
-             it != adj_lists[currentVertex.first].end(); ++it)
+        vertex_sum[current_vertex.first] = vertex_value[current_vertex.first];
+        for (list_it_t it = adj_lists[current_vertex.first].begin();
+             it != adj_lists[current_vertex.first].end(); ++it)
         {
-          vertex_sum[currentVertex.first] += vertex_sum[*it];
+          vertex_sum[current_vertex.first] += vertex_sum[*it];
           if (vertex_sum[*it] > 0)
           {
-            forest_edges.push_back(edge_t(currentVertex.first, *it));
+            forest_edges.push_back(edge_t(current_vertex.first, *it));
           }
         }
-        dfsStack.pop();
+        dfs_stack.pop();
         continue;
       }
 
-      while (currentVertex.second != adj_lists[currentVertex.first].end())
+      while (current_vertex.second != adj_lists[current_vertex.first].end())
       {
-        vertex_t neighbour = *currentVertex.second;
-        currentVertex.second++;
+        vertex_t neighbour = *current_vertex.second;
+        current_vertex.second++;
         if (!visited[neighbour])
         {
           visited[neighbour] = 1;
-          dfsStack.push(std::pair<vertex_t, list_it_t>(neighbour,
+          dfs_stack.push(std::pair<vertex_t, list_it_t>(neighbour,
               adj_lists[neighbour].begin()));
           break;
         }
@@ -98,8 +98,8 @@ void pick_forest_edges(
  * @param lvl Array storing distances from root of corresponding vertices.
  * @param LCAjumps Two dimensional array storing 2^i parent of corresponding
  * vertices.
- * @param verticesLog First index of LCAjumps parameter.
- * @param verticesCount Second index of LCAjumps parameter.
+ * @param vertices_log First index of LCAjumps parameter.
+ * @param vertices_count Second index of LCAjumps parameter.
  * @returns Label of vertex that is a LCA of input vertices.
  * */
 template <typename G>
@@ -108,24 +108,24 @@ typename G::vertex_t lca(
   typename G::vertex_t b,
   int lvl[],
   typename G::vertex_t *LCAjumps,
-  const int verticesLog, const size_t verticesCount)
+  const int vertices_log, const size_t vertices_count)
 {
   if (lvl[a] > lvl[b])
   {
     std::swap(a, b);
   }
 
-  int lvlDiff = lvl[b] - lvl[a];
+  int lvl_diff = lvl[b] - lvl[a];
 
-  int lvlIndex = 0;
-  while (lvlDiff)
+  int lvl_index = 0;
+  while (lvl_diff)
   {
-    if (lvlDiff % 2)
+    if (lvl_diff % 2)
     {
-      b = LCAjumps[verticesCount * lvlIndex + b];
+      b = LCAjumps[vertices_count * lvl_index + b];
     }
-    lvlDiff /= 2;
-    lvlIndex += 1;
+    lvl_diff /= 2;
+    lvl_index += 1;
   }
 
   if (a == b)
@@ -133,12 +133,12 @@ typename G::vertex_t lca(
     return a;
   }
 
-  for (int i = verticesLog - 1; i >= 0; i--)
+  for (int i = vertices_log - 1; i >= 0; i--)
   {
-    if (LCAjumps[verticesCount * i + a] != LCAjumps[verticesCount * i + b])
+    if (LCAjumps[vertices_count * i + a] != LCAjumps[vertices_count * i + b])
     {
-      a = LCAjumps[verticesCount * i + a];
-      b = LCAjumps[verticesCount * i + b];
+      a = LCAjumps[vertices_count * i + a];
+      b = LCAjumps[vertices_count * i + b];
     }
   }
 
@@ -150,59 +150,59 @@ typename G::vertex_t lca(
  * the lowest number also compute parents and distances from root (level)
  * for all vertices.
  * @param adj_lists Graph in form of adjacency lists.
- * @param verticesCount Number of vertices in graph.
+ * @param vertices_count Number of vertices in graph.
  * @param parent Output parameter storing parent's labels for corresponding
  * vertices.
  * @param lvl Output parameter storing distances from root for corresponding
  * vertices.
  **/
 template <typename G>
-void getParents(
+void get_parents(
   const std::vector< std::list<typename G::vertex_t> >& adj_lists,
-  const size_t verticesCount,
+  const size_t vertices_count,
   typename G::vertex_t parent[],
   int lvl[])
 {
   typedef typename G::vertex_t vertex_t;
 
-  bool visited[verticesCount];
-  memset(visited, false, sizeof(visited[0]) * verticesCount);
+  bool visited[vertices_count];
+  memset(visited, false, sizeof(visited[0]) * vertices_count);
   typedef typename std::list<vertex_t>::const_iterator list_it_t;
-  std::stack< std::pair<vertex_t, list_it_t> > dfsStack;
+  std::stack< std::pair<vertex_t, list_it_t> > dfs_stack;
 
-  for (size_t i = 0; i < verticesCount; ++i)
+  for (size_t i = 0; i < vertices_count; ++i)
   {
     if (visited[i])
     {
       continue;
     }
 
-    dfsStack.push(std::pair<vertex_t, list_it_t>(i, adj_lists[i].begin()));
+    dfs_stack.push(std::pair<vertex_t, list_it_t>(i, adj_lists[i].begin()));
     parent[i] = i;
     lvl[i] = 1;
     visited[i] = true;
 
-    while (!dfsStack.empty())
+    while (!dfs_stack.empty())
     {
-      std::pair<vertex_t, list_it_t> &currentVertex = dfsStack.top();
+      std::pair<vertex_t, list_it_t> &current_vertex = dfs_stack.top();
 
-      if (currentVertex.second == adj_lists[currentVertex.first].end())
+      if (current_vertex.second == adj_lists[current_vertex.first].end())
       {
-        dfsStack.pop();
+        dfs_stack.pop();
         continue;
       }
 
-      while (currentVertex.second != adj_lists[currentVertex.first].end())
+      while (current_vertex.second != adj_lists[current_vertex.first].end())
       {
-        vertex_t neighbour = *currentVertex.second;
-        currentVertex.second++;
+        vertex_t neighbour = *current_vertex.second;
+        current_vertex.second++;
         if (!visited[neighbour])
         {
-          parent[neighbour] = currentVertex.first;
+          parent[neighbour] = current_vertex.first;
           visited[neighbour] = 1;
-          dfsStack.push(std::pair<vertex_t, list_it_t>(neighbour,
+          dfs_stack.push(std::pair<vertex_t, list_it_t>(neighbour,
               adj_lists[neighbour].begin()));
-          lvl[neighbour] = dfsStack.size();
+          lvl[neighbour] = dfs_stack.size();
           break;
         }
       }
@@ -212,7 +212,7 @@ void getParents(
 
 /**
  * @brief Removes useless edges from given unpruned Steiner Forest.
- * @param verticesCount Number of vertices in graph.
+ * @param vertices_count Number of vertices in graph.
  * @param vertex_set Array that says whether some vertex v belongs to
  * some set of terminals or not and if so to which one.
  * @param unpruned_forest_edges Edges of unpruned Steiner Forest.
@@ -220,17 +220,17 @@ void getParents(
  **/
 template <typename G>
 void prune(
-  const size_t verticesCount,
-  const int setsCount,
+  const size_t vertices_count,
+  const int sets_count,
   const int vertex_set[],
   std::vector<typename G::weighted_edge_t>& unpruned_forest_edges,
   std::vector<typename G::edge_t> &forest_edges)
 {
   typedef typename G::vertex_t vertex_t;
 
-  const size_t logVerticesCount = ceil(log2(verticesCount) + 2);
+  const size_t log_vertices_count = ceil(log2(vertices_count) + 2);
 
-  std::vector< std::list<vertex_t> > adj_lists(verticesCount);
+  std::vector< std::list<vertex_t> > adj_lists(vertices_count);
   for (auto it = unpruned_forest_edges.begin();
        it != unpruned_forest_edges.end(); it++)
   {
@@ -238,43 +238,43 @@ void prune(
     adj_lists[it->target].push_front(it->source);
   }
 
-  vertex_t LCAjumps[logVerticesCount][verticesCount];
+  vertex_t LCAjumps[log_vertices_count][vertices_count];
   memset(LCAjumps, 0, sizeof(LCAjumps[0][0]) *
-         logVerticesCount * verticesCount);
+         log_vertices_count * vertices_count);
 
-  vertex_t parent[verticesCount];
-  memset(parent, 0, sizeof(parent[0]) * verticesCount);
-  int lvl[verticesCount];
-  memset(lvl, 0, sizeof(lvl[0]) * verticesCount);
+  vertex_t parent[vertices_count];
+  memset(parent, 0, sizeof(parent[0]) * vertices_count);
+  int lvl[vertices_count];
+  memset(lvl, 0, sizeof(lvl[0]) * vertices_count);
 
   // XXX: Hidden dependency - we take advantage of fact that every
   // connected compound is rooted at vertex with the lowest number
   // when computing LCA
-  getParents<G>(adj_lists, verticesCount, parent, lvl);
+  get_parents<G>(adj_lists, vertices_count, parent, lvl);
 
-  for (size_t i = 0; i < verticesCount; ++i)
+  for (size_t i = 0; i < vertices_count; ++i)
   {
     LCAjumps[0][i] = parent[i];
   }
 
-  for (size_t jmp = 1; jmp < logVerticesCount; ++jmp)
+  for (size_t jmp = 1; jmp < log_vertices_count; ++jmp)
   {
-    for (size_t i = 0; i < verticesCount; ++i)
+    for (size_t i = 0; i < vertices_count; ++i)
     {
       LCAjumps[jmp][i] = LCAjumps[jmp - 1][LCAjumps[jmp - 1][i]];
     }
   }
 
-  vertex_t setLCA[setsCount];
-  int vertex_value[verticesCount];
-  int setCardinality[setsCount];
-  memset(setCardinality, 0, sizeof(setCardinality[0]) * verticesCount);
-  for (size_t i = 0; i < verticesCount; ++i)
+  vertex_t set_LCA[sets_count];
+  int vertex_value[vertices_count];
+  int set_cardinality[sets_count];
+  memset(set_cardinality, 0, sizeof(set_cardinality[0]) * vertices_count);
+  for (size_t i = 0; i < vertices_count; ++i)
   {
     if (vertex_set[i] != -1)
     {
-      setLCA[vertex_set[i]] = i;
-      setCardinality[vertex_set[i]] += 1;
+      set_LCA[vertex_set[i]] = i;
+      set_cardinality[vertex_set[i]] += 1;
       vertex_value[i] = 1;
     }
     else
@@ -283,22 +283,22 @@ void prune(
     }
   }
 
-  for (size_t i = 0; i < verticesCount; ++i)
+  for (size_t i = 0; i < vertices_count; ++i)
   {
     if (vertex_set[i] != -1)
     {
-      setLCA[vertex_set[i]] = lca<G>(setLCA[vertex_set[i]], i, lvl,
-          LCAjumps[0], logVerticesCount,
-          verticesCount);
+      set_LCA[vertex_set[i]] = lca<G>(set_LCA[vertex_set[i]], i, lvl,
+          LCAjumps[0], log_vertices_count,
+          vertices_count);
     }
   }
 
-  for (int i = 0; i < setsCount; ++i)
+  for (int i = 0; i < sets_count; ++i)
   {
-    vertex_value[setLCA[i]] -= setCardinality[i];
+    vertex_value[set_LCA[i]] -= set_cardinality[i];
   }
 
-  pick_forest_edges<G>(adj_lists, verticesCount, vertex_value, forest_edges);
+  pick_forest_edges<G>(adj_lists, vertices_count, vertex_value, forest_edges);
 }
 
 /**
@@ -314,7 +314,7 @@ void prune(
 template <typename G>
 void unpruned_forest(
   const G& graph, const int vertex_set[],
-  const int setsCount,
+  const int sets_count,
   std::vector<typename G::weighted_edge_t>& unpruned_forest_edges)
 {
   typedef typename G::edge_iterator_t edge_iterator_t;
@@ -322,67 +322,67 @@ void unpruned_forest(
   typedef typename G::edge_weight_t edge_weight_t;
   typedef typename G::edge_t edge_t;
 
-  const size_t verticesCount = graph.verticesCount();
-  edge_weight_t distances[verticesCount];
-  bool active[verticesCount];
-  for (typename G::vertex_t v = 0; v < verticesCount; ++v)
+  const size_t vertices_count = graph.get_vertices_count();
+  edge_weight_t distances[vertices_count];
+  bool active[vertices_count];
+  for (typename G::vertex_t v = 0; v < vertices_count; ++v)
   {
     distances[v] = edge_weight_t();
     active[v] = false;
   }
 
-  int setCardinality[setsCount];
-  memset(setCardinality, 0, sizeof(setCardinality[0]) * setsCount);
-  for (vertex_t v = 0; v < verticesCount; ++v)
+  int set_cardinality[sets_count];
+  memset(set_cardinality, 0, sizeof(set_cardinality[0]) * sets_count);
+  for (vertex_t v = 0; v < vertices_count; ++v)
   {
     int set_id = vertex_set[v];
     if (set_id != -1)
     {
-      setCardinality[set_id] += 1;
+      set_cardinality[set_id] += 1;
     }
   }
 
-  int activeSets = 0;
-  int setCardinalityCounter[verticesCount];
-  memset(setCardinalityCounter, 0, sizeof(setCardinality[0]) * verticesCount);
-  boost::heap::skew_heap<int> compoundTerminals[verticesCount];
-  for (vertex_t v = 0; v < verticesCount; ++v)
+  int active_sets = 0;
+  int set_cardinality_counter[vertices_count];
+  memset(set_cardinality_counter, 0, sizeof(set_cardinality[0]) * vertices_count);
+  boost::heap::skew_heap<int> compound_terminals[vertices_count];
+  for (vertex_t v = 0; v < vertices_count; ++v)
   {
     int set_id = vertex_set[v];
-    if (set_id != -1 && setCardinality[set_id] != 1)
+    if (set_id != -1 && set_cardinality[set_id] != 1)
     {
-      activeSets += 1;
+      active_sets += 1;
       active[v] = 1;
-      compoundTerminals[v].push(set_id);
+      compound_terminals[v].push(set_id);
     }
   }
 
-  int rank[verticesCount];
-  memset(rank, 0, sizeof(rank[0]) * verticesCount);
+  int rank[vertices_count];
+  memset(rank, 0, sizeof(rank[0]) * vertices_count);
   typedef boost::iterator_property_map < int *, boost::identity_property_map,
           int, int& > dsu_rank_t;
   dsu_rank_t dsu_rank(rank, boost::identity_property_map());
 
-  vertex_t parent[verticesCount];
-  memset(parent, 0, sizeof(parent[0]) * verticesCount);
+  vertex_t parent[vertices_count];
+  memset(parent, 0, sizeof(parent[0]) * vertices_count);
 
   typedef boost::iterator_property_map < vertex_t *,
           boost::identity_property_map, vertex_t, vertex_t& > dsu_parent_t;
   dsu_parent_t dsu_parent(parent, boost::identity_property_map());
   boost::disjoint_sets<dsu_rank_t, dsu_parent_t> dsu(dsu_rank, dsu_parent);
 
-  for (vertex_t v = 0; v < verticesCount; ++v)
+  for (vertex_t v = 0; v < vertices_count; ++v)
   {
     dsu.make_set(v);
   }
 
-  while (activeSets)
+  while (active_sets)
   {
     edge_weight_t weight = edge_weight_t();
     edge_t edge;
-    bool candidateInitialized = false;
+    bool candidate_initialized = false;
 
-    for (vertex_t v = 0; v < verticesCount; ++v)
+    for (vertex_t v = 0; v < vertices_count; ++v)
     {
       edge_iterator_t it;
       edge_iterator_t end;
@@ -407,12 +407,12 @@ void unpruned_forest(
               candidate = candidate / 2;
             }
 
-            if (!candidateInitialized || candidate < weight)
+            if (!candidate_initialized || candidate < weight)
             {
               weight = candidate;
               edge.source = source;
               edge.target = target;
-              candidateInitialized = true;
+              candidate_initialized = true;
             }
           }
         }
@@ -428,7 +428,7 @@ void unpruned_forest(
         target,
         weight));
 
-    for (vertex_t v = 0; v < verticesCount; ++v)
+    for (vertex_t v = 0; v < vertices_count; ++v)
     {
       if (active[dsu.find_set(v)])
       {
@@ -444,38 +444,38 @@ void unpruned_forest(
 
     size_t merge = (new_root == source_parent) ? target_parent :
         source_parent;
-    compoundTerminals[new_root].merge(compoundTerminals[merge]);
+    compound_terminals[new_root].merge(compound_terminals[merge]);
 
     if (active[source_parent] && active[target_parent])
     {
-      activeSets -= 1;
+      active_sets -= 1;
       active[new_root] = 1;
 
-      while (compoundTerminals[new_root].size() >= 2)
+      while (compound_terminals[new_root].size() >= 2)
       {
-        int a = compoundTerminals[new_root].top();
-        compoundTerminals[new_root].pop();
-        int b = compoundTerminals[new_root].top();
+        int a = compound_terminals[new_root].top();
+        compound_terminals[new_root].pop();
+        int b = compound_terminals[new_root].top();
 
         if (a == b)
         {
-          setCardinalityCounter[a] += 1;
+          set_cardinality_counter[a] += 1;
         }
         else
         {
-          compoundTerminals[new_root].push(a);
+          compound_terminals[new_root].push(a);
           break;
         }
 
-        if (setCardinalityCounter[a] + 1 == setCardinality[a])
+        if (set_cardinality_counter[a] + 1 == set_cardinality[a])
         {
-          compoundTerminals[new_root].pop();
+          compound_terminals[new_root].pop();
         }
       }
 
-      if (compoundTerminals[new_root].empty())
+      if (compound_terminals[new_root].empty())
       {
-        activeSets -= 1;
+        active_sets -= 1;
         active[new_root] = 0;
       }
     }
@@ -547,7 +547,7 @@ void retrieve_weighted_forest_edges(
  * Steiner Forest.
  **/
 template <typename G, typename OutputIterator>
-void SteinerForest(
+void steiner_forest(
   const G& graph,
   const int vertex_set[],
   OutputIterator steiner_forest_edges)
@@ -558,25 +558,25 @@ void SteinerForest(
   typedef typename G::weighted_edge_t weighted_edge_t;
   typedef typename G::edge_t edge_t;
 
-  const size_t verticesCount = graph.verticesCount();
-  if (verticesCount == 0)
+  const size_t vertices_count = graph.get_vertices_count();
+  if (vertices_count == 0)
   {
     return;
   }
 
-  const int maxSetNumber = *std::max_element(vertex_set,
-      vertex_set + verticesCount);
-  const int setsCount = maxSetNumber + 1;
-  if (setsCount == 0)
+  const int max_set_number = *std::max_element(vertex_set,
+      vertex_set + vertices_count);
+  const int sets_count = max_set_number + 1;
+  if (sets_count == 0)
   {
     return;
   }
 
   std::vector<weighted_edge_t> unpruned_forest_edges;
-  unpruned_forest(graph, vertex_set, setsCount, unpruned_forest_edges);
+  unpruned_forest(graph, vertex_set, sets_count, unpruned_forest_edges);
 
   std::vector<edge_t> forest_edges;
-  prune<G>(verticesCount, setsCount, vertex_set, unpruned_forest_edges,
+  prune<G>(vertices_count, sets_count, vertex_set, unpruned_forest_edges,
       forest_edges);
 
   for (size_t i = 0; i < forest_edges.size(); ++i)
