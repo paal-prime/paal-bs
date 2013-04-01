@@ -4,6 +4,7 @@
 #include <fstream>  // NOLINT
 #include <vector>
 #include "steiner/SteinerForest.h"
+#include "steiner/SteinerForestInstance.h"
 #include "graph/AdjacencyMatrix.h"
 #include "graph/AdjacencyLists.h"
 
@@ -27,42 +28,19 @@ class SteinerTest : public ::testing::TestWithParam<SteinerParam>
 TEST_P(SteinerTest, Test)
 {
   SteinerParam param = GetParam();
-  std::ifstream input_data(param.input_filepath);
 
-  ASSERT_TRUE(input_data.is_open());
+  SteinerForestInstance<size_t, double> instance(param.input_filepath,
+    param.output_filepath);
 
-  size_t vertices_count, edge_count;
-  input_data >> vertices_count >> edge_count;
-
-  int sets[vertices_count];
-  for (size_t i = 0; i < vertices_count; ++i)
-  {
-    input_data >> sets[i];
-  }
+  instance.initialize();
 
   typedef AdjacencyLists<graph::undirected, double> graph_t;
-  graph_t graph(vertices_count);
-  for (size_t i = 0; i < edge_count; ++i)
-  {
-    size_t a, b;
-    double w;
-    input_data >> a >> b >> w;
-    graph.add_edge(a, b, w);
-  }
 
-  input_data.close();
+  std::vector<graph_t::weighted_edge_t> steiner_forest_edges;
 
-  std::ifstream solution_data(param.output_filepath);
-  ASSERT_TRUE(solution_data.is_open());
-
-  double best_known_solution;
-  solution_data >> best_known_solution;
-  solution_data.close();
-
-  std::vector<graph_t::weighted_edge_t>
-  steiner_forest_edges;
-
-  steiner_forest<>(graph, sets, std::back_inserter(steiner_forest_edges));
+  steiner_forest<>(instance.get_graph<graph_t>(),
+    instance.get_vertex_set(),
+    std::back_inserter(steiner_forest_edges));
 
   double solution_cost = 0.0;
   for (size_t i = 0; i < steiner_forest_edges.size(); ++i)
@@ -70,8 +48,8 @@ TEST_P(SteinerTest, Test)
     solution_cost += steiner_forest_edges[i].weight;
   }
 
-  ASSERT_LE(solution_cost, 2 * best_known_solution);
-  ASSERT_GE(solution_cost, best_known_solution);
+  ASSERT_LE(solution_cost, 2 * instance.get_best_known_cost());
+  ASSERT_GE(solution_cost, instance.get_best_known_cost());
 }
 
 INSTANTIATE_TEST_CASE_P(SteinerTree, SteinerTest,
