@@ -1,9 +1,9 @@
 IGNORED_WARN := -Wno-vla -Wno-unused-parameter
-OPTIMIZATIONS := -O2
+OPTIMIZATIONS := -O2 #-g -gdwarf-2
 
 CXX := g++ -I ./
 CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTIMIZATIONS)
-LDFLAGS := -lrt -lboost_program_options
+LDFLAGS := -lrt -lboost_program_options -lboost_filesystem -lboost_system -lpthread
 LDFLAGS_GTEST := -lgtest -lgtest_main
 
 DOCS_DIR=./docs

@@ -133,7 +133,7 @@ namespace facility_location {
     public:
       /** @param instance an Instance representing input graph, it's not copied
        * nor the ownership of passed object is taken by algorithm */
-      explicit PrimDualSchema(Instance &instance) :
+      explicit PrimDualSchema(const Instance &instance) :
         instance_(instance) {
         init();
       }
