@@ -65,11 +65,11 @@ we have decided to limit domain-specific part of a MCTS-based algorithm to two
 components, namely State and Move. Referring to previously introduced
 nomenclature, States coincide with abstract states (nodes in the tree) and
 Moves -- with decisions (edges in the tree).
-According to Occam's razor principle we have removed Fitness -- a separate
-concept describing result of and evaluation of a state. We have assumed (and
-never found counterexample to this thesis) that Fitness is represented by
-linearly ordered set which is isomorphic with a subset of a set represented by
-double type.
+A Fitness is a separate concept describing result of and evaluation of a state.
+We have assumed that Fitness is represented by linearly ordered set which is
+isomorphic with a subset of double type.
+Except for theoretical precision issues, we found no drawbacks of this
+simplifying decision for any real life MCTS application.
 
 Main components
 ---------------
@@ -78,10 +78,11 @@ opinion generically atomic.
 
 Tree -- responsible for maintaining structure of a decision tree
 represented by nodes connected via edges.
-Note that the tree has no knowledge about traversing strategy (tree or default
-policy), decision or state evaluation, domain-dependency etc. One can think
-about the tree as a (very refined) iterator stub, which is being filled and
-used by other parts of a framework (in most cases supplied by end programmer).
+Note that the tree has no knowledge about traversing strategy (tree policy or
+default policy), decision or state evaluation, domain-dependency etc. One can
+think about the tree as a (very refined) iterator stub, which is being filled
+and used by other parts of a framework (in most cases supplied by end
+programmer).
 Since nodes are part of the tree and aggregated statistics are conceptually
 connected with tree policy we could not store them in nodes directly. This is
 why next concept has been introduced.
@@ -100,13 +101,14 @@ finding locally the most urgent child to descend into and finding path to
 chosen node from the root. Therefore tree policy provides a function that
 given a node, a state reached in this node and its children returns child that
 should be examined recursively. Alternative approach would be to pass (using
-some really fancy encoding) entire tree structure to the tree policy explicitly
-which sounds tragic. By requesting local decisions we make this simple both
-conceptually and technically simple yet described interface has enough
-expressive power, since all information about a subtree can be stored in
-payload of that subtree's root if needed. Building path from root node makes
-sense also from philosophical point of view, since after evaluating chosen node
-we would like to update all nodes on the path to the root.
+some really fancy encoding) entire tree structure to the tree policy
+explicitly. By requesting local decisions we make this simple both conceptually
+and technically yet described interface has enough expressive power. We have
+never came up with nor found in literature a reasonable strategy that needs
+more global information about search tree.
+Building path from root node makes sense also from philosophical point of view,
+since after evaluating chosen node we would like to update all nodes on the
+path to the root.
 Possible domain-dependency of the tree policy is allowed since local decision
 is made based on entire information stored in the node and the state reached by
 making decisions encoded in edges traversed during path building (node
@@ -129,14 +131,14 @@ State -- main component that encodes specific problem in MCTS algorithm.
 It is responsible for complete implementation of default policy, evaluation of
 Fitness for given (terminal state), generating Moves that can be done from
 current state and establishing connection between Move and itself.
-Note that from the framework's point of view there is no assumptions about who
+Note that from the framework's point of view there is no assumption about how
 default policy estimates state's Fitness, there is no need for the state to
 apply random sequence of moves to itself in order to obtain terminal state
 which can be evaluated directly, this technique is pretty common though (and
 advised as a good starting point).
 It is beneficial to walk through the process of choosing node by the Tree
 (according to Explore component). We start in the root by copying initial
-state and then we feed copied state with Moves found on edges traversed
+state and then we feed the copy with Moves found on edges traversed
 according to decisions of the tree policy, therefore each time we need to
 provide some component with state of current node we can answer this request
 without storing state in each node. This means that State must provide a
@@ -144,10 +146,10 @@ procedure to modify itself based on provided Move.
 
 Possible modifications
 ----------------------
-In every experimental implementation that we have created to test our design we
+In every experimental implementation we have created to test our design, we
 have observed that each component is monolithic and splitting (always possible,
-not always desirable) would make things harder to implement, understand and
-slower.
+not always desirable) would make things slower and harder to implement or
+understand.
 The question is whether it is possible to merge some of presented components.
 Since MCTS algorithms are widely used in games application we had some
 intuition where to draw the line between domain dependent and independent
