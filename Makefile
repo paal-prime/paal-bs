@@ -1,4 +1,4 @@
-IGNORED_WARN := -Wno-vla -Wno-unused-parameter -ferror-limit=5
+IGNORED_WARN := -Wno-vla -Wno-unused-parameter -Wshadow
 OPTIMIZATIONS := -O2 -g
 
 CXX := clang++ -I ./

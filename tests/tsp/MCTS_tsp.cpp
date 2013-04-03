@@ -15,7 +15,7 @@ run_mcts(State& state, Policy& policy, size_t samples, double progression = 1.0)
   mcts::MonteCarloTree<State, Policy> mct(state, policy);
   while (!mct.root_state().is_terminal())
   {
-    if (mct.root_state().moves_count() < 10)
+    if (mct.root_state().left_decisions() < 10)
     {
       mct.root_state().exhaustive_search_min();
       break;

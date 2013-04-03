@@ -22,7 +22,7 @@ template<typename Policy> struct Algo  // implements Algo
   Policy policy_;
   double progression_;
 
-  Algo(Matrix &matrix, Policy policy) : state_(matrix), policy_(policy)
+  Algo(State state, Policy policy) : state_(state), policy_(policy)
   {
     progression_ = .95;
   }
@@ -31,10 +31,10 @@ template<typename Policy> struct Algo  // implements Algo
   {
     double begin = paal::realtime_sec();
     mcts::MonteCarloTree<State, Policy> mct(state_, policy_);
-    size_t samples = mct.root_state().moves_count() * 950;
+    size_t samples = mct.root_state().left_decisions() * 950;
     while (!mct.root_state().is_terminal())
     {
-      if (mct.root_state().moves_count() > full_count_)
+      if (mct.root_state().left_decisions() > full_count_)
       {
         paal::IterationCtrl ctrl(samples);
         typename State::Move move = mct.search(ctrl);
@@ -52,11 +52,12 @@ template<typename Policy> struct Algo  // implements Algo
   }
 };
 
-template<typename Policy> Algo<Policy> make_algo(Matrix &matrix, Policy policy)
-{ return Algo<Policy>(matrix, policy); }
+template<typename Policy> Algo<Policy> make_algo(State state, Policy policy)
+{ return Algo<Policy>(state, policy); }
 
 int main()
 {
+  const size_t repeats = 1;
   tsp::TSPLIB_Directory dir("./TSPLIB/symmetrical/");
   std::vector<size_t> graph_ids = {25, 26};
   Matrix matrix;
@@ -64,8 +65,18 @@ int main()
   for (size_t gid : graph_ids)
   {
     dir.graphs[gid].load(matrix);
-    sl.test(format("TSPPolicyRandMean %", dir.graphs[gid].filename),
-            make_algo(matrix, tsp::TSPPolicyRandMean<>(random_)), 3);
+    sl.test(format("TSPPolicyRandMean, moves_limit=inf %",
+          dir.graphs[gid].filename), make_algo(State(matrix),
+            tsp::TSPPolicyRandMean<>(random_)), repeats);
+    sl.test(format("TSPPolicyRandMean, moves_limit=30 %",
+          dir.graphs[gid].filename), make_algo(State(matrix, 30),
+            tsp::TSPPolicyRandMean<>(random_)), repeats);
+    sl.test(format("TSPPolicyRandMean, moves_limit=10 %",
+          dir.graphs[gid].filename), make_algo(State(matrix, 10),
+            tsp::TSPPolicyRandMean<>(random_)), repeats);
+    sl.test(format("TSPPolicyRandMean, moves_limit=5 %",
+          dir.graphs[gid].filename), make_algo(State(matrix, 5),
+            tsp::TSPPolicyRandMean<>(random_)), repeats);
   }
   sl.dump(std::cout);
   std::cout << std::flush;

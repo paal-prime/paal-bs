@@ -29,17 +29,34 @@ namespace tsp
 
   template<typename Matrix> class TSPState
   {
+    public:
+      typedef size_t Move;
+
     private:
       const Matrix& matrix_;
+      const size_t exhaustive_limit_;
+      const size_t moves_limit_;
       size_t left_count_;
       size_t first_vertex_;
       size_t last_vertex_;
       std::vector<bool> in_path_;
 
+      struct MovesComparator
+      {
+        size_t last_;
+        const Matrix& matrix_;
+
+        MovesComparator(size_t last, const Matrix& matrix) : last_(last),
+          matrix_(matrix) {}
+
+        bool operator()(size_t v1, size_t v2)
+        { return matrix_(last_, v1) < matrix_(last_, v2); }
+      };
+
       template<typename Combine>
       Fitness exhaustive_accumulate(Combine combine, Fitness initial)
       {
-        auto left_vertices = moves();
+        auto left_vertices = moves_all();
         // assertion: left_vertices vector is sorted in asceding order
         Fitness accumulator = initial;
         do
@@ -59,14 +76,31 @@ namespace tsp
         return accumulator;
       }
 
-    public:
-      typedef size_t Move;
+      const std::vector<Move> moves_all() const
+      {
+        std::vector<Move> ms;
+        for (size_t i = 0; i < in_path_.size(); i++)
+        {
+          if (!in_path_[i]) { ms.push_back(Move(i)); }
+        }
+        assert(ms.size() == left_count_);
+        return ms;
+      }
 
+    public:
       Fitness cost_;
 
-      explicit TSPState(const Matrix& matrix) : matrix_(matrix),
-        left_count_(matrix.size1() - 1), first_vertex_(matrix.size1() - 1),
-        last_vertex_(first_vertex_), cost_(0)
+      explicit TSPState(
+          const Matrix& matrix,
+          size_t moves_limit = std::numeric_limits<size_t>::max(),
+          size_t exhaustive_limit = 4) :
+        matrix_(matrix),
+        exhaustive_limit_(exhaustive_limit),
+        moves_limit_(moves_limit),
+        left_count_(matrix.size1() - 1),
+        first_vertex_(matrix.size1() - 1),
+        last_vertex_(first_vertex_),
+        cost_(0)
       {
         in_path_.resize(matrix.size1(), false);
         in_path_[first_vertex_] = true;
@@ -89,11 +123,11 @@ namespace tsp
       {
         if (!is_terminal())
         {
-          auto left_moves = moves();
+          auto left_moves = moves_all();
           std::shuffle(left_moves.begin(), left_moves.end(), random);
           for (auto m : left_moves)
           {
-            if (moves_count() < 4)
+            if (left_decisions() < exhaustive_limit_)
             {
               exhaustive_search_min();
               break;
@@ -107,12 +141,13 @@ namespace tsp
       const std::vector<Move> moves() const
       {
         assert(!is_terminal());
-        std::vector<Move> ms;
-        for (size_t i = 0; i < in_path_.size(); i++)
+        std::vector<Move> ms = moves_all();
+        if (ms.size() > moves_limit_)
         {
-          if (!in_path_[i]) { ms.push_back(Move(i)); }
+          std::sort(ms.begin(), ms.end(),
+              MovesComparator(last_vertex_, matrix_));
+          ms.resize(moves_limit_);
         }
-        assert(ms.size() == moves_count());
         return ms;
       }
 
@@ -128,7 +163,7 @@ namespace tsp
         assert(is_terminal());
       }
 
-      size_t moves_count() const { return left_count_; }
+      size_t left_decisions() const { return left_count_; }
   };
 
   template<typename Random = std::mt19937> class TSPPolicyRandMean
@@ -172,7 +207,7 @@ namespace tsp
       template<typename Node, typename State> bool expand(const Node& node,
           const State& state, size_t iteration, size_t level)
       {
-        return node().visits_ >= state.moves_count();
+        return node().visits_ >= state.left_decisions();
       }
   };
 
@@ -222,7 +257,7 @@ namespace tsp
       template<typename Node, typename State> bool expand(const Node& node,
           const State& state, size_t iteration, size_t level)
       {
-        return node().visits_ >= state.moves_count();
+        return node().visits_ >= state.left_decisions();
       }
   };
 
@@ -276,7 +311,7 @@ namespace tsp
       template<typename Node, typename State> bool expand(const Node& node,
           const State& state, size_t iteration, size_t level)
       {
-        return node().visits_ >= state.moves_count();
+        return node().visits_ >= state.left_decisions();
       }
   };
 
@@ -331,7 +366,7 @@ namespace tsp
       template<typename Node, typename State> bool expand(const Node& node,
           const State& state, size_t iteration, size_t level)
       {
-        return node().visits_ >= state.moves_count();
+        return node().visits_ >= state.left_decisions();
       }
   };
 }
