@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <mcts/MonteCarloTree.h>
+#include <mcts/Policies.h>
 #include <tsp/TSPLIB.h>
 #include <tsp/MCTS_tsp.h>
 #include <paal/ProgressCtrl.h>
@@ -29,17 +30,17 @@ run_mcts(State& state, Policy& policy, size_t samples, double progression = 1.0)
 }
 
 template<typename Policy>
-class MCTS_TSPPolicy : public ::testing::Test {};
+class MCTS_Policy : public ::testing::Test {};
 
 typedef ::testing::Types <
-    tsp::TSPPolicyMuSigma<>,
-    tsp::TSPPolicyRandMean<>,
-    tsp::TSPPolicyRandEpsMean<>,
-    tsp::TSPPolicyRandEpsBest<>
+    mcts::PolicyMuSigma<>,
+    mcts::PolicyRandMean<>,
+    mcts::PolicyRandEpsMean<>,
+    mcts::PolicyRandEpsBest<>
   > PoliciesList;
-TYPED_TEST_CASE(MCTS_TSPPolicy, PoliciesList);
+TYPED_TEST_CASE(MCTS_Policy, PoliciesList);
 
-TYPED_TEST(MCTS_TSPPolicy, Performance_eil51)
+TYPED_TEST(MCTS_Policy, Performance_eil51)
 {
   using tsp::TSPLIB_Directory;
   using tsp::TSPLIB_Matrix;
