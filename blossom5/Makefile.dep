@@ -2,5 +2,4 @@
 BLOSSOM5_OBJECTS := $(filter-out $(MAINOBJECTS),$(subst .cpp,.o,$(shell find ./blossom5/ -name "*.cpp")))
 
 blossom5/example: $(BLOSSOM5_OBJECTS)
-
 experiments/tsp_christofides: $(BLOSSOM5_OBJECTS)

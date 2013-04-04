@@ -345,7 +345,7 @@ void unpruned_forest(
   int active_sets = 0;
   int set_cardinality_counter[vertices_count];
   memset(set_cardinality_counter, 0, sizeof(set_cardinality[0]) * vertices_count);
-  boost::heap::skew_heap<int> compound_terminals[vertices_count];
+  std::vector<boost::heap::skew_heap<int>> compound_terminals(vertices_count);
   for (vertex_t v = 0; v < vertices_count; ++v)
   {
     int set_id = vertex_set[v];

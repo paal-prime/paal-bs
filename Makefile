@@ -46,7 +46,7 @@ $(MAIN) : % : %.o
 
 # link gtest objects
 $(GTEST) : % : $(GTESTOBJECTS)
-	$(CXX) $(GTESTOBJECTS) $(BLOSSOM5_OBJECTS) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@
+	$(CXX) $(BLOSSOM5_OBJECTS) $(GTESTOBJECTS) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@
 
 docs:
 	doxygen doxygen.conf

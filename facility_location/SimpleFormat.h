@@ -57,14 +57,20 @@ namespace facility_location {
         const std::string file_opt = file + kOptFileSuffix;
         std::ifstream isopt(file_opt.c_str());
         if (!isopt) {
-          throw std::runtime_error("Could not open " + file_opt);
+          //throw std::runtime_error("Could not open " + file_opt);
+          optimal_solution_.resize(m);
+          for (size_t j = 0; j < m; j++) {
+            optimal_solution_(j) = j;
+          }
+          optimal_cost_ = 1;
+        } else {
+          optimal_solution_.resize(m);
+          for (size_t j = 0; j < m; j++) {
+            isopt >> optimal_solution_(j);
+          }
+          isopt >> optimal_cost_;
+          isopt.close();
         }
-        optimal_solution_.resize(m);
-        for (size_t j = 0; j < m; j++) {
-          isopt >> optimal_solution_(j);
-        }
-        isopt >> optimal_cost_;
-        isopt.close();
       }
 
       /** @returns number of cities */
