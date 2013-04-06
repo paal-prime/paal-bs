@@ -170,7 +170,14 @@ class AdjacencyMatrix
           weights_[u * vertices_ + v] = w;
         }
 
-        const V vertices_;
+        void reset(size_t vertices)
+        {
+          vertices_ = vertices;
+          weights_.reset(new WW[vertices_ * vertices_]());
+          adjs_.reset(new bool[vertices_ * vertices_]());
+        }
+
+        V vertices_;
         std::unique_ptr<WW[]> weights_;
         std::unique_ptr<bool[]> adjs_;
     };
@@ -286,6 +293,14 @@ class AdjacencyMatrix
     size_t get_vertices_count() const
     {
       return fields_.vertices_;
+    }
+
+    /**
+     * @brief replaces graph with empty graph that has vertices_count vertices.
+     **/
+    void reset(size_t vertices_count)
+    {
+      fields_.reset(vertices_count);
     }
 
   private:

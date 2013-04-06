@@ -29,16 +29,16 @@ TEST_P(SteinerTest, Test)
 {
   SteinerParam param = GetParam();
 
-  SteinerForestInstance<size_t, double> instance(param.input_filepath,
-    param.output_filepath);
-
-  instance.initialize();
-
   typedef AdjacencyLists<graph::undirected, double> graph_t;
+
+  SteinerForestInstance<graph_t> instance;
+
+  instance.load(param.input_filepath,
+    param.output_filepath);
 
   std::vector<graph_t::weighted_edge_t> steiner_forest_edges;
 
-  steiner_forest<>(instance.get_graph<graph_t>(),
+  steiner_forest<>(instance.get_graph(),
     instance.get_vertex_set(),
     std::back_inserter(steiner_forest_edges));
 

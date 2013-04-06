@@ -10,44 +10,49 @@
 
 /**
  * @brief represents SteinerForest test case instance.
- * @tparam V type representing vertex.
- * @tparam W codomain of weight/cost function.
+ * @tparam G graph type.
  */
-template <typename V = size_t, typename W = double>
+template <typename G>
 class SteinerForestInstance
 {
   public:
-    explicit SteinerForestInstance(const std::string &input_file,
-      const std::string &output_file)
-    : input_file_(input_file), output_file_(output_file) {}
+    explicit SteinerForestInstance()
+    : graph_(0) {}
 
     /**
      * @brief reads data from files.
      * Must be run before using any getters.
      */
-    void initialize()
+    void load(const std::string &input_file,
+      const std::string &solution_file)
     {
-      std::ifstream input_data(input_file_);
+      std::ifstream input_data(input_file);
       assert(input_data.is_open());
-      input_data >> vertices_count_ >> edges_count_;
+      size_t vertices_count;
+      size_t edges_count;
+      input_data >> vertices_count >> edges_count;
 
-      vertex_set_.reset(new int[vertices_count_]);
-      for (size_t i = 0; i < vertices_count_; ++i)
+      graph_.reset(vertices_count);
+
+      vertex_set_.reset(new int[vertices_count]);
+      for (size_t i = 0; i < vertices_count; ++i)
       {
         input_data >> vertex_set_[i];
       }
 
-      for (size_t i = 0; i < edges_count_; ++i)
+      for (size_t i = 0; i < edges_count; ++i)
       {
-        V a, b;
-        W w;
+        typename G::vertex_t a, b;
+        typename G::edge_weight_t w;
         input_data >> a >> b >> w;
-        edges_.push_back(graph::WeightedEdge<V, W>(a, b, w));
+        graph_.add_edge(a, b, w);
       }
+
+
 
       input_data.close();
 
-      std::ifstream solution_data(output_file_);
+      std::ifstream solution_data(solution_file);
       assert(solution_data.is_open());
 
       solution_data >> best_known_cost_;
@@ -55,17 +60,9 @@ class SteinerForestInstance
       solution_data.close();
     }
 
-    template <typename G>
-    G get_graph()
+    const G& get_graph()
     {
-      G graph(vertices_count_);
-      for (size_t i = 0; i < edges_.size(); ++i)
-      {
-        graph.add_edge(edges_[i].source, edges_[i].target,
-          edges_[i].weight);
-      }
-
-      return graph;
+      return graph_;
     }
 
     const int* get_vertex_set()
@@ -73,18 +70,14 @@ class SteinerForestInstance
       return vertex_set_.get();
     }
 
-    W get_best_known_cost()
+    typename G::edge_weight_t get_best_known_cost()
     {
       return best_known_cost_;
     }
   private:
-    size_t vertices_count_;
-    size_t edges_count_;
-    const std::string input_file_;
-    const std::string output_file_;
+    G graph_;
     std::unique_ptr<int[]> vertex_set_;
-    std::vector<graph::WeightedEdge<V, W> > edges_;
-    W best_known_cost_;
+    typename G::edge_weight_t best_known_cost_;
 
 };
 

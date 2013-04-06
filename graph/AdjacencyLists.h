@@ -115,6 +115,12 @@ class AdjacencyLists
           adj_[u].push_back(graph::EdgeEnd<V, WW>(v, w));
         }
 
+        void reset(size_t vertices)
+        {
+          vertices_ = vertices;
+          adj_.reset(new std::list< graph::EdgeEnd<V, WW> >[vertices_]);
+        }
+
         V vertices_;
         std::unique_ptr<std::list< graph::EdgeEnd<V, WW> >[]> adj_;
     };
@@ -240,6 +246,13 @@ class AdjacencyLists
       return fields_.vertices_;
     };
 
+    /**
+     * @brief replaces graph with empty graph that has vertices_count vertices.
+     **/
+    void reset(size_t vertices_count)
+    {
+      fields_.reset(vertices_count);
+    }
   private:
     AdjacencyListsFields<W, vertex_t> fields_;
 };
