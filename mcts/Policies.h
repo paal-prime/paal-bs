@@ -7,10 +7,10 @@
 namespace mcts {
 
   template<typename Node, typename Funct>
-  ssize_t min_child(const Node &parent, Funct fun) {
+  size_t min_child(const Node &parent, Funct fun) {
     Fitness best = std::numeric_limits<Fitness>::infinity();
-    ssize_t index = 0;
-    for (size_t i = 1; i < parent.size(); i++)
+    size_t index = 0;
+    for (size_t i = 0; i < parent.size(); i++)
     {
       Fitness estimate = fun(parent[i]());
       if (best > estimate) { best = estimate; index = i; }
@@ -48,9 +48,8 @@ namespace mcts {
 
       template<typename Node> size_t best_child(const Node &parent)
       {
-        ssize_t index = min_child(parent, [](const Payload& payload)
+        return min_child(parent, [](const Payload& payload)
             -> double { return payload.estimate_; });
-        return static_cast<size_t>(index);
       }
 
       template<typename Node> bool expand(const Node& node, size_t iteration,
@@ -95,9 +94,8 @@ namespace mcts {
 
       template<typename Node> size_t best_child(const Node &parent)
       {
-        ssize_t index = min_child(parent, [](const Payload& payload)
+        return min_child(parent, [](const Payload& payload)
             -> double { return payload.estimate_; });
-        return static_cast<size_t>(index);
       }
 
       template<typename Node> bool expand(const Node& node, size_t iteration,
@@ -194,13 +192,11 @@ namespace mcts {
       template<typename Node> size_t best_child(const Node &parent)
       {
         double factor = discovery_factor_;
-        ssize_t index = min_child(parent, [&factor]
+        return min_child(parent, [&factor]
             (const Payload& payload) -> double {
             return payload.mean_ + ((payload.visits_ <= 1) ? 0
               : factor * sqrt(payload.interm_ / (payload.visits_ - 1)));
             });
-        assert(index >= 0);
-        return static_cast<size_t>(index);
       }
 
       template<typename Node> bool expand(const Node& node, size_t iteration,
