@@ -71,14 +71,14 @@ namespace mcts
               size_t level)
           {
             if (is_leaf() && !state.is_terminal()
-                && policy.expand(*this, state, iteration, level))
+                && policy.expand(*this, iteration, level))
             {
               expand(state);
             }
             Fitness estimate;
             if (!is_leaf())
             {
-              size_t chosen_idx = policy.choose(*this, state);
+              size_t chosen_idx = policy.choose(*this);
               assert(chosen_idx < size());
               Node &chosen = *children_[chosen_idx].get();
               state.apply(chosen.move());

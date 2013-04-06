@@ -50,8 +50,8 @@ struct TestPolicy
     payload.estimate_ = std::min(payload.estimate_, estimate);
   }
 
-  template<typename Node, typename State> size_t choose(const Node& parent,
-      const State &state) { return 0; }
+  template<typename Node> size_t choose(const Node& parent)
+  { return 0; }
 
   template<typename Node> size_t best_child(const Node &parent)
   {
@@ -70,8 +70,8 @@ struct TestPolicy
     return static_cast<size_t>(index);
   }
 
-  template<typename Node, typename State> bool expand(const Node& node,
-      const State& state, size_t iteration, size_t level) { return true; }
+  template<typename Node> bool expand(const Node& node, size_t iteration,
+      size_t level) { return true; }
 };
 
 class MonteCarloTreeTests : public testing::Test {};

@@ -9,8 +9,8 @@ namespace mcts {
   template<typename Node, typename Funct>
   ssize_t min_child(const Node &parent, Funct fun) {
     Fitness best = std::numeric_limits<Fitness>::infinity();
-    ssize_t index = -1;
-    for (size_t i = 0; i < parent.size(); i++)
+    ssize_t index = 0;
+    for (size_t i = 1; i < parent.size(); i++)
     {
       Fitness estimate = fun(parent[i]());
       if (best > estimate) { best = estimate; index = i; }
@@ -43,11 +43,8 @@ namespace mcts {
           payload.estimate_ + (estimate - payload.estimate_) / payload.visits_;
       }
 
-      template<typename Node, typename State> size_t choose(const Node& parent,
-          const State &state)
-      {
-        return (random_() % parent.size());
-      }
+      template<typename Node> size_t choose(const Node& parent)
+      { return (random_() % parent.size()); }
 
       template<typename Node> size_t best_child(const Node &parent)
       {
@@ -56,11 +53,9 @@ namespace mcts {
         return static_cast<size_t>(index);
       }
 
-      template<typename Node, typename State> bool expand(const Node& node,
-          const State& state, size_t iteration, size_t level)
-      {
-        return node().visits_ >= state.left_decisions();
-      }
+      template<typename Node> bool expand(const Node& node, size_t iteration,
+          size_t level)
+      { return node().visits_ >= 20; }
   };
 
   template<typename Random = std::mt19937> class PolicyRandEpsMean
@@ -91,8 +86,7 @@ namespace mcts {
           payload.estimate_ + (estimate - payload.estimate_) / payload.visits_;
       }
 
-      template<typename Node, typename State> size_t choose(const Node& parent,
-          const State &state)
+      template<typename Node> size_t choose(const Node& parent)
       {
         return (random_() % best_pick_period_ == 0)
           ? std::min(best_child(parent), parent.size() - 1)
@@ -106,11 +100,9 @@ namespace mcts {
         return static_cast<size_t>(index);
       }
 
-      template<typename Node, typename State> bool expand(const Node& node,
-          const State& state, size_t iteration, size_t level)
-      {
-        return node().visits_ >= state.left_decisions();
-      }
+      template<typename Node> bool expand(const Node& node, size_t iteration,
+          size_t level)
+      { return node().visits_ >= 20; }
   };
 
   template<typename Random = std::mt19937> class PolicyRandEpsBest
@@ -146,8 +138,7 @@ namespace mcts {
         }
       }
 
-      template<typename Node, typename State> size_t choose(const Node& parent,
-          const State &state)
+      template<typename Node> size_t choose(const Node& parent)
       {
         return (parent().best_child_ < parent.size()
             && random_() % best_pick_period_ == 0)
@@ -160,11 +151,9 @@ namespace mcts {
         return parent().best_child_;
       }
 
-      template<typename Node, typename State> bool expand(const Node& node,
-          const State& state, size_t iteration, size_t level)
-      {
-        return node().visits_ >= state.left_decisions();
-      }
+      template<typename Node> bool expand(const Node& node, size_t iteration,
+          size_t level)
+      { return node().visits_ >= 20; }
   };
 
   template<typename Random = std::mt19937> class PolicyMuSigma
@@ -199,8 +188,7 @@ namespace mcts {
         payload.interm_ += delta * (estimate - payload.mean_);
       }
 
-      template<typename Node, typename State> size_t choose(const Node& parent,
-          const State &state)
+      template<typename Node> size_t choose(const Node& parent)
       { return best_child(parent); }
 
       template<typename Node> size_t best_child(const Node &parent)
@@ -215,11 +203,9 @@ namespace mcts {
         return static_cast<size_t>(index);
       }
 
-      template<typename Node, typename State> bool expand(const Node& node,
-          const State& state, size_t iteration, size_t level)
-      {
-        return node().visits_ >= state.left_decisions();
-      }
+      template<typename Node> bool expand(const Node& node, size_t iteration,
+          size_t level)
+      { return node().visits_ >= 20; }
   };
 }
 
