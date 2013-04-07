@@ -24,7 +24,7 @@ class SteinerForestInstance
      * Must be run before using any getters.
      */
     void load(const std::string &input_file,
-      const std::string &solution_file)
+      const std::string &solution_file = "")
     {
       std::ifstream input_data(input_file);
       assert(input_data.is_open());
@@ -48,16 +48,21 @@ class SteinerForestInstance
         graph_.add_edge(a, b, w);
       }
 
-
-
       input_data.close();
 
-      std::ifstream solution_data(solution_file);
-      assert(solution_data.is_open());
+      if(solution_file != "")
+      {
+        std::ifstream solution_data(solution_file);
+        assert(solution_data.is_open());
 
-      solution_data >> best_known_cost_;
+        solution_data >> best_known_cost_;
 
-      solution_data.close();
+        solution_data.close();
+      }
+      else
+      {
+        best_known_cost_ = -1;
+      }
     }
 
     const G& get_graph()
