@@ -8,7 +8,7 @@
 #include "graph/AdjacencyMatrix.h"
 #include "graph/AdjacencyLists.h"
 
-#define TESTS_DIR "tests/steiner/"
+#define TESTS_DIR "tests/steiner/paal_sf_tests/"
 
 class SteinerParam
 {
