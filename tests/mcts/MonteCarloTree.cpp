@@ -32,11 +32,13 @@ struct TestState
 
 struct TestPolicy
 {
-  typedef struct
+  struct Payload
   {
     size_t visits_ = 0;
     Fitness estimate_ = std::numeric_limits<Fitness>::infinity();
-  } Payload;
+  	bool operator<(const Payload &b) const
+	{ return estimate_<b.estimate_; }
+  };
 
   std::mt19937 random_;
 
@@ -53,25 +55,7 @@ struct TestPolicy
   template<typename Node> size_t choose(const Node& parent)
   { return 0; }
 
-  template<typename Node> size_t best_child(const Node &parent)
-  {
-    assert(!parent.is_leaf());
-    Fitness best = std::numeric_limits<Fitness>::infinity();
-    ssize_t index = -1;
-    for (size_t i = 0; i < parent.size(); i++)
-    {
-      if (best > parent[i]().estimate_)
-      {
-        best = parent[i]().estimate_;
-        index = i;
-      }
-    }
-    assert(index >= 0);
-    return static_cast<size_t>(index);
-  }
-
-  template<typename Node> bool expand(const Node& node, size_t iteration,
-      size_t level) { return true; }
+  template<typename Node> bool expand(const Node& node, size_t level) { return true; }
 };
 
 class MonteCarloTreeTests : public testing::Test {};
@@ -95,14 +79,14 @@ TEST_F(MonteCarloTreeTests, Node)
   policy.update(chld0, -1, 100);
   ASSERT_EQ(100, chld0().estimate_);
   policy.update(node, 0, 100);
-  ASSERT_EQ(0, policy.best_child(node));
+  ASSERT_EQ(0, node.best_child());
   ASSERT_EQ(100, node().estimate_);
 
   node_type &chld2 = node[2];
   policy.update(chld2, -1, 50);
   ASSERT_EQ(50, chld2().estimate_);
   policy.update(node, 2, 50);
-  ASSERT_EQ(2, policy.best_child(node));
+  ASSERT_EQ(2, node.best_child());
   ASSERT_EQ(50, node().estimate_);
 }
 

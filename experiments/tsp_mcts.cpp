@@ -1,7 +1,7 @@
 #include <paal/ProgressCtrl.h>
 #include <paal/SuperLogger.h>
 #include <mcts/MonteCarloTree.h>
-#include <mcts/Policies.h>
+#include <mcts/Policy.h>
 #include <tsp/TSPLIB.h>
 #include <tsp/MCTS_tsp.h>
 
@@ -12,8 +12,8 @@
 
 typedef tsp::TSPLIB_Matrix Matrix;
 typedef tsp::TSPState<Matrix> State;
-
-std::mt19937 random_;
+typedef std::mt19937 Random;
+Random random_;
 
 template<typename Policy> struct Algo  // implements Algo
 {
@@ -67,16 +67,16 @@ int main()
     dir.graphs[gid].load(matrix);
     sl.test(format("PolicyRandMean, moves_limit=inf %",
           dir.graphs[gid].filename), make_algo(State(matrix),
-            mcts::PolicyRandMean<>(random_)), repeats);
+            mcts::PolicyRandMean<Random>(random_)), repeats);
     sl.test(format("PolicyRandMean, moves_limit=30 %",
           dir.graphs[gid].filename), make_algo(State(matrix, 30),
-            mcts::PolicyRandMean<>(random_)), repeats);
+            mcts::PolicyRandMean<Random>(random_)), repeats);
     sl.test(format("PolicyRandMean, moves_limit=10 %",
           dir.graphs[gid].filename), make_algo(State(matrix, 10),
-            mcts::PolicyRandMean<>(random_)), repeats);
+            mcts::PolicyRandMean<Random>(random_)), repeats);
     sl.test(format("PolicyRandMean, moves_limit=5 %",
           dir.graphs[gid].filename), make_algo(State(matrix, 5),
-            mcts::PolicyRandMean<>(random_)), repeats);
+            mcts::PolicyRandMean<Random>(random_)), repeats);
   }
   sl.dump(std::cout);
   std::cout << std::flush;

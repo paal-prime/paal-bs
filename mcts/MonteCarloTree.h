@@ -37,7 +37,7 @@ namespace mcts
 
           Node() : move_() {}
 
-          explicit Node(const Move& move) : move_(move) {}
+          explicit Node(const Move& _move) : move_(_move) {}
 
           Payload& operator()() { return payload_; }
           const Payload& operator()() const { return payload_; }
@@ -49,6 +49,14 @@ namespace mcts
           const Node& operator[](ssize_t i) const {
             assert(i >= 0 && i < (ssize_t) children_.size());
             return *children_[i].get();
+          }
+
+          size_t best_child() const
+          {
+            size_t best = 0;
+            for (size_t i = 0; i < size(); i++)
+              if(children_[i]->payload_<children_[best]->payload_) best = i;
+            return best;
           }
 
           size_t size() const { return children_.size(); }
@@ -71,7 +79,7 @@ namespace mcts
               size_t level)
           {
             if (is_leaf() && !state.is_terminal()
-                && policy.expand(*this, iteration, level))
+                && policy.expand(*this, level))
             {
               expand(state);
             }
@@ -120,7 +128,7 @@ namespace mcts
           best = std::min(best, estimate);
           ++iteration;
         }
-        size_t best_idx = policy_.best_child(*root_.get());
+        size_t best_idx = root_.get()->best_child();
         assert(best_idx < root_->size());
         return root_->children_[best_idx]->move();
       }
