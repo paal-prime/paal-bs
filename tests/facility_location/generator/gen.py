@@ -1,6 +1,9 @@
 import os
-from random import randrange
+from random import randrange, seed
 from math import sqrt
+
+RAND_SEED = 19912013
+seed(RAND_SEED)
 
 # Generates n random points in rectangle with
 # opposite corners in (x1, y1) and (x2, y2).
@@ -54,7 +57,7 @@ def gen_tests(base_dir, save_points = False):
     os.makedirs(nonuniform_dir)
   except:
     pass
-  n_list = [100, 250, 500, 1000]
+  n_list = [100]
   k_list = [1, 5, 10, 20, 100]
   sizes = [100, 200, 500]
   for n in n_list:

@@ -1,5 +1,3 @@
-// Copyright 2013 <przed_deadlinem_zdazymy>
-
 #ifndef FACILITY_LOCATION_MCTS_FL_H_
 #define FACILITY_LOCATION_MCTS_FL_H_
 

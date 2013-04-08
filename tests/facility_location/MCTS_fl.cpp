@@ -1,5 +1,3 @@
-// Copyright 2013 <przed_deadlinem_zdazymy>
-
 #include <gtest/gtest.h>
 
 #include <mcts/MonteCarloTree.h>
