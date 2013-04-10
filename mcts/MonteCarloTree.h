@@ -55,7 +55,7 @@ namespace mcts
           {
             size_t best = 0;
             for (size_t i = 0; i < size(); i++)
-              if(children_[i]->payload_<children_[best]->payload_) best = i;
+              if (children_[i]->payload_ < children_[best]->payload_) best = i;
             return best;
           }
 
@@ -128,7 +128,7 @@ namespace mcts
           best = std::min(best, estimate);
           ++iteration;
         }
-        size_t best_idx = root_.get()->best_child();
+        size_t best_idx = root_->best_child();
         assert(best_idx < root_->size());
         return root_->children_[best_idx]->move();
       }
@@ -153,6 +153,6 @@ namespace mcts
 
       State &root_state() { return root_state_; }
   };
-}
+}  // namespace mcts
 
 #endif  // MCTS_MONTECARLOTREE_H_

@@ -57,7 +57,7 @@ namespace mcts
   struct VisitsMin
   {
     size_t visits_min;
-    VisitsMin(size_t _visits_min) : visits_min(_visits_min) {}
+    explicit VisitsMin(size_t _visits_min) : visits_min(_visits_min) {}
     template<typename Node> bool expand(const Node &node, size_t level)
     { return node().visits >= visits_min; }
   };
@@ -145,8 +145,9 @@ namespace mcts
 
       template<typename Node> size_t choose(const Node &node)
       {
-        return (node.size() > node().best_child || random_() < eps * random_.max()) ?
-               random_() % node.size() : node().best_child;
+        return (node.size() > node().best_child ||
+            random_() < eps * random_.max()) ?
+            random_() % node.size() : node().best_child;
       }
   };
 
@@ -167,14 +168,13 @@ namespace mcts
         double interm = 0;
         double factor = 0;
         bool operator<(const Payload &b) const
-        {
-          return factor < b.factor;
-        }
+        { return factor < b.factor; }
       };
 
       explicit PolicyMuSigma(
         Random &_random, double discovery_factor = 1.0, size_t _visits_min = 20)
-        : VisitsMin(_visits_min), random_(_random), discovery_factor_(discovery_factor) {}
+        : VisitsMin(_visits_min), random_(_random),
+          discovery_factor_(discovery_factor) {}
 
       Random & get_random(){ return random_; }
 
