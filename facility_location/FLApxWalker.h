@@ -47,7 +47,8 @@ namespace facility_location
 		ins.resize(n);
 		del.resize(n);
 		cor.resize(n,n);
-		
+		for(size_t i=0; i<n; ++i) for(size_t j=0; j<n; ++j) cor(i,j) = 0;
+
 		size_t active = 0; for(size_t i=0; i<n; ++i) active += fs[i];
 		double base_fitness = active ? fitness(instance,fs) : 0;
 
@@ -103,11 +104,12 @@ namespace facility_location
     private:
       const Instance &instance;
 	  ssize_t step_ins,step_del;
-      std::vector<bool> current_set;
       double current_fitness_, next_fitness_;
 
     public:
-      double current_fitness()
+      std::vector<bool> current_set;
+      
+	  double current_fitness()
       {
         return current_fitness_;
       }
@@ -121,15 +123,15 @@ namespace facility_location
       {
 		size_t n = current_set.size();
 		StepCosts sc(instance,current_set);
-		next_fitness = current_fitness;
+		next_fitness_ = current_fitness_;
 		step_ins = step_del = -1;
 		for(size_t i=0; i<n; ++i)
 		{
-			if(next_fitness>sc.del[i]){ next_fitness = sc.del[i]; step_ins = -1; step_del = i; }
-			if(next_fitness>sc.ins[i]){ next_fitness = sc.ins[i]; step_ins = i; step_del = -1; }
+			if(next_fitness_>sc.del[i]){ next_fitness_ = sc.del[i]; step_ins = -1; step_del = i; }
+			if(next_fitness_>sc.ins[i]){ next_fitness_ = sc.ins[i]; step_ins = i; step_del = -1; }
 		}
 		for(size_t i=0; i<n; ++i) for(size_t j=0; j<n; ++j)
-			if(next_fitness>sc.cor(i,j)){ next_fitness = sc.cor(i,j); step_ins = i; step_del = j; }
+			if(next_fitness_>sc.cor(i,j)){ next_fitness_ = sc.cor(i,j); step_ins = i; step_del = j; }
       }
 
       void make_step()

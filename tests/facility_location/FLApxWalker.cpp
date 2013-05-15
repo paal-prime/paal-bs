@@ -49,7 +49,6 @@ TEST(FLApxWalker,Best2_random)
 	for(size_t c=0; c<inst.cities_count(); ++c)
 	{
 		Best2 b(inst,fs,c);
-		//StepCosts sc(inst,fs);
 		ASSERT_TRUE(b.b1!=b.b2);
 		ASSERT_TRUE(fs[b.b1] && fs[b.b2]);
 		ASSERT_TRUE(b.c1==inst(b.b1,c));
@@ -64,7 +63,7 @@ TEST(FLApxWalker,Best2_random)
 	}
 }
 
-TEST(FLApx_Walker,Best2_empty_set)
+TEST(FLApxWalker,Best2_empty_set)
 {
 	Random random(2634723);
 	Instance inst; inst.gen(6,10,random);
@@ -79,10 +78,21 @@ TEST(FLApx_Walker,Best2_empty_set)
 	}
 }
 
-//TODO:
-TEST(FLApx_Walker,Best2_singleton)
+TEST(FLApxWalker,Best2_singleton)
 {
-	
+	Random random(89421223);
+	Instance inst; inst.gen(6,10,random);
+	std::vector<bool> fs; fs.resize(inst.facilities_count(),0);
+	size_t x = 3;
+	fs[3] = 1;
+	for(size_t c=0; c<inst.cities_count(); ++c)
+	{
+		Best2 b(inst,fs,c);
+		ASSERT_EQ(b.b1,x);
+		ASSERT_EQ(b.b2,-1);
+		ASSERT_EQ(b.c1,inst(x,c));
+		ASSERT_EQ(b.c2,0);
+	}
 }
 
 TEST(FLApxWalker,StepCosts_random)
@@ -150,16 +160,34 @@ TEST(FLApxWalker,StepCosts_singleton)
 	
 	for(size_t i=0; i<fs.size(); ++i)
 		for(size_t j=0; j<fs.size(); ++j)
-			if(fs[i] || !fs[j]) ASSERT_EQ(inf,sc.cor(i,j));
+			if(fs[i] || !fs[j]) EXPECT_EQ(inf,sc.cor(i,j));
 	else
 	{
 		auto fs2 = fs; fs2[i] = 1; fs2[j] = 0;
-		ASSERT_EQ(fitness(inst,fs2),sc.cor(i,j));
+		EXPECT_EQ(fitness(inst,fs2),sc.cor(i,j));
 	}
 }
 
 TEST(FLApxWalker,FLApxWalker_sanity)
 {
-
+	Random random(26998423);
+	Instance inst; inst.gen(20,20,random);
+	std::vector<bool> fs; random_facility_set(inst,fs,random);
+	FLApxWalker<Instance> walker(inst,fs);
+	EXPECT_EQ(walker.current_fitness(),fitness(inst,fs));
+	bool local_opt = 0;
+	for(size_t run = 5; run;)
+	{
+		walker.prepare_step(.1,random);
+		if(local_opt)
+		{
+			ASSERT_EQ(walker.current_fitness(),walker.next_fitness());
+			run--;
+		}
+		else ASSERT_GE(walker.current_fitness(),walker.next_fitness());
+		if(walker.current_fitness()==walker.next_fitness()) local_opt = 1;
+		walker.make_step();
+		ASSERT_EQ(walker.current_fitness(),fitness(inst,walker.current_set));
+	}
 }
 
