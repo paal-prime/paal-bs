@@ -1,11 +1,17 @@
 \chapter{Local Search framework design}
 
+%@ONLINE{lswiki,
+%title = {Local search (optimization)},
+%url = {http://en.wikipedia.org/wiki/Local\_search\_(optimization)}
+%}
+
 \section{Motivation}
 
-Local search is a metaheuristic for solving optimization problems (good description: http://en.wikipedia.org/wiki/Local\_search\_(optimization)).
+Local search \nocite{lswiki}
+is a metaheuristic for solving optimization problems.
 It is especially useful when the fitness function's local optima have value close to the global one.
 Once a decent topology on the solution space is defined, the algorithm itself is very easy to implement:
-you just make a walk in the solution space, by choosing every step so than the next solution you "stand in" has
+you just make a walk in the solution space, choosing every step so that the next solution you "stand in" has
 a better fitness than the previous one. The local search implementation has usually just a few dozens of lines and
 yet it can generate a series of problem, which usually stay unnoticed:
 \begin{itemize}
@@ -14,11 +20,6 @@ yet it can generate a series of problem, which usually stay unnoticed:
 	\item correct implementation does not guarantee that the result will be optimal
 	\item optima to the solutions solved by local search
 	\item quality of the solution usually strongly depends on the amount of available computational power
-	\end{itemize}
-\item it is hard to compare quality of different implementations/solutions
-	\begin{itemize}
-	\item even different seeds can drastically change the results, hence algorithm quality evaluation requires extra care.
-	\item mechanisms used to control the local search execution time are intrusive and therefore usually implemented differently in different local searches
 	\item nobody bothers to write a decent testing framework (since every local search implementation is different).
 		As a result tests are runned by hand, which makes testing prone to human errors (we can easily lose repetitiveness of the results).
 	\end{itemize}
@@ -33,8 +34,8 @@ yet it can generate a series of problem, which usually stay unnoticed:
 	However, it is easy to make a bug in these places, which can stay unnoticed for a long time.
 \end{itemize}
 
-To address these issues, we've made an attempt to implement a C++ local search 
-framework with the following characteristics:
+We've made an attempt to implement a C++ local search 
+framework addressing these issues.
 
 \section{General description}
 
@@ -43,24 +44,6 @@ Framework should be responsible for making consistent decisions about the issues
 (for example results logging, repetitive testing, limiting execution time) and allow to avoid rewriting repetitive code.
 As the concept of local searches is really simple, our design has to be easily comprehensible and super intuitive.
 It definitely shouldn't force user to bend/hack the solution to fit the framework.
-
-\subsubsection{Report level of the design}
-
-[design pattern] Table[Report] - Impersonates any type of visual report. It is responsible to run an algorithm (see Algorithm concept) with an appropriate Logger,
-	process obtained data and collect human readable data. It should be prepared to handle some user defined class of algorithms.
-	Intuitively, every diagram, table, grid with results, etc. should have its own specialized Table.
-	Table is only a design pattern, since is too general to enforce any specific interface on it.
-
-[concept] Algorithm - Encapsulates an algorithm execution. It is responsible for initialization of
-	the specific algorithm (for example: obtaining seed, making preprocessing, selecting problem instance, setting execution constants,
-	selecting strategies, etc.) running the algorithm itself, logging the Table dependent parameters (via the received Logger object)
-	and collecting the results.
-
-[concept] Logger - it is supposed to effectively harvest the relevant information about the performance basing on the fitness (assumed to be ultimate measure).
-	The actual behaviour of the Logger is chosen by Table instance, however Logger's interface (consisting only of log() method) is fixed,
-	since similarly to PRNG it is propagated downward (i.e. intrusive).
-
-\subsubsection{Local search level of the design}
 
 We use templates and concepts to avoid any overhead in the execution time and allow maximum flexibility.
 
@@ -252,6 +235,8 @@ concept Random [c++11 RNG concept];
 
 \subsection{Logger}
 
+TODO: move it to algorithm framework
+
 \begin{lstlisting}
 concept Logger
 {
@@ -306,4 +291,4 @@ concept StepSize
 };
 \end{lstlisting}
 
-
+\section{Framework supplied implementations}

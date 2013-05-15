@@ -1,0 +1,46 @@
+\chapter{Algorithms' results presentation design}
+\section{Motivation}
+
+The interest of the contemporary researchers in the field of algorithms 
+focuses on problems to which no unambiguously good solution is known. As new heuristic algorithms solving the
+particular issue are developed, there arises a need of comparison of their
+quality. This meta problem is very generic in its nature and hard to handle,
+taking into constideration the variety of approaches the specialists are using.
+As a result it is usually troublesome to make a reliable statistics among programs
+written by different people or even repeat someone else's empirical results. (not to mention
+the fact that it is often hard to access the source code a published paper is
+based on).
+
+For the purpose of this paper we have developed our own framework
+for homogenuous and repetitive transformation of the algorithm output to a
+publishable result. Together with a concept capable of wrapping virtually any
+type of algorithm, we've obtained a framework which should allow anyone to
+repeat experiments written by other people in his own execution environment
+and plug in his own solution to make a reliable comparison.
+
+\section{General description}
+
+[design pattern] Table[/Report] - Impersonates any type of visual report.
+	It is responsible for running an algorithm (see Algorithm concept), providing
+	it with a logger (see Logger concept), processing logs and collecting human
+	readable data. It should be prepared to handle some user defined class of
+	algorithms. Intuitively, every diagram, table, grid with results, etc. should
+	have its own specialized Table. Table is only a design pattern, since is too
+	general to enforce any specific interface on it.
+
+[concept] Algorithm - Encapsulates an algorithm execution. It is responsible for
+	initialization of the specific algorithm (for example: obtaining seed, 
+	selecting problem instance, setting execution constants, selecting strategies,
+	etc.), running the algorithm itself, logging statistical data for Table
+	(or at least transfering down the logger) and collecting the results.
+
+[concept] Logger - it is supposed to effectively harvest the relevant information
+	about the performance basing on the fitness (assumed to be ultimate measure).
+	The actual behaviour of the Logger is chosen by Table instance, however
+	Logger's interface (consisting only of log() method) is fixed,
+	since similarly to PRNG it is propagated downward (i.e. it is intrusive).
+
+\section{Concepts}
+
+\section{Framework supplied implementations}
+
