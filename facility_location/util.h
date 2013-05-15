@@ -2,6 +2,7 @@
 #define FACILITY_LOCATION_UTIL_H_
 
 #include <algorithm>
+#include <limits>
 
 namespace facility_location
 {
@@ -37,10 +38,11 @@ namespace facility_location
    * @brief generates a random facility set
    */
   template<typename Instance, typename FacilitySet, typename Random>
-  inline void random_facility_set(const Instance &instance, FacilitySet &fs, Random &random)
+  inline void random_facility_set(
+    const Instance &instance, FacilitySet &fs, Random &random)
   {
     fs.resize(instance.facilities_count());
-    for (auto f : fs) f = random() & 1;
+for (auto f : fs) f = random() & 1;
   }
 
 }  // namespace facility_location

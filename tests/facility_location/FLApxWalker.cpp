@@ -116,11 +116,11 @@ TEST(FLApxWalker,StepCosts_random)
 	}
 	for(size_t i=0; i<fs.size(); ++i)
 		for(size_t j=0; j<fs.size(); ++j)
-			if(fs[i] || !fs[j]) ASSERT_EQ(inf,sc.cor(i,j));
+			if(fs[i] || !fs[j]) ASSERT_EQ(inf,sc.swap(i,j));
 	else
 	{
 		auto fs2 = fs; fs2[i] = 1; fs2[j] = 0;
-		ASSERT_EQ(fitness(inst,fs2),sc.cor(i,j));
+		ASSERT_EQ(fitness(inst,fs2),sc.swap(i,j));
 	}
 }
 
@@ -140,7 +140,7 @@ TEST(FLApxWalker,StepCosts_empty_set)
 	
 	for(size_t i=0; i<fs.size(); ++i)
 		for(size_t j=0; j<fs.size(); ++j)
-			ASSERT_EQ(inf,sc.cor(i,j));
+			ASSERT_EQ(inf,sc.swap(i,j));
 }
 
 TEST(FLApxWalker,StepCosts_singleton)
@@ -160,11 +160,11 @@ TEST(FLApxWalker,StepCosts_singleton)
 	
 	for(size_t i=0; i<fs.size(); ++i)
 		for(size_t j=0; j<fs.size(); ++j)
-			if(fs[i] || !fs[j]) EXPECT_EQ(inf,sc.cor(i,j));
+			if(fs[i] || !fs[j]) EXPECT_EQ(inf,sc.swap(i,j));
 	else
 	{
 		auto fs2 = fs; fs2[i] = 1; fs2[j] = 0;
-		EXPECT_EQ(fitness(inst,fs2),sc.cor(i,j));
+		EXPECT_EQ(fitness(inst,fs2),sc.swap(i,j));
 	}
 }
 
