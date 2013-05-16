@@ -13,6 +13,10 @@ namespace tsp
 {
   using mcts::Fitness;
 
+  /** @brief [implements mcts::State]
+   * TSP cycle building state for MCTS tree with accurate (exhaustive search)
+   * estimates for small subtrees
+   **/
   template<typename Matrix> class TSPState
   {
     public:
@@ -58,7 +62,7 @@ namespace tsp
           accumulator = combine(accumulator, cost);
         }
         while (std::next_permutation(left_vertices.begin(),
-               left_vertices.end()));
+              left_vertices.end()));
         return accumulator;
       }
 
@@ -76,6 +80,12 @@ namespace tsp
     public:
       Fitness cost_;
 
+      /** @brief Creates initial state for TSP instance
+       * @param matrix a [tsp::Matrix] holding distances between vertices
+       * @param moves_limit maximal number of moves to return by moves() call
+       * @param exhaustive_limit maximal number of moves left when
+       * extimate_playout is allowed to start exhaustive search
+       **/
       explicit TSPState(
           const Matrix& matrix,
           size_t moves_limit = std::numeric_limits<size_t>::max(),
@@ -92,8 +102,12 @@ namespace tsp
         in_path_[first_vertex_] = true;
       }
 
+      /** @brief Determines whether state is terminal */
       bool is_terminal() const { return left_count_ == 0; }
 
+      /** @brief Mutates state according to provided Move
+       * @param move a Move to apply
+       **/
       void apply(const Move& move)
       {
         assert(!is_terminal());
@@ -105,6 +119,9 @@ namespace tsp
         if (is_terminal()) { cost_ += matrix_(last_vertex_, first_vertex_); }
       }
 
+      /** @brief Estimates objective function for current state
+       * @param random a random number generator compliant with C++11 random concept
+       **/
       template<typename Random> Fitness estimate_playout(Random& random)
       {
         if (!is_terminal())
@@ -124,6 +141,9 @@ namespace tsp
         return cost_;
       }
 
+      /** @brief Enumerates moves allowed from current State
+       * @returns a vector of Moves
+       **/
       const std::vector<Move> moves() const
       {
         assert(!is_terminal());
@@ -137,6 +157,11 @@ namespace tsp
         return ms;
       }
 
+      /** @brief Makes an exhaustive search and returns minimal estimate from
+       * estimates of all states reachable from current one by applying finite
+       * number of moves
+       * @returns estimate of objective function
+       **/
       void exhaustive_search_min()
       {
         assert(!is_terminal());
@@ -149,8 +174,12 @@ namespace tsp
         assert(is_terminal());
       }
 
+      /** @brief Estimates how many Moves must be applied in order toread
+       * terminal state
+       * @returns number of moves to terminal state
+       **/
       size_t left_decisions() const { return left_count_; }
   };
-}
+}  // namespace tsp
 
 #endif  // TSP_MCTS_TSP_H_

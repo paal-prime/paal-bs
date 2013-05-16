@@ -14,6 +14,21 @@ namespace mcts
 {
   typedef double Fitness;
 
+  /*
+  concept State
+  {
+    concept Move;
+
+    bool is_terminal() const;
+    void apply(const Move &move);
+    template<typename Random> Fitness estimate_playout(Random& random);
+    const std::vector<Move> moves() const
+  };
+  */
+
+  /** @brief Generic Monte Carlo Tree object, needs [mcts::Policy] for search
+   * strategy and [mcts::State] for domain dependency
+   */
   template<typename State, typename Policy> class MonteCarloTree
   {
       FRIEND_TEST(MonteCarloTreeTests, Node);
@@ -108,6 +123,11 @@ namespace mcts
       State root_state_;
 
     public:
+      /** @brief Creates search tree with given [mcts::Policy] and
+       * [mcts::State] as a initial (root) state
+       * @param state a [mcts::State] to be copied into the root of created search tree
+       * @param policy a [mcts::Policy] determining tree behaviour
+       **/
       MonteCarloTree(const State& state, const Policy &policy)
         : policy_(policy), root_state_(state)
       {
@@ -115,6 +135,10 @@ namespace mcts
         root_->expand(root_state_);
       }
 
+      /** @brief Performs search according to embedded [mcts::Policy],
+       * [paal::ProgressCtrl] determines termination condition
+       * @param progress_ctrl a termination condition
+       **/
       template<typename ProgressCtrl>
       Move search(ProgressCtrl &progress_ctrl)
       {
@@ -133,6 +157,10 @@ namespace mcts
         return root_->children_[best_idx]->move();
       }
 
+      /** @brief Applies given [mcts::State::Move], removes inaccssible part of
+       * the tree, statistics obtaine for preserved part are not removed
+       * @param move a [mcts::State::Move] to apply
+       **/
       void apply(const Move& move)
       {
         for (auto &node : root_->children_)
@@ -151,6 +179,9 @@ namespace mcts
         }
       }
 
+      /** @brief Root statee accessor
+       * @returns reference to the root state
+       **/
       State &root_state() { return root_state_; }
   };
 }  // namespace mcts

@@ -1,10 +1,12 @@
-IGNORED_WARN := -Wno-vla -Wno-unused-parameter -Wshadow
-OPTIMIZATIONS := -O2 -g
+IGNORED_WARN := -Wno-vla -Wno-unused-parameter
+OPTIMIZATIONS := -O2 #-g -gdwarf-2
 
-CXX := clang++ -I ./
-CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=c++11 $(IGNORED_WARN) $(OPTIMIZATIONS)
-LDFLAGS := -lrt
+CXX := g++ -I ./
+CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTIMIZATIONS)
+LDFLAGS := -lrt -lboost_program_options -lboost_filesystem -lboost_system -lpthread
 LDFLAGS_GTEST := -lgtest -lgtest_main
+
+DOCS_DIR=./docs
 
 # sources
 SOURCES := $(shell find -name "*.cpp")
@@ -40,13 +42,17 @@ $(DEPENDS) : %.d : %.cpp
 
 # link main objects
 $(MAIN) : % : %.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
 # link gtest objects
 $(GTEST) : % : $(GTESTOBJECTS)
-	$(CXX) $(GTESTOBJECTS) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@ 
+	$(CXX) $(GTESTOBJECTS) $(BLOSSOM5_OBJECTS) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@
+
+docs:
+	doxygen doxygen.conf
 
 clean:
 	-rm -f *.o $(MAIN) $(GTEST) $(ALLOBJECTS) $(DEPENDS)
+	-rm -rf $(DOCS_DIR)
 
-.PHONY: clean
+.PHONY: clean docs
