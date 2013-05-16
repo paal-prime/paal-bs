@@ -23,7 +23,7 @@ namespace paal
   struct Annealing
   {
     Annealing(double _t0, double _t1) : t0(_t0), t1(_t1), steps(0) {}
-    double t0, t1, f;
+    double t0, t1, f = 0;
     size_t steps;
     template<typename Random> bool step_decision(double current_fitness,
         double next_fitness, double progress, Random &random)
