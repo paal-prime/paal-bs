@@ -44,18 +44,20 @@
 %\usepackage[latin2]{inputenc}
 %Jesli uzywasz kodowania polskich znakow CP-1250 to ta linia powinna byc 
 %odkomentowana
-\usepackage[cp1250]{inputenc}
+%\usepackage[cp1250]{inputenc}
+\usepackage[utf8]{inputenc}
 
 % Dane magistranta:
 
-\author{Robert Blarbarucki}
+\author{Piotr Jaszkowski, Mateusz Machalica, Grzegorz Prusak, ≈Åukasz Solak}
 
-\nralbumu{666999}
+\nralbumu{306249, xxxxxx, 306538, 306462}
 
 \title{Practical Approximation Algorithms Library}
-
-\tytulang{An implementation of a difference blabalizer based on the theory 
-  of $\sigma$ -- $\rho$ phetors}
+\tytulang{Practical Approximation Algorithms Library}
+% Lukasz: potrzebujemy tego?
+%\tytulang{An implementation of a difference blabalizer based on the theory 
+%  of $\sigma$ -- $\rho$ phetors}
 
 %kierunek: Matematyka, Informatyka, ...
 \kierunek{Informatyka}
@@ -75,36 +77,39 @@
 % \zakres{Tu wpisac, jesli trzeba, jedna z opcji podanych wyzej}
 
 % Praca wykonana pod kierunkiem:
-% (podaÊ tytu≥/stopieÒ imiÍ i nazwisko opiekuna
+% (poda√¶ tytu¬≥/stopie√± imi√™ i nazwisko opiekuna
 % Instytut
-% ew. Wydzia≥ ew. Uczelnia (jeøeli nie MIM UW))
+% ew. Wydzia¬≥ ew. Uczelnia (je¬øeli nie MIM UW))
 \opiekun{Krzysztof Ciebiera\\
-  Instytut Blabalii Fetorycznej\\
+  Instytut Informatyki\\
   }
 
-% miesiπc i~rok:
-\date{May 2013}
+% miesi¬πc i~rok:
+\date{June 2013}
 
-%PodaÊ dziedzinÍ wg klasyfikacji Socrates-Erasmus:
-\dziedzina{ 
+%Poda√¶ dziedzin√™ wg klasyfikacji Socrates-Erasmus:
+\dziedzina{
 %11.0 Matematyka, Informatyka:\\ 
 %11.1 Matematyka\\ 
 %11.2 Statystyka\\ 
-11.3 Informatyka\\ 
+11.3 Informatyka\\
 %11.4 Sztuczna inteligencja\\ 
 %11.5 Nauki aktuarialne\\
 %11.9 Inne nauki matematyczne i informatyczne
 }
 
 %Klasyfikacja tematyczna wedlug AMS (matematyka) lub ACM (informatyka)
-\klasyfikacja{D. Software\\
-  D.127. Blabalgorithms\\
-  D.127.6. Numerical blabalysis}
+% Lukasz: moze cos jeszcze - nie wiem.
+\klasyfikacja{
+  F. Theory of Computation \\
+  F.2. Analysis of Algorithms and Problem Complexity \\
+  F.2.2  Nonnumerical Algorithms and Problems \\
+}
 
-% S≥owa kluczowe:
-\keywords{approximation algorithm, C++, mcts, local search, steiner forest, tsp, uncapacitated facility location }
+% S¬≥owa kluczowe:
+\keywords{approximation algorithm, C++, monte carlo tree search, local search, steiner forest problem, traveling salesman problem, uncapacitated facility location}
 
-% Tu jest dobre miejsce na Twoje w≥asne makra i~úrodowiska:
+% Tu jest dobre miejsce na Twoje w¬≥asne makra i~¬úrodowiska:
 \newtheorem{defi}{Definicja}[section]
 
 % Macro for problem definitions
@@ -132,38 +137,13 @@
   Steiner Forest Problem and Uncapacitated Facility Location Problem.
   All design decisions are thouroughly discussed. The resulting
   algorithms written in our framework are being compared with
-  well known approximation algorithms as described by Vasirani [reference here].
+  well known approximation algorithms as described by Vazirani \cite{Vazirani}.
   Our implementations of these algorithms are also provided with the framework.
 \end{abstract}
 
 \tableofcontents
 %\listoffigures
 %\listoftables
-
-\chapter*{Wprowadzenie}
-\addcontentsline{toc}{chapter}{Wprowadzenie}
-
-Blabalizator rÛønicowy jest podstawowym narzÍdziem blabalii
-fetorycznej.  Dlatego naukowcy z~ca≥ego úwiata przeúcigajπ siÍ
-w~prÛbach efektywnej implementacji.  Opracowana przez prof. Fifaka
-teoria fetorÛw $\sigma$-$\rho$ otwiera w~tej dziedzinie nowe
-moøliwoúci.  Wykorzystujemy je w~niniejszej pracy.
-
-PrzystÍpne wprowadzenie do blabalii fetorycznej moøna znaleüÊ w~pracy
-Fifaka i~Gryzogrzechotalskiego \cite{ffgg}.  Dlatego w~niniejszym
-tekúcie ograniczymy siÍ do przypomnienia pojÍÊ podstawowych.
-
-Praca sk≥ada siÍ z~piÍciu rozdzia≥Ûw i~dodatkÛw.
-W~rozdziale~\ref{r:pojecia} przypomniano podstawowe pojÍcia blabalii
-fetorycznej.  Dotychczasowe prÛby implementacji blablizatora
-rÛønicowego zestawiono w~rozdziale~\ref{r:losers}.
-Rozdzia≥~\ref{r:fifak} przedstawia teoriÍ Fifaka i~wyjaúnia sposÛb jej
-wykorzystania w~implementacji blabalizatora.  W~rozdziale \ref{r:impl}
-przedstawiono algorytm blabalizy i~realizujπcy go program komputerowy.
-Ostatni rozdzia≥ zawiera przemyúlenia dotyczπce moøliwego wp≥ywu
-dostÍpnoúci efektywnej blabalizy numerycznej na rozwÛj blabalii
-fetorycznej.  W~dodatkach umieszczono najciekawszy fragment programu,
-przyk≥adowe dane i~wyniki dzia≥ania programu.
 
 \include{local_search}
 
@@ -186,305 +166,10 @@ UflLib
 our own "clustered tests"
 \section{Results}
 
-
-\chapter{Podstawowe pojÍcia}\label{r:pojecia}
-
-PojÍciem pierwotnym blabalii fetorycznej jest \emph{blaba}.
-Blabaliúci nie podajπ jego definicji, mÛwiπc za Ciach-Pfe t-\=am
-K\^un (fooistyczny mÍdrzec, XIX w. p.n.e.):
-\begin{quote}
-  Blaba, ktÛry jest blaba, nie jest prawdziwym blaba.
-
-\raggedleft\slshape t≥um. z~chiÒskiego Robert Blarbarucki
-\end{quote}
-
-\section{Definicje}
-
-Oto dwie definicje wprowadzajπce podstawowe pojÍcia blabalii
-fetorycznej:
-
-\begin{defi}\label{skupienie}
-  Silny, zwarty i gotowy fetor bazowy nazwiemy \emph{skupieniem}.
-\end{defi}
-
-\begin{defi}\label{fetor}
-  \emph{Fetorem} nazwiemy skupienie blaba spe≥niajπce nastÍpujπcy
-  \emph{aksjomat reperkusatywnoúci}:
-  $$\forall \mathcal{X}\in Z(t)\ \exists
-  \pi\subseteq\oint_{\Omega^2}\kappa\leftrightarrow 42$$
-\end{defi}
-
-
-\section{Blabalizator rÛønicowy}
-
-Teoretycy blabalii (zob. np. pracÍ~\cite{grglo}) zadowalajπ siÍ
-niekonstruktywnym opisem natury fetorÛw.
-
-Podstawowym narzÍdziem blabalii empirycznej jest blabalizator
-rÛønicowy.  Przyrzπd ten pozwala w~sposÛb przybliøony uzyskaÊ
-wspÛ≥czynniki rozk≥adu G≥ombaskiego dla fetorÛw bazowych
-i~harmonicznych.  Praktyczne znaczenie tego procesu jest oczywiste:
-korzystajπc z~reperkusatywnoúci pozwala on przejúÊ do przestrzeni
-$\Lambda^{\nabla}$, a~tym samym znaleüÊ retroizotonalne wspÛ≥czynniki
-semi-quasi-celibatu dla klatek Rozkoszy (zob.~\cite{JR}).
-
-Klasyczne algorytmy dla blabalizatora rÛønicowego wykorzystujπ:
-\begin{enumerate}
-\item dualizm falowo\dywiz korpuskularny, a w szczegÛlnoúci
-  \begin{enumerate}
-  \item korpuskularnπ naturÍ fetorÛw,
-  \item falowπ naturÍ blaba,
-  \item falowo\dywiz korpuskularnπ naturÍ gryzmo≥Ûw;
-  \end{enumerate}
-\item postÍpujπcπ gryzmolizacjÍ poszczegÛlnych dziedzin nauki, w
-  szczegÛlnoúci badaÒ systemowych i rozcieÒczonych;
-\item dynamizm fazowy stetryczenia parajonizacyjnego;
-\item wreszcie tradycyjne opozycje:
-  \begin{itemize}
-  \item duch --- bakteria,
-  \item mieÊ --- chcieÊ,
-  \item myúl --- owsianka,
-  \item parafina --- durszlak\footnote{WiÍcej o tym przypadku --- patrz
-      prace GryzybÛr\dywiz G≥ombaskiego i innych teoretykÛw nurtu
-      teoretyczno\dywiz praktycznego badaÒ w~Instytucie Podstawowych
-      ProblemÛw Blabalii w~Fifie.},
-  \item logos --- termos%\footnote{SzpotaÒski}
-  \end{itemize}
-  z w≥aúciwym im przedziwym dynamizmem.
-\end{enumerate}
-
-\begin{figure}[tp]
-  \centering
-  \framebox{\vbox to 4cm{\vfil\hbox to
-      7cm{\hfil\tiny.\hfil}\vfil}}
-  \caption{Artystyczna wizja blaba w~obrazie wÍgierskiego artysty
-    Josipa~A. Rozkoszy pt.~,,Blaba''}
-\end{figure}
-
-\chapter{Wczeúniejsze implementacje blabalizatora
-  rÛønicowego}\label{r:losers}
-
-\section{Podejúcie wprost}
-
-Najprostszym sposobem wykonania blabalizy jest si≥owe przeszukanie
-ca≥ej przestrzeni rozwiπzaÒ.  Jednak, jak ≥atwo wyliczyÊ, rozmiar
-przestrzeni rozwiπzaÒ roúnie wyk≥adniczo z~liczbπ fetorÛw bazowych.
-Tak wiÍc przeglπd wszystkich rozwiπzaÒ sprawdza siÍ jedynie dla bardzo
-prostych przestrzeni lamblialnych.  Oznacza to, øe taka metoda ma
-niewielkie znaczenie praktyczne --- w~typowym przypadku z~øycia trzeba
-rozwaøaÊ przestrzenie lamblialne wymiaru rzÍdu 1000.
-
-W~literaturze moøna znaleüÊ kilka prÛb opracowania heurystyk dla
-problemu blabalizy (por. \cite{heu}).  Korzystajπc z~heurystyk daje
-siÍ z~pewnym trudem dokonaÊ blabalizy w~przestrzeni o~np.~500 fetorach
-bazowych.  Naleøy jednak pamiÍtaÊ, øe heurystyka nie daje gwarancji
-znalezienia najlepszego rozwiπzania.  Fifak w~pracy~\cite{ff-sr}
-podaje, jak dla dowolnie zadanej funkcji oceniajπcej skonstruowaÊ
-dane, dla ktÛrych rozwiπzanie wygenerowane przez algorytm heurystyczny
-jest dowolnie odleg≥e od rzeczywistego.
-
-\section{Metody wykorzystujπce teoriÍ G≥ombaskiego}
-
-Teoria G≥ombaskiego (zob.~\cite{grglo}) dostarcza eleganckiego
-narzÍdzia opisu przejúcia do przestrzeni $\Lambda^{\nabla}$.
-Wystarczy mianowicie przedstawiÊ fetory bazowe wyjúciowej przestrzeni
-lamblialnej w~nieskoÒczonej bazie tak zwanych wyøszych aromatÛw.
-(Formalnπ definicjÍ tego pojÍcia przedstawiÍ w~rozdziale poúwiÍconym
-teorii Fifaka).  Podstawowπ cechπ wyøszych aromatÛw jest ulotnoúÊ.  To
-zaú oznacza, øe odpowiednio dobierajπc wspÛ≥czynniki przejúcia do
-przestrzeni wyøszych aromatÛw moøna zagwarantowaÊ dowolnπ z~gÛry
-zadanπ dok≥adnoúÊ przybliøonego rozwiπzania problemu blabalizy.
-
-Oczywiúcie ze wzglÍdu na nieskoÒczony wymiar przestrzeni wyøszych
-aromatÛw koszt poszukiwania wspÛ≥czynnikÛw blabalizy jest liniowy ze
-wzglÍdu na wymiar wyjúciowej przestrzeni lamblialnej.
-
-\section{Metody wykorzystujπce w≥asnoúci fetorÛw $\sigma$}
-
-NajchÍtniej wykorzystywanπ przestrzeniπ wyøszych aromatÛw jest
-przestrzeÒ fetorÛw~$\sigma$.  Fetory $\sigma$ dajπ szczegÛlnie prostπ
-bazÍ podprzestrzeni wid≥owej.  Wiπøe siÍ to z~faktem, øe w~tym przypadku
-fetory harmoniczne wyøszych rzÍdÛw sπ pomijalne (rzÍdu $2^{-t^3}$,
-gdzie $t$ jest wymiarem wyjúciowej przestrzeni lamblialnej).
-
-Niestety z~fetorami $\sigma$ wiπøe siÍ teø przykre ograniczenie: moøna
-wykazaÊ (zob.~\cite[s. 374]{ff-sr}), øe dla dowolnie dobranej bazy
-w~podprzestrzeni wid≥owej istnieje ograniczenie dolne w~metryce sierpa
-na odleg≥oúÊ rzutu dok≥adnego rozwiπzania problemu blabalizy na
-podprzestrzeÒ wid≥owπ.  Poniewaø rzut ten stanowi najlepsze
-przybliøone rozwiπzanie, jakie moøna osiπgnπÊ nie naruszajπc aksjomatu
-reperkusatywnoúci, wiÍc istnieje pewien nieprzekraczalny prÛg
-dok≥adnoúci dla blabalizy wykonanej przez przejúcie do przestrzeni
-fetorÛw $\sigma$.  WartoúÊ retroinicjalnπ tego progu nazywa siÍ
-\textit{reziduum blabicznym}.
-
-\chapter{Teoria fetorÛw $\sigma$-$\rho$}\label{r:fifak}
-
-G≥Ûwnym odkryciem Fifaka jest, øe fetor suprakowariantny moøe
-gryzmolizowaÊ dowolny idea≥ w~podprzestrzeni wid≥owej przestrzeni
-lamblialnej funkcji Rozkoszy.
-
-Udowodnienie tego faktu wymaga≥o wykorzystania twierdzeÒ pochodzπcych
-z~kilku niezaleønych teorii matematycznych (zob. na przyk≥ad:
-\cite{russell,spyrpt,JR,beaman,hopp,srinis}).  Jednym z~filarÛw
-dowodu jest teoria odwzorowaÒ owalnych Leukocyta (zob.~\cite{leuk}).
-
-Znaczenie twierdzenia Fifaka dla problemu blabalizy polega na tym, øe
-znajπc retroizotonalne wspÛ≥czynniki dla klatek Rozkoszy moøna
-przeprowadziÊ fetory bazowe na dwie nieskoÒczone bazy fetorÛw $\sigma$
-w~przestrzeni $K_7$ i~fetorÛw $\rho$ w~odpowiedniej
-quasi-quasi-przestrzeni rÛwnoleg≥ej (zob.~\cite{hopp}).  Zasadnicza
-rÛønica w~stosunku do innych metod blabalizy polega na tym, øe
-przedstawienie to jest dok≥adne.
-
-\chapter{Dokumentacja uøytkowa i~opis implementacji}\label{r:impl}
-
-Program przygotowany dla systemu operacyjnego M\$ Windows uruchamia
-siÍ energicznym dwumlaskiem na jego ikonce w~folderze
-\verb+\\FIDO\FOO\BLABA+.  NastÍpnie kolistym ruchem rÍki naleøy
-naprowadziÊ kursor na menu \texttt{Blabaliza} i~uaktywniÊ pozycjÍ
-\texttt{OtwÛrz plik}.  Po wybraniu pliku i~zatwierdzeniu wyboru
-przyciskiem \texttt{OK} rozpocznie siÍ proces blabalizy.  Wyniki
-zostanπ zapisane w~pliku o~nazwie \texttt{99-1a.tx.43} w~bieøπcym
-folderze.
-
-\chapter{Podsumowanie}
-
-W~pracy przedstawiono pierwszπ efektywnπ implementacjÍ blabalizatora
-rÛønicowego.  UmiejÍtnoúÊ wykonania blabalizy numerycznej dla danych
-,,z øycia'' stanowi dla blabalii fetorycznej podobny prze≥om, jak dla
-innych dziedzin wiedzy stanowi≥o og≥oszenie teorii Miko≥aja Kopernika
-i~GryzybÛr G≥ombaskiego.  Z~pewnoúciπ w~rozpocznynajπcym siÍ XXI wieku
-bÍdziemy obserwowaÊ rozkwit blabalii fetorycznej.
-
-Trudno przewidzieÊ wszystkie nowe moøliwoúci, ale te co bardziej
-oczywiste moøna wskazaÊ juø teraz.  Sπ to:
-\begin{itemize}
-\item degryzmolizacja wieÒcÛw telecentrycznych,
-\item realizacja zimnej reakcji lambliarnej,
-\item loty celulityczne,
-\item dok≥adne obliczenie wieku Wszechúwiata.
-\end{itemize}
-
-\section{Perspektywy wykorzystania w~przemyúle}
-
-Ze wzglÍdu na znaczenie strategiczne wynikÛw pracy ten punkt uleg≥
-utajnieniu.
-
 \appendix
 
-\chapter{G≥Ûwna pÍtla programu zapisana w~jÍzyku T\=oFoo}
-
-\begin{verbatim}
-[[foo]{,}[[a3,(([(,),{[[]]}]),
-  [1; [{,13},[[[11],11],231]]].
-  [13;[!xz]].
-  [42;[{,x},[[2],{'a'},14]]].
-  [br;[XQ*10]].
- ), 2q, for, [1,]2, [..].[7]{x}],[(((,[[1{{123,},},;.112]],
-        else 42;
-   . 'b'.. '9', [[13141],{13414}], 11),
- [1; [[134,sigma],22]].
- [2; [[rho,-],11]].
- )[14].
- ), {1234}],]. [map [cc], 1, 22]. [rho x 1]. {22; [22]},
-       dd.
- [11; sigma].
-        ss.4.c.q.42.b.ll.ls.chmod.aux.rm.foo;
- [112.34; rho];
-        001110101010101010101010101010101111101001@
- [22%f4].
- cq. rep. else 7;
- ]. hlt
-\end{verbatim}
-
-\chapter{Przyk≥adowe dane wejúciowe algorytmu}
-
-\begin{center}
-  \begin{tabular}{rrr}
-    $\alpha$ & $\beta$ & $\gamma_7$ \\
-    901384 & 13784 & 1341\\
-    68746546 & 13498& 09165\\
-    918324719& 1789 & 1310 \\
-    9089 & 91032874& 1873 \\
-    1 & 9187 & 19032874193 \\
-    90143 & 01938 & 0193284 \\
-    309132 & $-1349$ & $-149089088$ \\
-    0202122 & 1234132 & 918324098 \\
-    11234 & $-109234$ & 1934 \\
-  \end{tabular}
-\end{center}
-
-\chapter{Przyk≥adowe wyniki blabalizy
-    (ze~wspÛ≥czynnikami~$\sigma$-$\rho$)}
-
-\begin{center}
-  \begin{tabular}{lrrrr}
-    & WspÛ≥czynniki \\
-    & G≥ombaskiego & $\rho$ & $\sigma$ & $\sigma$-$\rho$\\
-    $\gamma_{0}$ & 1,331 & 2,01 & 13,42 & 0,01 \\
-    $\gamma_{1}$ & 1,331 & 113,01 & 13,42 & 0,01 \\
-    $\gamma_{2}$ & 1,332 & 0,01 & 13,42 & 0,01 \\
-    $\gamma_{3}$ & 1,331 & 51,01 & 13,42 & 0,01 \\
-    $\gamma_{4}$ & 1,332 & 3165,01 & 13,42 & 0,01 \\
-    $\gamma_{5}$ & 1,331 & 1,01 & 13,42 & 0,01 \\
-    $\gamma_{6}$ & 1,330 & 0,01 & 13,42 & 0,01 \\
-    $\gamma_{7}$ & 1,331 & 16435,01 & 13,42 & 0,01 \\
-    $\gamma_{8}$ & 1,332 & 865336,01 & 13,42 & 0,01 \\
-    $\gamma_{9}$ & 1,331 & 34,01 & 13,42 & 0,01 \\
-    $\gamma_{10}$ & 1,332 & 7891432,01 & 13,42 & 0,01 \\
-    $\gamma_{11}$ & 1,331 & 8913,01 & 13,42 & 0,01 \\
-    $\gamma_{12}$ & 1,331 & 13,01 & 13,42 & 0,01 \\
-    $\gamma_{13}$ & 1,334 & 789,01 & 13,42 & 0,01 \\
-    $\gamma_{14}$ & 1,331 & 4897453,01 & 13,42 & 0,01 \\
-    $\gamma_{15}$ & 1,329 & 783591,01 & 13,42 & 0,01 \\
-  \end{tabular}
-\end{center}
-
-\begin{thebibliography}{99}
-\addcontentsline{toc}{chapter}{Bibliografia}
-
-\bibitem[Bea65]{beaman} Juliusz Beaman, \textit{Morbidity of the Jolly
-    function}, Mathematica Absurdica, 117 (1965) 338--9.
-
-\bibitem[Blar16]{eb1} Elizjusz Blarbarucki, \textit{O pewnych
-    aspektach pewnych aspektÛw}, Astrolog Polski, Zeszyt 16, Warszawa
-  1916.
-
-\bibitem[Fif00]{ffgg} Filigran Fifak, Gizbert Gryzogrzechotalski,
-  \textit{O blabalii fetorycznej}, Materia≥y Konferencji Euroblabal
-  2000.
-
-\bibitem[Fif01]{ff-sr} Filigran Fifak, \textit{O fetorach
-    $\sigma$-$\rho$}, Acta Fetorica, 2001.
-
-\bibitem[G≥omb04]{grglo} GryzybÛr G≥ombaski, \textit{Parazytonikacja
-    blabiczna fetorÛw --- nowa teoria wszystkiego}, Warszawa 1904.
-
-\bibitem[Hopp96]{hopp} Claude Hopper, \textit{On some $\Pi$-hedral
-    surfaces in quasi-quasi space}, Omnius University Press, 1996.
-
-\bibitem[Leuk00]{leuk} Lechoslav Leukocyt, \textit{Oval mappings ab ovo},
-  Materia≥y Bia≥ostockiej Konferencji HodowcÛw Drobiu, 2000.
-
-\bibitem[Rozk93]{JR} Josip A.~Rozkosza, \textit{O pewnych w≥asnoúciach
-    pewnych funkcji}, PÛ≥nocnopomorski Dziennik Matematyczny 63491
-  (1993).
-
-\bibitem[Spy59]{spyrpt} Mrowclaw Spyrpt, \textit{A matrix is a matrix
-    is a matrix}, Mat. Zburp., 91 (1959) 28--35.
-
-\bibitem[Sri64]{srinis} Rajagopalachari Sriniswamiramanathan,
-  \textit{Some expansions on the Flausgloten Theorem on locally
-    congested lutches}, J. Math.  Soc., North Bombay, 13 (1964) 72--6.
-
-\bibitem[Whi25]{russell} Alfred N. Whitehead, Bertrand Russell,
-  \textit{Principia Mathematica}, Cambridge University Press, 1925.
-
-\bibitem[Zen69]{heu} Zenon Zenon, \textit{Uøyteczne heurystyki
-    w~blabalizie}, M≥ody Technik, nr~11, 1969.
-
-\end{thebibliography}
+\bibliographystyle{plain}
+\bibliography{paal}
 
 \end{document}
 
