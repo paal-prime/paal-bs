@@ -3,12 +3,17 @@
 \usepackage{polski}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{url}
+
+\usepackage{amssymb,amsmath,amsthm,amstext,amsopn,latexsym}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
 
 \newcommand{\code}[1]{\begin{ttfamily}#1\end{ttfamily}}
+
+\newcommand{\Oh}{\ensuremath{\mathcal{O}}}
 
 \lstset{
   backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
@@ -102,6 +107,18 @@
 % Tu jest dobre miejsce na Twoje w³asne makra i~œrodowiska:
 \newtheorem{defi}{Definicja}[section]
 
+% Macro for problem definitions
+\newcommand{\defproblem}[3]{
+  \vspace{1mm}
+\noindent\fbox{
+  \begin{minipage}{0.96\textwidth}
+  #1 \\
+  {\bf{Input:}} #2  \\
+  {\bf{Question:}} #3
+  \end{minipage}
+  }
+}
+
 % koniec definicji
 
 \begin{document}
@@ -156,16 +173,7 @@ przyk³adowe dane i~wyniki dzia³ania programu.
 \section{Framework supplied implementations}
 
 \include{algo_framework}
-
-\chapter{Metrical TSP algorithms}
-\section{Problem description}
-\section{Christofides 1.5-aox}
-\section{2opt Local Search}
-\section{Monte Carlo Tree Search}
-\section{Benchmarks}
-TSPLIB
-\section{Results}
-
+\include{tsp}
 \include{paal_steiner_forest}
 
 \chapter{Uncapacitated Facility Location algorithms}

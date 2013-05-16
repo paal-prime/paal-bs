@@ -1,0 +1,54 @@
+\chapter{Metrical TSP algorithms}
+
+
+\section{Problem description}
+
+\defproblem{ Metrical Travelling Salesman Problem}
+{ Complete graph $G = (V,d)$, where $d:V \times V \to\mathbb{R}$ is a metric. }
+{ What is the shortest cycle in $G$ which comes through every vertex exactly once? }
+
+See link\footnote{\url{http://en.wikipedia.org/wiki/Travelling_salesman_problem}}
+for detailed description.
+
+\section{Christofides 1.5-aox}
+\section{2opt Local Search}
+
+In 2-opt\footnote{\url{http://en.wikipedia.org/wiki/2-opt}} local search for TSP, a single step
+consists of reverting a segment of the current cycle. Intuitively, we find a point
+at which the route crosses over itself and reorder it so that is doesn't.
+
+Since in metrical TSP distance between a pair of points is the same for both directions,
+computing fitness of the new route simplifies to replacing a pair of edges and replacing it with another
+pair.
+
+We've tested 3 different structures for maintaining the current local search solution:
+\begin{itemize}
+\item array of vertices in order as they appear on the cycle.
+\item Reversible Segment List\footnote{\url{http://www.hars.us/Papers/revi.pdf}}
+\item Augmented splay tree.
+\end{itemize}
+
+\begin{tabular}{c|cc}
+& vertex read cost & reverse cost \\\hline
+array & $\Oh(1)$ & $\Oh(|V|)$ \\
+RSL & $\Oh(\sqrt{|V|})$ & $\Oh(\sqrt{|V|})$ amortized \\
+splay & $\Oh(\log(|V|)$ amortized & $\Oh(\log(|V|))$ amortized
+\end{tabular}
+
+I our implementation segment to reverse is selected with uniform probability,
+excluding the degenerated cases - set of cycle edges has to actually change.
+Evaluating fitness of neighbouring solution drawn requires to read vertices
+on 4 positions in the cycle. The number of fitness evaluations dominates
+the number of the actual reverses in the long run due to the fact that it
+becomes harder and harder to find a neighbour with better fitness as we approach
+the local optimum. As a consequence we have empirically observed that out of
+3 data structure mentioned, the array performed best on TSPLIB (see Benchmarks)
+test cases.
+
+\section{Monte Carlo Tree Search}
+\section{Benchmarks}
+To evaluate the algorithms quality we have used TSPLIB\footnote{\url{http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/}}
+symmetrical instances.
+\section{Results}
+
+

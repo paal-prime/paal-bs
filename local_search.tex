@@ -1,14 +1,8 @@
 \chapter{Local Search framework design}
 
-%@ONLINE{lswiki,
-%title = {Local search (optimization)},
-%url = {http://en.wikipedia.org/wiki/Local\_search\_(optimization)}
-%}
-
 \section{Motivation}
 
-Local search \nocite{lswiki}
-is a metaheuristic for solving optimization problems.
+Local search\footnote{\url{http://en.wikipedia.org/wiki/Local_search_(optimization)}} is a metaheuristic for solving optimization problems.
 It is especially useful when the fitness function's local optima have value close to the global one.
 Once a decent topology on the solution space is defined, the algorithm itself is very easy to implement:
 you just make a walk in the solution space, choosing every step so that the next solution you "stand in" has
@@ -74,9 +68,6 @@ None of these are problem dependent, hence this component can be effectively ext
 
 [concept] StepCtrl (step controller) - component deciding whether to perform a step - represents the metaheuristic used.
 annealing and hill climb have easy/trivial implementations for this concept.
-
-[no application => not handled] No idea how to apply tabu search here though, since it is problem specific (since we had no practical applications of tabu planned, this question remains open).
-
 
 \section{Main function}
 
