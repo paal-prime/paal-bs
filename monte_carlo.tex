@@ -1,14 +1,52 @@
-Monte Carlo Tree Search framework design
-========================================
+\chapter{Monte Carlo Tree Search framework design}
 
-Introduction
-------------
-Monte Carlo Tree Search (MCTS) is a method for finding near-optimal decisions
-in the decision space by building search tree and evaluating its nodes
-according to random samples.
-MCTS is an iterative method, samples from many iteration are combined together
-so that the best (or rather the most promising) decision from current state can
-be chosen based on aggregated statistics.
+\section{Preliminaries}
+Describing optimization problem in terms of finding a sequence of decisions
+that result in optimal solution seems natural to humans. In the this chapter we
+will describe related approach used widely in combinatorial optimization. We
+assume reader to be familiar with the concept of \emph{decision
+tree}\footnote{\url{http://en.wikipedia.org/wiki/Decision_tree}}.
+
+\section{Motivation}
+\emph{Monte Carlo Tree Search} (MCTS) is a metaheuristic for finding
+near-optimal decisions in the decision space by building search tree and
+evaluating its nodes according to random simulations.
+MCTS is an iterative method, samples from many iterations are combined together
+so that the best (or rather the most promising) decision from the current state
+can be chosen based on aggregated statistics.
+
+To implement MCTS-based approximation for given problem two domain-specific
+components must be defined: an evaluation function which gives linear ordering
+of feasible solutions and an algorithm for enumerating all possible states
+reachable from given one by making single decision.
+Both of these parts are usually simple, but MCTS algorithm itself is not. Many
+problems may be encountered when implementing the algorithm.
+\begin{itemize}
+  \item maintaining and traversing tree structure requires plenty of tedious
+  and error prone code, memory utilization is a significant problem given
+  number of simulations that can be performed using modern computers
+  \item statistics gathering and utilization code cannot be tested in any reasonable way
+    \begin{enumerate}
+      \item correct implementation is, in most cases, not guaranteed to find optimal solution
+      \item errors can cause slight regression or improvement depending on test instances
+      \item numerical stability of statistics manipulation procedures is a
+      problem that a few would expect from combinatorial optimization algorithm
+    \end{enumerate}
+  \item there is a number of components that are common or interchangeable
+  amongst majority of MCTS method implementations, each of these parts is worth
+  generalization due to virtually no coupling with approximated problem
+    \begin{itemize}
+      \item tree structure modifications and traversing
+      \item time execution control
+      \item statistics aggregation and optimal decision extraction
+      \item efficient decision and state propagation
+    \end{itemize}
+\end{itemize}
+
+Proposed framework is our attempt to address these issues.
+
+\section{General description}
+% TODO
 Single iteration can be divided into three phases.
 We start by choosing the most urgent node of a tree using tree policy. We will
 usually think about this process as making a walk from the root of a tree to
@@ -25,8 +63,7 @@ terminal state (which can be evaluated directly) is reached.
 Result of an evaluation is propagated backwards (up to the root) and statistics
 in each node are updated.
 
-Search tree format
-------------------
+\section{Search tree format decision}
 One can take one of two opposite approaches to represent search tree.
 One approach is to identify each node of a tree with some state and connect
 them with edges (identified with decisions) in such a way that children of a
@@ -58,8 +95,7 @@ If properly implemented by a user this can be used with our framework with
 virtually no overhead. Therefore the second schema is at least as expressive as
 the chosen one.
 
-Domain dependency
------------------
+\section{Domain dependency}
 Our goal was to limit a coupling between specific problem and our framework,
 we have decided to limit domain-specific part of a MCTS-based algorithm to two
 components, namely State and Move. Referring to previously introduced
@@ -71,8 +107,8 @@ isomorphic with a subset of double type.
 Except for theoretical precision issues, we found no drawbacks of this
 simplifying decision for any real life MCTS application.
 
-Main components
----------------
+\section{Main components}
+% TODO update expand description
 We have identified a few components of MCTS-like algorithm, that are in our
 opinion generically atomic.
 
@@ -144,8 +180,10 @@ provide some component with state of current node we can answer this request
 without storing state in each node. This means that State must provide a
 procedure to modify itself based on provided Move.
 
-Possible modifications
-----------------------
+\section{Concepts}
+% TODO
+
+\section{Possible modifications}
 In every experimental implementation we have created to test our design, we
 have observed that each component is monolithic and splitting (always possible,
 not always desirable) would make things slower and harder to implement or
@@ -164,10 +202,6 @@ Explore component is critical -- it is domain-independent in most cases and
 there exist many implementations easily interchangeable between different
 problems.
 
-
-TODO:
-- Expand? We still have to make a decision, since in the current code this part
-  was left untouched.
-- Provide examples for each component separately or for all of them together as
-  a short description of implemented algorithm.
+\section{Framework supplied implementations}
+% TODO
 
