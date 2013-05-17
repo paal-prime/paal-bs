@@ -50,7 +50,7 @@ TYPED_TEST(MCTS_Policy, Performance_eil51)
 
   TSPLIB_Directory dir("./TSPLIB/symmetrical/");
   TSPLIB_Matrix matrix;
-  dir.graphs[25].load(matrix);
+  dir.graphs["eil51"].load(matrix);
   size_t samples = matrix.size1() * 900;
 
   std::mt19937 random;

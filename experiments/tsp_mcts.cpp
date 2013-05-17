@@ -59,10 +59,10 @@ int main()
 {
   const size_t repeats = 1;
   tsp::TSPLIB_Directory dir("./TSPLIB/symmetrical/");
-  std::vector<size_t> graph_ids = {25, 26};
+  std::vector<std::string> graph_ids = {"eil51", "eil76"};
   Matrix matrix;
   paal::SuperLogger sl;
-  for (size_t gid : graph_ids)
+  for (auto gid : graph_ids)
   {
     dir.graphs[gid].load(matrix);
     sl.test(format("PolicyRandMean, moves_limit=inf %",
