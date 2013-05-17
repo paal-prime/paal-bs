@@ -1,0 +1,173 @@
+Monte Carlo Tree Search framework design
+========================================
+
+Introduction
+------------
+Monte Carlo Tree Search (MCTS) is a method for finding near-optimal decisions
+in the decision space by building search tree and evaluating its nodes
+according to random samples.
+MCTS is an iterative method, samples from many iteration are combined together
+so that the best (or rather the most promising) decision from current state can
+be chosen based on aggregated statistics.
+Single iteration can be divided into three phases.
+We start by choosing the most urgent node of a tree using tree policy. We will
+usually think about this process as making a walk from the root of a tree to
+some node. Choosing appropriate tree policy allows us to maintain balance
+between exploration and exploitation.
+As a result of applying tree policy we may reach a leaf of the tree
+(representing state which is not necessary terminal, as we don't want to store
+entire tree in the memory) it is tree policy's responsibility to decide whether
+to expand this leaf (create nodes for each state which can be reached by making
+single decision).
+Starting from this node (state) we use default policy to evaluate it, in the
+simplest case default policy will make a random sequence of moves until
+terminal state (which can be evaluated directly) is reached.
+Result of an evaluation is propagated backwards (up to the root) and statistics
+in each node are updated.
+
+Search tree format
+------------------
+One can take one of two opposite approaches to represent search tree.
+One approach is to identify each node of a tree with some state and connect
+them with edges (identified with decisions) in such a way that children of a
+given node are those states that can be obtained from parent node's state by
+making single decision. It should be obvious that initial state -- the one from
+which we want to make a decision at the moment -- is represented by the root of
+the tree.
+The other approach would be to store initial state in the root, but instead of
+storing states one can store transitions between them -- possible decisions.
+Both ways may seem identical conceptually, but they are quite different from
+the algorithmic and technical points of view.
+Imagine a problem where computing state after making single decision is an
+expensive process, in such case the states-oriented implementation can improve
+performance. On the other hand computer representation of an entire state tends
+to be much larger than representation of a single decision, in such situations
+second approach can save us both time and memory.
+We could not come up with reasonable problem and solving strategy based on
+MCTS, where the first approach has any advantages over second one. Therefore we
+provide framework for building algorithms using the second approach only.
+
+There is one (quite ugly) hack that can be done in order to implement search
+tree structure similar to the first approach using our framework. Since state
+description, decision representation and aggregating function that applies
+decision to given state and produces new one are specified by user one can do
+things as follows: state would stay unchanged, decision will be described not
+by an incremental but as a full destination state and aggregation function
+should discard source state and return destination one encoded in 'decision'.
+If properly implemented by a user this can be used with our framework with
+virtually no overhead. Therefore the second schema is at least as expressive as
+the chosen one.
+
+Domain dependency
+-----------------
+Our goal was to limit a coupling between specific problem and our framework,
+we have decided to limit domain-specific part of a MCTS-based algorithm to two
+components, namely State and Move. Referring to previously introduced
+nomenclature, States coincide with abstract states (nodes in the tree) and
+Moves -- with decisions (edges in the tree).
+A Fitness is a separate concept describing result of and evaluation of a state.
+We have assumed that Fitness is represented by linearly ordered set which is
+isomorphic with a subset of double type.
+Except for theoretical precision issues, we found no drawbacks of this
+simplifying decision for any real life MCTS application.
+
+Main components
+---------------
+We have identified a few components of MCTS-like algorithm, that are in our
+opinion generically atomic.
+
+Tree -- responsible for maintaining structure of a decision tree
+represented by nodes connected via edges.
+Note that the tree has no knowledge about traversing strategy (tree policy or
+default policy), decision or state evaluation, domain-dependency etc. One can
+think about the tree as a (very refined) iterator stub, which is being filled
+and used by other parts of a framework (in most cases supplied by end
+programmer).
+Since nodes are part of the tree and aggregated statistics are conceptually
+connected with tree policy we could not store them in nodes directly. This is
+why next concept has been introduced.
+
+Payload -- maintains statistics describing single state, that are used by tree
+policy. Note that this concept may be domain-dependent due to possible
+domain-dependency of tree policy as discussed later on. The policy is also the
+only component that can access, modify and understand information enclosed in
+payload. Node is only an owner of the payload object (and indirectly stores the
+assignment between state and payload).
+
+Explore (aka tree policy) -- coincides with tree policy described before.
+All examples discussed and implemented during the course of designing this
+framework reduced the problem of finding the most urgent node in entire tree to
+finding locally the most urgent child to descend into and finding path to
+chosen node from the root. Therefore tree policy provides a function that
+given a node, a state reached in this node and its children returns child that
+should be examined recursively. Alternative approach would be to pass (using
+some really fancy encoding) entire tree structure to the tree policy
+explicitly. By requesting local decisions we make this simple both conceptually
+and technically yet described interface has enough expressive power. We have
+never came up with nor found in literature a reasonable strategy that needs
+more global information about search tree.
+Building path from root node makes sense also from philosophical point of view,
+since after evaluating chosen node we would like to update all nodes on the
+path to the root.
+Possible domain-dependency of the tree policy is allowed since local decision
+is made based on entire information stored in the node and the state reached by
+making decisions encoded in edges traversed during path building (node
+selection).
+This possibility is usually ignored since it has been proven that MCTS
+algorithms are extremely efficient when implemented as metaheuristics, without
+any knowledge about the problem other than default policy (which is highly
+domain-dependent) and some black-box algorithm to generate states reachable
+from given one by making one decision. In such case tree policy makes a
+decision based on aggregated numerical results of previous samples only.
+Tree policy is also responsible for propagating consequences of making another
+sample in the tree. Its update procedure is issued for each node on the path
+from chosen node to the root (in this order).
+
+Move -- as described in discussion of domain dependency, stored as an
+additional information and used mainly to restore state associated with chosen
+node. Has no important role and is completely dependent on State.
+
+State -- main component that encodes specific problem in MCTS algorithm.
+It is responsible for complete implementation of default policy, evaluation of
+Fitness for given (terminal state), generating Moves that can be done from
+current state and establishing connection between Move and itself.
+Note that from the framework's point of view there is no assumption about how
+default policy estimates state's Fitness, there is no need for the state to
+apply random sequence of moves to itself in order to obtain terminal state
+which can be evaluated directly, this technique is pretty common though (and
+advised as a good starting point).
+It is beneficial to walk through the process of choosing node by the Tree
+(according to Explore component). We start in the root by copying initial
+state and then we feed the copy with Moves found on edges traversed
+according to decisions of the tree policy, therefore each time we need to
+provide some component with state of current node we can answer this request
+without storing state in each node. This means that State must provide a
+procedure to modify itself based on provided Move.
+
+Possible modifications
+----------------------
+In every experimental implementation we have created to test our design, we
+have observed that each component is monolithic and splitting (always possible,
+not always desirable) would make things slower and harder to implement or
+understand.
+The question is whether it is possible to merge some of presented components.
+Since MCTS algorithms are widely used in games application we had some
+intuition where to draw the line between domain dependent and independent
+parts. The design is very flexible and as it was said one can move this
+boundary making virtually everything domain-dependent. It is obvious that State
+and Move components must be separated even thought they are so connected with
+each other, this separation must be visible from the Tree's point of view.
+Merging Payload with Tree (actually a node in the tree) would make most of the
+code dependent on Explore component or memory inefficient and harder to modify
+if node would store some predefined set of statistics.
+Explore component is critical -- it is domain-independent in most cases and
+there exist many implementations easily interchangeable between different
+problems.
+
+
+TODO:
+- Expand? We still have to make a decision, since in the current code this part
+  was left untouched.
+- Provide examples for each component separately or for all of them together as
+  a short description of implemented algorithm.
+
