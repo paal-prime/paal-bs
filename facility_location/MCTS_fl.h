@@ -67,18 +67,18 @@ namespace facility_location
        */
       Fitness calculate_cost()
       {
-        Fitness cost(0);
+        Fitness cal_cost(0);
         std::vector<Fitness> costs(cities_count_,
                                    std::numeric_limits<Fitness>::infinity());
         for (auto facility : facilities_)
         {
           for (size_t i = 0; i < cities_count_; ++i)
             costs[i] = std::min(costs[i], matrix_(facility, i));
-          cost += matrix_(facility);
+          cal_cost += matrix_(facility);
         }
         for (size_t i = 0; i < cities_count_; ++i)
-          cost += costs[i];
-        return cost;
+          cal_cost += costs[i];
+        return cal_cost;
       }
 
       /**
@@ -159,54 +159,6 @@ namespace facility_location
 
 
       size_t moves_count() const { return ordering_.size() ? 2 : 0; }
-  };
-
-  template<typename Random = std::mt19937> class FLPolicyRandMean
-  {
-    private:
-      Random& random_;
-
-    public:
-      typedef struct
-      {
-        size_t visits_ = 0;
-        Fitness estimate_ = std::numeric_limits<Fitness>::infinity();
-      } Payload;
-
-      explicit FLPolicyRandMean(Random& random) : random_(random) {}
-
-      Random& get_random() { return random_; }
-
-      template<typename Node>
-      void update(Node& parent, ssize_t chosen, Fitness estimate)
-      {
-        Payload& payload = parent();
-        payload.visits_++;
-        payload.estimate_ = (payload.visits_ == 1) ? estimate :
-          payload.estimate_ + (estimate - payload.estimate_) / payload.visits_;
-      }
-
-      template<typename Node, typename State> size_t choose(const Node& parent,
-          const State &state)
-      {
-        return (random_() % parent.size());
-      }
-
-      template<typename Node> size_t best_child(const Node &parent)
-      {
-        ssize_t index = min_child(parent,
-            [](const Payload& payload) -> double
-            {
-              return payload.estimate_;
-            });
-        return static_cast<size_t>(index);
-      }
-
-      template<typename Node, typename State> bool expand(const Node& node,
-          const State& state, size_t iteration, size_t level)
-      {
-        return node().visits_ >= state.moves_count();
-      }
   };
 }
 #endif  // FACILITY_LOCATION_MCTS_FL_H_
