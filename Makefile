@@ -1,5 +1,5 @@
 IGNORED_WARN := -Wno-vla -Wno-unused-parameter
-OPTIMIZATIONS := -O2 #-g -gdwarf-2
+OPTIMIZATIONS := -O2
 
 CXX := g++ -I ./
 CXXFLAGS := -Wall -Wextra -Wshadow -pedantic -std=gnu++0x $(IGNORED_WARN) $(OPTIMIZATIONS)
@@ -26,6 +26,8 @@ ALLOBJECTS := $(subst .cpp,.o,$(SOURCES))
 OBJECTS := $(filter-out $(MAINOBJECTS) $(GTESTOBJECTS),$(ALLOBJECTS))
 # explicit dependencies
 EXPLICITDEPS := $(shell find -name "*.dep")
+# headers
+HEADERS := $(shell find -name "*.h")
 
 all: $(DEPENDS) $(MAIN) $(GTEST)
 
@@ -46,13 +48,16 @@ $(MAIN) : % : %.o
 
 # link gtest objects
 $(GTEST) : % : $(GTESTOBJECTS)
-	$(CXX) $(BLOSSOM5_OBJECTS) $(GTESTOBJECTS) $(CXXFLAGS) $(LDFLAGS) $(LDFLAGS_GTEST) -o $@
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) $(LDFLAGS_GTEST) -o $@
 
-docs:
+docs: $(HEADERS)
 	doxygen doxygen.conf
 
 clean:
 	-rm -f *.o $(MAIN) $(GTEST) $(ALLOBJECTS) $(DEPENDS)
 	-rm -rf $(DOCS_DIR)
 
-.PHONY: clean docs
+.PHONY: clean
+
+.SUFFIXES:
+%: %.o
