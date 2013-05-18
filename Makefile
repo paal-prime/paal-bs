@@ -37,8 +37,14 @@ all: $(DEPENDS) $(MAIN) $(GTEST)
 # include submakefiles
 -include $(DEPENDS)
 
+CLEAN_DEPENDS := $(filter-out $(BLOSSOM5_DEPENDS), $(DEPENDS))
+
+$(BLOSSOM5_DEPENDS) : %.d : %.cpp
+	$(CXX) $(CXXFLAGS) -MT $(<:.cpp=.o) -MM $< > $@
+	@echo -e "\t"$(CXX) --std=gnu++0x -w -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@
+
 # create submakefiles
-$(DEPENDS) : %.d : %.cpp
+$(CLEAN_DEPENDS) : %.d : %.cpp
 	$(CXX) $(CXXFLAGS) -MT $(<:.cpp=.o) -MM $< > $@
 	@echo -e "\t"$(CXX) $(CXXFLAGS) -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@
 
