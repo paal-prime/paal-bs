@@ -10,14 +10,14 @@
 See link\footnote{\url{http://en.wikipedia.org/wiki/Travelling_salesman_problem}}
 for detailed description.
 
-\section{Christofides 1.5-aox}
-Christofides algorithm\footnote{\url{http://en.wikipedia.org/wiki/Christofides_algorithm}} is designed to work with instances of TSP where edge
+\section{Christofides 1.5-apx}
+Christofides algorithm\footnote{\url{http://en.wikipedia.org/wiki/Christofides_algorithm}} is designed to work with instances of TSP whose edge
 weights satisfy triangle inequality. Let $G=(V, w)$ be an instance of TSP,
-the algorithm is consisted of four steps:
+the algorithm consists of four steps:
 \begin{enumerate}
-\item Create minimum spanning tree $T$ over $G$. \\
+\item Create minimum spanning tree $T$ for graph $G$. \\
 Here we have implemented $\Oh(n^2)$ Prim's algorithm\footnote{\url{http://en.wikipedia.org/wiki/Prim's_algorithm}}.
-Although for Euclidean spaces there exists faster $\Oh(n\log(n))$ algorithm the overall gain
+Although for Euclidean spaces there exists faster $\Oh(n\log(n))$ algorithm, the overall gain
 would be insignificant so we didn't use it.
 \item Let $O$ be a set of odd degree vertices in $T$.
 	  Find minimum perfect matching $M$ in complete graph over $O$. \\
