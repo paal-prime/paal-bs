@@ -22,8 +22,14 @@ namespace facility_location
   inline double fitness(const Instance &instance, const FacilitySet &fs)
   {
     double res = 0;
+    size_t active = 0;
     for (size_t f = 0; f < instance.facilities_count(); ++f)
-      if (fs[f]) res += instance(f);
+      if (fs[f])
+      {
+        active++;
+        res += instance(f);
+      }
+    if (!active) return std::numeric_limits<double>::infinity();
     for (size_t c = 0; c < instance.cities_count(); ++c)
     {
       double best_cost = std::numeric_limits<double>::infinity();
