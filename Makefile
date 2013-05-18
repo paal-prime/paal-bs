@@ -34,8 +34,10 @@ all: $(DEPENDS) $(MAIN) $(GTEST)
 # include explicit dependencies
 -include $(EXPLICITDEPS)
 
+ifneq "$(MAKECMDGOALS)" "clean"
 # include submakefiles
 -include $(DEPENDS)
+endif
 
 CLEAN_DEPENDS := $(filter-out $(BLOSSOM5_DEPENDS), $(DEPENDS))
 
