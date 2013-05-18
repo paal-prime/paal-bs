@@ -6,3 +6,11 @@ BLOSSOM5_OBJECTS := $(filter-out $(MAINOBJECTS),$(subst .cpp,.o, $(BLOSSOM5_SOUR
 blossom5/example: $(BLOSSOM5_OBJECTS)
 experiments/tsp_christofides: $(BLOSSOM5_OBJECTS)
 $(GTEST): $(BLOSSOM5_OBJECTS)
+
+# Hack to ignore warnings in blossom5 files.
+
+CLEAN_DEPENDS := $(filter-out $(BLOSSOM5_DEPENDS), $(CLEAN_DEPENDS))
+
+$(BLOSSOM5_DEPENDS) : %.d : %.cpp
+	$(CXX) $(CXXFLAGS) -MT $(<:.cpp=.o) -MM $< > $@
+	@echo -e "\t"$(CXX) -std=gnu++0x -w $(OPTIMIZATIONS) -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@

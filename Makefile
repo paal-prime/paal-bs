@@ -31,6 +31,7 @@ HEADERS := $(shell find -name "*.h")
 
 all: $(DEPENDS) $(MAIN) $(GTEST)
 
+CLEAN_DEPENDS := $(DEPENDS)
 # include explicit dependencies
 -include $(EXPLICITDEPS)
 
@@ -38,12 +39,6 @@ ifneq "$(MAKECMDGOALS)" "clean"
 # include submakefiles
 -include $(DEPENDS)
 endif
-
-CLEAN_DEPENDS := $(filter-out $(BLOSSOM5_DEPENDS), $(DEPENDS))
-
-$(BLOSSOM5_DEPENDS) : %.d : %.cpp
-	$(CXX) $(CXXFLAGS) -MT $(<:.cpp=.o) -MM $< > $@
-	@echo -e "\t"$(CXX) --std=gnu++0x -w -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@
 
 # create submakefiles
 $(CLEAN_DEPENDS) : %.d : %.cpp
@@ -69,3 +64,4 @@ clean:
 
 .SUFFIXES:
 %: %.o
+
