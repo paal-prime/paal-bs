@@ -1,8 +1,31 @@
-\chapter{Uncapacitated Facility Location algorithms}
+\chapter{Metrical Facility Location algorithms}
 
 \section{Problem description}
 
-\section{Linear Programming 3-apx}
+Problem instance consists of a full bipartite graph $G = (F \cup C, F \times
+C)$, where elements of $F$ are called \emph{facilities} and those of $C$ are
+called \emph{cities}, $o : F \to \mathbb{R}$ being a cost function of opening
+single facility and $c : F \times C \to \mathbb{R}$ being a cost function of
+connecting facility with a city. The connection costs satisfy triangle
+inequality.
+
+The problem is to find a subset of facilities $O \subset F$ to be opened and an
+assignment of cities to opened facilities $a : C \to O$ in such a way that the
+total cost $\sum_{f \in O} o(f) + \sum_{c \in C} c(a(c), c)$ is minimized.
+
+\section{Primal-dual schema 3-apx}
+We have created efficient implementation of combinatoric approximation
+algorithm for the problem as a reference point for other discussed methods. The
+algorithm achieves a constant approximation factor of 3 and runs in $\Oh(|F||C|
+\log(|F||C|))$ time. It operates in primal-dual fashion trying to find feasible
+solution for dual problem with possibly the biggest cost. Detailed description
+can be found in TODO. % TODO vasirani
+
+We have introduced a slight modification to original algorithm due to Jain and
+Vasirani. Once the set of opened facilities is determined as in original
+algorithm we create optimal assignment in $\Oh(|F||C|)$ time by assigning each
+city to the closest facility. The assignment presented in original paper is
+useful for estimating approximation factor of the algorithm though.
 
 \section{Local Search 3-apx}
 
