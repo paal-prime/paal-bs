@@ -16,28 +16,6 @@ namespace facility_location
 {
   using mcts::Fitness;
 
-  /**
-   * @brief returns index of child(next state) with best estimate cost.
-   * @tparam Node node class that represents node in MCTS tree.
-   * @tparam Funct type of function passed for getting cost estimate.
-   * @param parent parent of childs from which next state will be choosen.
-   * @param fun function that returns estimate cost for given child.
-   */
-  template<typename Node, typename Funct>
-  ssize_t min_child(const Node &parent, Funct fun) {
-    Fitness best = std::numeric_limits<Fitness>::infinity();
-    ssize_t index = -1;
-    for (size_t i = 0; i < parent.size(); i++)
-    {
-      Fitness estimate = fun(parent[i]());
-      if (best > estimate)
-      {
-        best = estimate;
-        index = i;
-      }
-    }
-    return index;
-  }
 
   /**
    * @brief Class representing a state in solving
