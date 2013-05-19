@@ -119,12 +119,7 @@ void test_unweighted_graph(const G& graph, const P& param,
     std::map<size_t, std::set<size_t> >& adjacent_vertices)
 {
   typedef G graph_t;
-  typedef typename graph_t::vertex_t vertex_t;
-  typedef typename graph_t::edge_weight_t edge_weight_t;
-  typedef typename graph_t::edge_iterator_t edge_iterator_t;
   typedef typename graph_t::adjacency_iterator_t adjacency_iterator_t;
-  typedef typename graph_t::edge_t edge_t;
-  typedef typename graph_t::weighted_edge_t weighted_edge_t;
 
   for (size_t source = 0; source < param.vertices_count_; ++source)
   {

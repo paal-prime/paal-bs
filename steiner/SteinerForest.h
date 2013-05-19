@@ -501,7 +501,6 @@ void retrieve_weighted_forest_edges(
 {
   typedef typename G::edge_iterator_t edge_iterator_t;
   typedef typename G::vertex_t vertex_t;
-  typedef typename G::edge_weight_t edge_weight_t;
   typedef typename G::weighted_edge_t weighted_edge_t;
 
   size_t current_edge = 0;
@@ -552,9 +551,6 @@ void steiner_forest(
   const int vertex_set[],
   OutputIterator steiner_forest_edges)
 {
-  typedef typename G::edge_iterator_t edge_iterator_t;
-  typedef typename G::vertex_t vertex_t;
-  typedef typename G::edge_weight_t edge_weight_t;
   typedef typename G::weighted_edge_t weighted_edge_t;
   typedef typename G::edge_t edge_t;
 
