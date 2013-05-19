@@ -14,6 +14,6 @@ $(TSPLIB_DIR):
 clean-TSPLIB:
 	rm -rf $(TSPLIB_DIR)
 
-clean: clean-TSPLIB
+distclean: clean-TSPLIB
 
 .PHONY: clean-TSPLIB

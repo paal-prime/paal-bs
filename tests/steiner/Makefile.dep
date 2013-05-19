@@ -14,6 +14,6 @@ $(PAAL_SF_TESTS_DIR):
 clean-sf_tests:
 	rm -rf $(TARGET_DIR) $(ARCHIVE_FILE)
 
-clean: clean-sf_tests
+distclean: clean-sf_tests
 
 .PHONY: clean-sf_tests

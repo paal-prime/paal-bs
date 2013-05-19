@@ -36,8 +36,10 @@ CLEAN_DEPENDS := $(DEPENDS)
 -include $(EXPLICITDEPS)
 
 ifneq "$(MAKECMDGOALS)" "clean"
+ifneq "$(MAKECMDGOALS)" "distclean"
 # include submakefiles
 -include $(DEPENDS)
+endif
 endif
 
 # create submakefiles
@@ -57,11 +59,13 @@ docs: $(HEADERS)
 	doxygen doxygen.conf
 
 clean:
-	-rm -f *.o $(MAIN) $(GTEST) $(ALLOBJECTS) $(DEPENDS)
+	-rm -f $(ALLOBJECTS) $(DEPENDS)
+	-rm -f $(MAIN) $(GTEST)
 	-rm -rf $(DOCS_DIR)
 
-.PHONY: clean
+distclean: clean
+
+.PHONY: clean distclean
 
 .SUFFIXES:
 %: %.o
-

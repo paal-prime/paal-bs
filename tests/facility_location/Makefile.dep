@@ -15,6 +15,6 @@ clean-flclusteredlib:
 clean-ufllib:
 	rm -rf $(UFLLIB_DIR)
 
-clean: clean-ufllib clean-flclusteredlib
+distclean: clean-ufllib clean-flclusteredlib
 
 .PHONY: clean-ufllib clean-flclusteredlib
