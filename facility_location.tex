@@ -59,6 +59,17 @@ therefore the initial solution has been set to an empty set.
 
 \section{Monte Carlo Tree Search}
 
+Because MCTS involves selecting decisions step by step we decided to transform our
+standard Facility Location problem into Online Facility Location problem.
+The restriction of this approach is that $F = C$, of course one can set
+opening costs of some factories to $inf$ to prevent opening one there
+but it will be still considered as potential facility to open. \\
+Algorithm works as follows, first get the order in which facilities will be
+processed, then at each step decide to open or not open facility at given point. \\
+Function that estimates fitness of current state is based on
+Adam Meyerson's algorithm\footnote{\url{http://www.cs.ucla.edu/~awm/papers/ofl.pdf}},
+which is constant competitive for randomized input.
+
 \section{Random Search}
 
 As an additional benchmark for evaluating algorithms' performance, we've implemented
