@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 
             typedef std::mt19937 Random;
             Random random(64236738);
-            double time = vm["time_limit"].as<int>();
+            // double time = vm["time_limit"].as<int>();
 
             typedef std::vector<int> CycleT;
             CycleT cycle;
