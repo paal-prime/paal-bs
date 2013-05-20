@@ -54,7 +54,8 @@ int main()
 {
   using namespace mcts;
   paal::GridTable table;
-  table.push_algo("optimum");
+  table.push_algo("Lookup limit");
+  table.push_algo("Optimal fitness");
   table.push_algo("PolicyRandMean");
   auto randmean = make_algo(PolicyRandMean<Random>(random_));
   table.push_algo("PolicyEpsMean");
@@ -69,14 +70,17 @@ int main()
   {
     Matrix matrix;
     dir.graphs[gid].load(matrix);
-    State state(matrix);
-    randmean.state_ = epsmean.state_ = epsbest.state_ = musigma.state_ = &state;
-    table.records[0].results.push_back(dir.graphs[gid].optimal_fitness);
-    table.records[1].test(randmean);
-    table.records[2].test(epsmean);
-    table.records[3].test(epsbest);
-    table.records[4].test(musigma);
-    std::cerr << "done " << gid << std::endl;
+    for (size_t limit = matrix.size1(); limit > 5; limit /= 2) {
+      State state(matrix, limit);
+      randmean.state_ = epsmean.state_ = epsbest.state_ = musigma.state_ = &state;
+      table.records[0].results.push_back(limit);
+      table.records[1].results.push_back(dir.graphs[gid].optimal_fitness);
+      table.records[2].test(randmean);
+      table.records[3].test(epsmean);
+      table.records[4].test(epsbest);
+      table.records[5].test(musigma);
+      std::cerr << "done " << gid << " / " << limit << std::endl;
+    }
   }
   table.dump(std::cout);
   return 0;
