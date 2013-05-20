@@ -21,7 +21,7 @@ Although for Euclidean spaces there exists faster $\Oh(n\log(n))$ algorithm, the
 would be insignificant so we didn't use it.
 \item Let $O$ be a set of odd degree vertices in $T$.
 	  Find minimum perfect matching $M$ in complete graph over $O$. \\
-For this part we have used \textit{Blossom V}\footnote{\url{http://pub.ist.ac.at/~vnk/software.html}}
+For this part we have used \emph{Blossom V}\footnote{\url{http://pub.ist.ac.at/~vnk/software.html}}
 implementation of Edmond's Blossom algorithm\footnote{\url{http://en.wikipedia.org/wiki/Blossom_algorithm}}.
 Worst case running time of this part is $\Oh(|O|^5)$ but in average case it behaves very well.
 \item Combine edges of $M$ and $T$ to form a multigraph $H$.
@@ -56,7 +56,7 @@ splay & $\Oh(\log(|V|)$ amortized & $\Oh(\log(|V|))$ amortized
 \end{tabular}
 
 In our implementation segment to reverse is selected with uniform probability,
-excluding the degenerated cases - set of cycle edges has to actually change.
+excluding the degenerated cases -- set of cycle edges has to actually change.
 Evaluating fitness of neighbouring solution drawn requires to read vertices
 on 4 positions in the cycle. The number of fitness evaluations dominates
 the number of the actual reverses in the long run due to the fact that it
@@ -66,17 +66,47 @@ the local optimum. As a consequence we have empirically observed that out of
 test cases.
 
 \section{Monte Carlo Tree Search}
-This algorithm builds target cycle from a scratch. In each step it selects next point
-to append to the current cycle. Set of points from which next point is
-selected is limited to only $k$ closest to the last point in cycle. This limit
-seems natural and usually works well. Function for calculating estimated
-fitness is doing estimated playout, it chooses randomly next points, until
-$l$ last moves when it's doing exhaustive search over all possibilities
-as in our tests it gave performance and speed boost.
+We will refer to the concepts and definitions introduced in MCTS design
+chapter. Let us remind that the only domain-dependent concepts in our MCTS
+framework are Move and State and the former is completely dependent on the
+latter.
+
+It is widely known from games solving applications of MCTS method that we
+should choose State concretization which minimizes branch factor of resulting
+search tree. For TSP problem we chose path building approach:
+\begin{itemize}
+  \item State is a path with well-defined end and start point (permutation of a
+    subset of all vertices)
+  \item initial State is an arbitrary chosen start vertex
+  \item Move represents choosing from remaining vertices the next one to be
+    added to the end of the path
+  \item terminal State is reached when all vertices are in the path
+  \item Fitness of terminal State is equal to cost of a Hamilton cycle, note
+    that path defines permutation of vertices and distance function is a proper
+    metric
+  \item Fitness estimate is a fitness of terminal state reached after applying
+    a sequence of random decisions
+\end{itemize}
+
+We have introduced two improvements to above schema. In order to reduce branch
+factor of resulting tree we have limited number of vertices taken into
+consideration when choosing next move. A good heuristics here is to choose from
+no more than $K$ vertices closest to the path's end.
+
+To improve accuracy of each sample we have decided to replace last $L$ random
+moves with exhaustive search, therefore Fitness estimate is set to minimum of
+fitnesses of all terminal states visited during this search. Typically $N$ is
+very small, for implementation described above we have determined that the best
+accuracy to performance ratio can be achieved when $N = 4$, it should be
+obvious that $N$ depends on the State implementation rather than size of the
+input graph. Note that this method works well with certain types of policies
+and statistics aggregation methods as discussed in results overview.
 
 \section{Benchmarks}
-To evaluate the algorithms quality we have used TSPLIB\footnote{\url{http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/}}
+To evaluate the algorithms quality we have used
+TSPLIB\footnote{\url{http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/}}
 symmetrical instances.
+
 \section{Results}
 
 
