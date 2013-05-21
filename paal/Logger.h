@@ -30,7 +30,9 @@ namespace paal
   {
     std::vector<double> records;
     void log(double current_fitness)
-	{ records.push_back(current_fitness); }
+    {
+      records.push_back(current_fitness);
+    }
   };
 
   /** @brief [implements Logger] logs fitness every time it gets lower than

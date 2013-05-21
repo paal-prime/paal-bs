@@ -9,7 +9,7 @@
 
 typedef boost::numeric::ublas::matrix<int> Matrix;
 
-void set_matrix(Matrix &matrix)
+inline void set_matrix(Matrix &matrix)
 {
   enum { n = 5 };
   static const int A[n][n] =
