@@ -13,7 +13,11 @@ def generate_plot(x_axis, y_axis, title, data_points, output_file):
     out.write('\\begin{figure}\n')
     out.write('\t\\centering\n')
     out.write('\t\\begin{tikzpicture}\n')
-    out.write('\t\t\\begin{axis}[legend cell align=left,\n\
+    out.write('\t\t\\begin{axis}[\
+                             width=0.75\\textwidth,\n\
+                             scale only axis,\n\
+                             no markers,\n\
+                             legend cell align=left,\n\
                              legend pos=outer north east,\n\
                              xlabel=' + x_axis + ',\n\
                              ylabel=' + y_axis + ',\n\
