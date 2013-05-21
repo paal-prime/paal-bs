@@ -24,12 +24,12 @@ inline void set_matrix(Matrix &matrix)
       matrix(i, j) = matrix(j, i) = A[j][i];
 }
 
-TEST(tsp_greedy,sanity)
+TEST(tsp_greedy, sanity)
 {
   Matrix m;
   set_matrix(m);
   std::vector<size_t> cycle;
-  tsp::greedy(m,cycle);
+  tsp::greedy(m, cycle);
   std::vector<size_t> expected = { 0, 1, 4, 2, 3 };
-  EXPECT_EQ(expected,cycle);
+  EXPECT_EQ(expected, cycle);
 }

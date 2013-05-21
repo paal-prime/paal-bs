@@ -2,19 +2,17 @@
 #define FACILITY_LOCATION_SIMPLEFORMAT_H_
 
 #include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
 
 #include <cassert>
 #include <string>
+#include <vector>
 #include <vector>
 #include <stdexcept>
 #include <fstream>  // NOLINT
 #include <limits>
 
 namespace facility_location {
-  // TODO(stupaq): consider switching to std::vector->ublas::Vector facade
   template<typename Value> using Matrix = boost::numeric::ublas::matrix<Value>;
-  template<typename Value> using Vector = boost::numeric::ublas::vector<Value>;
 
   /** @brief Implementation of SimpleFormat for UflLib, fulfils instance
    * contract. */
@@ -22,8 +20,8 @@ namespace facility_location {
       const std::string kOptFileSuffix = ".opt";
     private:
       Matrix<Cost> connecting_cost_;
-      Vector<Cost> opening_cost_;
-      Vector<size_t> optimal_solution_;
+      std::vector<Cost> opening_cost_;
+      std::vector<size_t> optimal_solution_;
       Cost optimal_cost_;
     public:
       typedef Cost value_type;
@@ -46,7 +44,7 @@ namespace facility_location {
         is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         for (size_t i = 0; i < n; i++) {
           size_t fno;
-          is >> fno >> opening_cost_(i);
+          is >> fno >> opening_cost_[i];
           assert(fno == i + 1);
           for (size_t j = 0; j < m; j++) {
             is >> connecting_cost_(i, j);
@@ -60,13 +58,13 @@ namespace facility_location {
           //throw std::runtime_error("Could not open " + file_opt);
           optimal_solution_.resize(m);
           for (size_t j = 0; j < m; j++) {
-            optimal_solution_(j) = j;
+            optimal_solution_[j] = j;
           }
           optimal_cost_ = 1;
         } else {
           optimal_solution_.resize(m);
           for (size_t j = 0; j < m; j++) {
-            isopt >> optimal_solution_(j);
+            isopt >> optimal_solution_[j];
           }
           isopt >> optimal_cost_;
           isopt.close();
@@ -97,7 +95,7 @@ namespace facility_location {
        * @returns cost of opening the facility
        **/
       Cost operator()(size_t facility) const {
-        return opening_cost_(facility);
+        return opening_cost_[facility];
       }
 
       /**
@@ -106,7 +104,7 @@ namespace facility_location {
        * assignment
        **/
       size_t optimal_solution(size_t city) const {
-        return optimal_solution_(city);
+        return optimal_solution_[city];
       }
 
       /** @returns cost of optimal (reference) solution */
@@ -124,7 +122,7 @@ namespace facility_location {
         os << instance.connecting_cost_.size1() << ' '
            << instance.connecting_cost_.size2() << " 0 \n";
         for (int i = 0, n = instance.connecting_cost_.size1(); i < n; i++) {
-          os << i + 1 << ' ' << instance.opening_cost_(i) << ' ';
+          os << i + 1 << ' ' << instance.opening_cost_[i] << ' ';
           for (int j = 0, m = instance.connecting_cost_.size2(); j < m; j++) {
             os << instance.connecting_cost_(i, j) << ' ';
           }
