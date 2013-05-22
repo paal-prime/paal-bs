@@ -42,9 +42,9 @@ namespace paal
     void dump(std::ostream &os)
     {
       os << "iteration, fitness, algorithm\n";
-for (Record & r : records)
+      for (Record & r : records)
       {
-for (auto & rr : r.logger.records)
+        for (auto & rr : r.logger.records)
           os << format("%, %, \"%\"\n", rr.iteration, rr.fitness / optimum, r.name);
         os << format("%, %, \"%\"\n", r.logger.iterations, r.logger.records.back().fitness / optimum, r.name);
       }
