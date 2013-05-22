@@ -1,3 +1,6 @@
+# This script is used to generate n-points where every point is a city
+# and in every point facility can be opened.
+
 import os
 from random import randrange, seed
 from math import sqrt
@@ -57,16 +60,16 @@ def gen_tests(base_dir, save_points = False):
     os.makedirs(nonuniform_dir)
   except:
     pass
-  n_list = [100]
+  n_list = [100, 1000]
   k_list = [1, 5, 10, 20, 100]
-  sizes = [100, 200, 500]
+  sizes = [10000]
   for n in n_list:
     for k in k_list:
       for size in sizes:
-        file_name = "%d_%d_%d" % (n, k, size)
+        file_name = "%d_%d" % (n, k)
         gen_test(os.path.join(uniform_dir, file_name), size, size, k, n, size, size + 1, save_points)
         gen_test(os.path.join(nonuniform_dir, file_name), size, size, k, n, size, 3*size, save_points)
 
 
 if __name__ == '__main__':
-  gen_tests("FLClustered")
+  gen_tests("FLClusteredSame")

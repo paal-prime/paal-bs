@@ -1,16 +1,20 @@
 UFLLIB_URL := "http://www.mpi-inf.mpg.de/departments/d1/projects/benchmarks/UflLib/data/bench/Euklid.tgz"
 UFLLIB_DIR := UflLib
-FLCLUSTERED_DIR := FLClustered
+FLCLUSTEREDSAME_DIR := FLClusteredSame
+FLCLUSTEREDDIFF_DIR := FLClusteredDiff
 
 $(UFLLIB_DIR):
 	@-mkdir $(UFLLIB_DIR)
 	wget -O - -o /dev/null $(UFLLIB_URL) | tar xzf - -C $(UFLLIB_DIR)
 
-$(FLCLUSTERED_DIR):
-	@python tests/facility_location/generator/gen.py 
+$(FLCLUSTEREDSAME_DIR):
+	@python tests/facility_location/generator/gen_same.py 
+
+$(FLCLUSTEREDDIFF_DIR):
+	@python tests/facility_location/generator/gen_diff.py 
 
 clean-flclusteredlib:
-	rm -rf $(FLCLUSTERED_DIR)
+	rm -rf $(FLCLUSTEREDSAME_DIR) $(FLCLUSTEREDDIFF_DIR)
 
 clean-ufllib:
 	rm -rf $(UFLLIB_DIR)
