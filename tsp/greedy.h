@@ -7,7 +7,9 @@
 
 namespace tsp
 {
-
+  /** @brief greedy O(log n) apx
+   * see: http://link.springer.com/chapter/10.1007%2F978-1-4020-9688-4_3
+   */
   template<typename Matrix, typename Cycle>
   void greedy(const Matrix &matrix, Cycle &cycle)
   {
@@ -20,12 +22,13 @@ namespace tsp
     {
       size_t bi = 0;
       for (size_t j = 0; j < n; ++j)
-        if (!V[j] && (!bi || matrix(cycle[i - 1], j) < matrix(cycle[i - 1], bi)))
+        if (!V[j] &&
+            (!bi || matrix(cycle[i - 1], j) < matrix(cycle[i - 1], bi)))
           bi = j;
       cycle[i] = bi;
       V[bi] = 1;
     }
   }
-}  // tsp
+}  // namespace tsp
 
 #endif  // TSP_GREEDY_H_
