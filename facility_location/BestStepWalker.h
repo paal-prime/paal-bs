@@ -1,5 +1,5 @@
-#ifndef FACILITY_LOCATION_FLAPXWALKER_H_
-#define FACILITY_LOCATION_FLAPXWALKER_H_
+#ifndef FACILITY_LOCATION_BESTSTEPWALKER_H_
+#define FACILITY_LOCATION_BESTSTEPWALKER_H_
 
 #include <boost/numeric/ublas/matrix.hpp>
 #include <algorithm>
@@ -19,7 +19,7 @@ namespace facility_location
     /**
      *  @param instance [implements facility_location::Instance] problem instance
      *  @param fs [implements facility_location::FacilitySet] selected facility set
-    *  @params city index of a city to search nearest facilities from
+     *  @params city index of a city to search nearest facilities from
      */
     Best2(const Instance &instance, const FacilitySet &fs, size_t city)
     {
@@ -119,18 +119,19 @@ namespace facility_location
     }
   };
 
-  /** @brief [implements Walker] facility location 3-apx walker
-   *
+  /**
+   * @brief [implements Walker] facility location 3-apx walker
    * As described in section 4 of http://www.cs.ucla.edu/~awm/papers/lsearch.ps
+   * In O(F(F+C)) selects always best step from the neighbourhood.
    */
-  template<typename Instance> struct FLApxWalker
+  template<typename Instance> struct BestStepWalker
   {
       /**
-      *  @param _instance [implements facility_location::Instance] problem instance
-      *  @param fs [implements facility_location::FacilitySet] initial solution
-      */
+       *  @param _instance [implements facility_location::Instance] problem instance
+       *  @param fs [implements facility_location::FacilitySet] initial solution
+       */
       template<typename FacilitySet>
-      FLApxWalker(const Instance &_instance, const FacilitySet &fs) :
+      BestStepWalker(const Instance &_instance, const FacilitySet &fs) :
         instance(_instance)
       {
         assert(instance.facilities_count() == fs.size());
@@ -159,10 +160,6 @@ namespace facility_location
         return next_fitness_;
       }
 
-      /**
-       * Selects always the best step.
-         * time complexity: O(F(F+C))
-       * */
       template<typename Random>
       void prepare_step(double progress, Random &random)
       {
@@ -204,4 +201,4 @@ namespace facility_location
 
 }  // namespace facility_location
 
-#endif  // FACILITY_LOCATION_FLAPXWALKER_H_
+#endif  // FACILITY_LOCATION_BESTSTEPWALKER_H_

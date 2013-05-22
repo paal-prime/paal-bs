@@ -45,8 +45,8 @@ namespace paal
       for (Record & r : records)
       {
         for (auto & rr : r.logger.records)
-          os << format("%, %, \"%\"\n", rr.iteration, rr.fitness / optimum, r.name);
-        os << format("%, %, \"%\"\n", r.logger.iterations, r.logger.records.back().fitness / optimum, r.name);
+          os << format("%, %, %\n", rr.iteration, rr.fitness / optimum, r.name);
+        os << format("%, %, %\n", r.logger.iterations, r.logger.records.back().fitness / optimum, r.name);
       }
     }
   };

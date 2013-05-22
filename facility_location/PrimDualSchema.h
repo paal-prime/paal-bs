@@ -19,25 +19,7 @@ namespace facility_location {
   using std::priority_queue;
   using std::greater;
   using std::pair;
-
-  /*
-  // describes problem instance
-  concept Instance {
-    // returns number of cities in instance
-    size_t cities_count() const;
-    // returns number of facilities in instance
-    size_t facilities_count() const;
-    // returns cost of connecting facility with city
-    double operator()(size_t facility, size_t city) const;
-    // returns cost of opening facility
-    double operator()(size_t facility) const;
-    // returns facility assigned to given city (if available)
-    size_t optimal_solution(size_t city) const;
-    // returns cost of optimal assignment (if available)
-    double optimal_cost() const;
-  }
-  */
-
+ 
   /**
    * Uncapacitated metric facility location 3-approximation.
    *

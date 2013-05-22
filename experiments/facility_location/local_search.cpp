@@ -2,7 +2,7 @@
 #include <iostream>
 #include <random>
 
-#include "facility_location/FLWalker.h"
+#include "facility_location/RandomStepWalker.h"
 #include "facility_location/SimpleFormat.h"
 
 #include "paal/search.h"
@@ -27,7 +27,7 @@ struct FLSearch
     for (auto v : fs) v = random() & 1;
     for (auto v : fs) std::cout << v << ' ';
     std::cout << std::endl;
-    facility_location::FLWalker<Instance> walker(*instance, fs);
+    facility_location::RandomStepWalker<Instance> walker(*instance, fs);
     paal::IterationCtrl progress_ctrl(10000);
     paal::HillClimb step_ctrl;
     paal::search(walker, random, progress_ctrl, step_ctrl, logger);

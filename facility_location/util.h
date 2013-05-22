@@ -7,16 +7,35 @@
 namespace facility_location
 {
   /*
-    concept FacilitySet
-    {
-      bool operator[](size_t i); // true iff i-th facility is opened
-      void resize(size_t n); //resizes the set to n elements
-      size_t size(); // number of facilities in the instance
-    }
+  concept Instance  // describes problem instance
+  {
+    // returns number of cities in instance
+    size_t cities_count() const;
+    // returns number of facilities in instance
+    size_t facilities_count() const;
+    // returns cost of connecting facility with city
+    double operator()(size_t facility, size_t city) const;
+    // returns cost of opening facility
+    double operator()(size_t facility) const;
+    // returns facility assigned to given city (if available)
+    size_t optimal_solution(size_t city) const;
+    // returns cost of optimal assignment (if available)
+    double optimal_cost() const;
+  }
+
+  concept FacilitySet
+  {
+    bool operator[](size_t i); // true iff i-th facility is opened
+    void resize(size_t n); //resizes the set to n elements
+    size_t size(); // number of facilities in the instance
+  }
   */
 
-  /** @brief calculates fitness of the optimal assignment
-   * @param fs opened facilities that cities are being assigned to
+  /** 
+   * @brief calculates fitness of the optimal assignment
+   * @param instance [implements Instance] problem instance
+   * @param fs [implements FacilitySet] solution to evaluate -
+   *   set of opened facilities
    */
   template<typename Instance, typename FacilitySet>
   inline double fitness(const Instance &instance, const FacilitySet &fs)
@@ -42,13 +61,16 @@ namespace facility_location
 
   /**
    * @brief generates a random facility set
+   * @param instance [implements Instance]
+   * @param fs [implements FacilitySet]
+   * @params random [implements paal::Random]
    */
   template<typename Instance, typename FacilitySet, typename Random>
   inline void random_facility_set(
     const Instance &instance, FacilitySet &fs, Random &random)
   {
     fs.resize(instance.facilities_count());
-for (auto f : fs) f = random() & 1;
+    for (auto f : fs) f = random() & 1;
   }
 
 }  // namespace facility_location

@@ -5,8 +5,8 @@
 #include <random>
 #include <boost/filesystem.hpp>
 
-#include "facility_location/FLWalker.h"
-#include "facility_location/FLApxWalker.h"
+#include "facility_location/RandomStepWalker.h"
+#include "facility_location/BestStepWalker.h"
 #include "facility_location/SimpleFormat.h"
 #include "facility_location/PrimDualSchema.h"
 #include "facility_location/util.h"
@@ -44,9 +44,9 @@ struct FLRandom
 
 };
 
-struct FLSearch
+struct RandomStepSearch
 {
-  FLSearch() : random(273648) {}
+  RandomStepSearch() : random(273648) {}
 
   const Instance *instance;
   std::mt19937 random;
@@ -55,7 +55,7 @@ struct FLSearch
   {
     using namespace facility_location;
     std::vector<bool> fs(instance->facilities_count());
-    FLWalker<Instance> walker(*instance, fs);
+    RandomStepWalker<Instance> walker(*instance, fs);
     paal::TimeAutoCtrl progress_ctrl(1.);
     paal::HillClimb step_ctrl;
     paal::search(walker, random, progress_ctrl, step_ctrl, logger);
@@ -63,9 +63,9 @@ struct FLSearch
   }
 };
 
-struct FLApxSearch
+struct BestStepSearch
 {
-  FLApxSearch() : random(273648) {}
+  BestStepSearch() : random(273648) {}
 
   const Instance *instance;
   std::mt19937 random;
@@ -74,14 +74,13 @@ struct FLApxSearch
   {
     using namespace facility_location;
     std::vector<bool> fs(instance->facilities_count());
-    FLApxWalker<Instance> walker(*instance, fs);
+    BestStepWalker<Instance> walker(*instance, fs);
     paal::TimeAutoCtrl progress_ctrl(1.);
     paal::HillClimb step_ctrl;
     paal::search(walker, random, progress_ctrl, step_ctrl, logger);
     return walker.current_fitness() / instance->optimal_cost();
   }
 };
-
 
 struct FL3Apx
 {
@@ -98,8 +97,8 @@ int main(int argc, char **argv)
 {
   const char *path = argc<2 ? "UflLib/Euclid/" : argv[1];
 
-  FLSearch ls;
-  FLApxSearch ls2;
+  RandomStepSearch ls;
+  BestStepSearch ls2;
   FL3Apx apx;
   FLRandom rnd;
   paal::GridTable table;

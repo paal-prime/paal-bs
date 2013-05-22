@@ -18,13 +18,6 @@ namespace tsp
    */
   template<typename Matrix> struct TwoOptWalker
   {
-      /*template<typename Random>
-      TwoOptWalker(const Matrix &_matrix, Random &random) : matrix(_matrix)
-      {
-        assert(matrix.size1() == matrix.size2());
-        cycle_shuffle(cycle, matrix.size1(), random);
-      }*/
-
       /**
        * @param _matrix [implements Matrix] problem definition (distance matrix)
        * @param _cycle [implements Cycle] initial solution

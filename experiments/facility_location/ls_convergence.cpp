@@ -2,8 +2,8 @@
 #include <iostream>
 #include <random>
 
-#include "facility_location/FLWalker.h"
-#include "facility_location/FLApxWalker.h"
+#include "facility_location/RandomStepWalker.h"
+#include "facility_location/BestStepWalker.h"
 #include "facility_location/SimpleFormat.h"
 #include "facility_location/util.h"
 
@@ -51,7 +51,7 @@ struct RandomStepLS : FLAlgo
   {
     using namespace facility_location;
     FacilitySet fs(instance->facilities_count());
-    FLWalker<Instance> walker(*instance, fs);
+    RandomStepWalker<Instance> walker(*instance, fs);
     paal::HillClimb step_ctrl;
     paal::search(walker, random, progress_ctrl, step_ctrl, logger);
     return walker.current_fitness() / instance->optimal_cost();
@@ -65,7 +65,7 @@ struct BestStepLS : FLAlgo
   {
     using namespace facility_location;
     FacilitySet fs(instance->facilities_count());
-    FLApxWalker<Instance> walker(*instance, fs);
+    BestStepWalker<Instance> walker(*instance, fs);
     paal::HillClimb step_ctrl;
     paal::search(walker, random, progress_ctrl, step_ctrl, logger);
     return walker.current_fitness() / instance->optimal_cost();
