@@ -16,17 +16,19 @@ namespace facility_location {
 
   /** @brief Implementation of SimpleFormat for UflLib, fulfils instance
    * contract. */
-  template<typename Cost = double> class SimpleFormat {
+  template<typename Cost = double> struct SimpleFormat {
       const std::string kOptFileSuffix = ".opt";
-    private:
+    //private:
       Matrix<Cost> connecting_cost_;
       std::vector<Cost> opening_cost_;
       std::vector<size_t> optimal_solution_;
       Cost optimal_cost_;
-    public:
+    //public:
       typedef Cost value_type;
 
-      /**
+      SimpleFormat(){}
+
+	  /**
        * @brief constructs instance from serialized file
        * @param file path to file with instance
        **/

@@ -72,23 +72,32 @@ struct BestStepLS : FLAlgo
   }
 };
 
-int main(int argc, char **argv)
+int main()
 {
-	const char *tests = 
+	std::vector<std::string> in = 
 	{
 		"UflLib/Euclid/1011EuclS.txt",
-		"FLC
-	}
+		"FLClustered/test0.txt"
+	};
+
+	std::vector<std::string> out =
+	{
+		"charts/ufl.tex",
+		"charts/clustered.tex"
+	};
 	
-	assert(argc>1);
-	RandomSearch rs;
-	RandomStepLS rls;
-	BestStepLS bls;
-	Instance inst(argv[1]);
-	paal::FIDiagram dia(inst.optimal_cost());
-	rs.instance = rls.instance = bls.instance = &inst;
-	dia.test("Random Search",rs);
-	dia.test("Random Step LS",rls);
-	dia.test("Best Step LS",bls);
-	dia.dump(std::cout);
+	for(size_t i=0; i<in.size(); ++i)
+	{
+		RandomSearch rs;
+		RandomStepLS rls;
+		BestStepLS bls;
+		Instance inst(in[i]);
+		paal::FIDiagram dia(inst.optimal_cost());
+		rs.instance = rls.instance = bls.instance = &inst;
+		dia.test("Random Search",rs);
+		dia.test("Random Step LS",rls);
+		dia.test("Best Step LS",bls);
+		std::ofstream tex(out[i]);
+		dia.dump_tex(tex,in[i]);
+	}
 }
