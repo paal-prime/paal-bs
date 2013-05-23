@@ -10,18 +10,21 @@ def num (s):
 
 def generate_plot(x_axis, y_axis, title, data_points, output_file):
   with open(output_file, 'w') as out:
-    out.write('\\begin{figure}\n')
-    out.write('\t\\centering\n')
-    out.write('\t\\begin{tikzpicture}\n')
-    out.write('\t\t\\begin{axis}[\
-                             width=0.75\\textwidth,\n\
-                             scale only axis,\n\
-                             no markers,\n\
-                             legend cell align=left,\n\
-                             legend pos=outer north east,\n\
-                             xlabel=' + x_axis + ',\n\
-                             ylabel=' + y_axis + ',\n\
-                             title={' + title + '}]\n')
+    # no markers,
+    # legend cell align=left,
+    # legend pos=outer north east,
+    out.write(
+r"""\pgfsetplotmarksize{0pt}
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+	\begin{axis}[
+		width=0.75\textwidth,
+		scale only axis,
+		xlabel=""" + x_axis + """,
+		ylabel=""" + y_axis + """,
+		title={""" + title + """}]
+""")
 
     for k in data_points.keys():
       out.write('\t\t\\addplot coordinates {\n')
