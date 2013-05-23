@@ -49,6 +49,21 @@ def gen_test(file_name, x_size, y_size, k, n, facility_cost_down, facility_cost_
     line += '\n'
     f.write(line)
   f.close()
+
+  with open(file_name + "_f.data", "w+") as f:
+    for (x,y) in facilities:
+      f.write("%f %f\n" % (x/float(x_size),y/float(y_size)))
+  with open(file_name + "_c.data", "w+") as f:
+    for (x,y) in cities:
+      f.write("%f %f\n" % (x/float(x_size),y/float(y_size)))
+  with open(file_name + ".tex", "w+") as f:
+    f.write(
+r"""\begin{tikzpicture}[only marks, x=10cm, y=10cm]
+	\draw plot[color=red,mark=*] file {%s_f.data};
+	\draw plot[mark=*] file {%s_c.data};
+	\draw[->] (0,0) -- coordinate (x axis mid) (1,0);
+	\draw[->] (0,0) -- coordinate (y axis mid) (0,1);
+\end{tikzpicture}""" % (file_name,file_name))
   if save_points:
     f2 = open(file_name + ".pts", "w+")
     for x, y in facilities:
