@@ -74,12 +74,6 @@ struct BestStepLS : FLAlgo
 
 int main(int argc, char **argv)
 {
-	const char *tests = 
-	{
-		"UflLib/Euclid/1011EuclS.txt",
-		"FLC
-	}
-	
 	assert(argc>1);
 	RandomSearch rs;
 	RandomStepLS rls;
