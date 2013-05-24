@@ -12,6 +12,8 @@
 #include "paal/StepCtrl.h"
 #include "paal/FIDiagram.h"
 
+#include "result_dir.h"
+
 typedef facility_location::SimpleFormat<double> Instance;
 
 struct FLAlgo
@@ -72,8 +74,10 @@ struct BestStepLS : FLAlgo
   }
 };
 
-int main()
+int main(int argc, char **argv)
 {
+	Dir dir(argc,argv);
+
 	std::vector<std::string> in = 
 	{
 		"UflLib/Euclid/1011EuclS.txt",
@@ -82,8 +86,8 @@ int main()
 
 	std::vector<std::string> out =
 	{
-		"charts/ufl.tex",
-		"charts/clustered.tex"
+		"ufl.tex",
+		"clustered.tex"
 	};
 	
 	for(size_t i=0; i<in.size(); ++i)
@@ -97,7 +101,7 @@ int main()
 		dia.test("Random Search",rs);
 		dia.test("Random Step LS",rls);
 		dia.test("Best Step LS",bls);
-		std::ofstream tex(out[i]);
+		std::ofstream tex(dir(out[i]));
 		dia.dump_tex(tex,in[i]);
 	}
 }

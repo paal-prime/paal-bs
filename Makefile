@@ -7,6 +7,7 @@ LDFLAGS := -lrt -lboost_program_options -lboost_filesystem -lboost_system -lpthr
 LDFLAGS_GTEST := -lgtest -lgtest_main
 
 DOCS_DIR=./docs
+RESULTS_DIR=./results
 
 # sources
 SOURCES := $(shell find -name "*.cpp")
@@ -55,6 +56,16 @@ $(MAIN) : % : %.o
 $(GTEST) : % : $(GTESTOBJECTS)
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) $(LDFLAGS_GTEST) -o $@
 
+# run experiment
+$(EXP): experiments/$@
+	experiments/$@ $(RESULTS_DIR)/$@
+
+#run all experiments
+experiments: $(EXP)
+
+clean-results:
+	-rm -rf $(RESULTS_DIR)
+
 docs: $(HEADERS)
 	doxygen doxygen.conf
 
@@ -63,9 +74,9 @@ clean:
 	-rm -f $(MAIN) $(GTEST)
 	-rm -rf $(DOCS_DIR)
 
-distclean: clean
+distclean: clean clean-results
 
-.PHONY: clean distclean
+.PHONY: clean clean-results distclean $(EXP)
 
 .SUFFIXES:
 %: %.o
