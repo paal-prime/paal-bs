@@ -1,1 +1,16 @@
-EXP += facility_location/ls_convergence
+FL1 = facility_location/ls_convergence
+
+results/$(FL1): experiments/$(FL1)
+	$< $@
+
+EXP = $(FL1)
+RES = $(addprefix results/,$(EXP))
+
+results: $(RES)
+
+clean-results:
+	rm -rf results/
+
+.PHONY: results clean-results
+
+distclean: clean-results
