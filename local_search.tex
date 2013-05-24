@@ -61,7 +61,7 @@ It is due to the fact that we wanted to extract problem independent components.
 	Also many custom/intrusive optimization can be made at this point, so we believe that this is definitely a point at which we should allow user to plug in
 	his own code.
 
-[concept] PRNG has to be shared, since only 1 seed is expected to be provided and using multiple PRNGs can cause conditional probabilities
+[concept] PRNG (pseudorandom number generator) has to be shared, since only 1 seed is expected to be provided and using multiple PRNGs can cause conditional probabilities.
 
 [concept] ProgressCtrl (progress controller) - is usually implemented as a time/iteration limit or sufficiency threshold.
 None of these are problem dependent, hence this component can be effectively extracted from the design.
