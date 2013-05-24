@@ -4,6 +4,7 @@
 #include <fstream>  // NOLINT
 #include <vector>
 #include "steiner/SteinerForest.h"
+#include "steiner/SteinerForestUtils.h"
 #include "steiner/SteinerForestInstance.h"
 #include "graph/AdjacencyMatrix.h"
 #include "graph/AdjacencyLists.h"
@@ -29,24 +30,19 @@ TEST_P(SteinerTest, Test)
 {
   SteinerParam param = GetParam();
 
-  typedef AdjacencyLists<graph::undirected, double> graph_t;
+  typedef graph::AdjacencyLists<graph::undirected, double> graph_t;
 
-  SteinerForestInstance<graph_t> instance;
+  steiner::SteinerForestInstance<graph_t> instance;
 
-  instance.load(param.input_filepath,
-    param.output_filepath);
+  instance.load(param.input_filepath, param.output_filepath);
 
   std::vector<graph_t::weighted_edge_t> steiner_forest_edges;
 
-  steiner_forest<>(instance.get_graph(),
-    instance.get_vertex_set(),
-    std::back_inserter(steiner_forest_edges));
+  steiner::steiner_forest<>(instance.get_graph(),
+      instance.get_vertex_set(),
+      steiner_forest_edges);
 
-  double solution_cost = 0.0;
-  for (size_t i = 0; i < steiner_forest_edges.size(); ++i)
-  {
-    solution_cost += steiner_forest_edges[i].weight;
-  }
+  double solution_cost = steiner::fitness<graph_t>(steiner_forest_edges);
 
   ASSERT_LE(solution_cost, 2 * instance.get_best_known_cost());
   ASSERT_GE(solution_cost, instance.get_best_known_cost());
