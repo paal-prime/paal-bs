@@ -1,0 +1,393 @@
+\chapter{Local Search framework design}
+
+\section{Motivation}
+
+Local search\footnote{\url{http://en.wikipedia.org/wiki/Local_search_(optimization)}} is a metaheuristic for solving optimization problems.
+It is especially useful when the fitness function's local optima have value close to the global one.
+Once a decent topology on the solution space is defined, the algorithm itself is very easy to implement:
+you just make a walk in the solution space, choosing every step so that the next solution you "stand in" has
+a better fitness than the previous one. The local search implementation has usually just a few dozens of lines and
+yet it can generate a series of problem, which usually stay unnoticed:
+\begin{itemize}
+\item it is hard to test a local search; local searches are prone to bugs:
+	\begin{itemize}
+	\item correct implementation does not guarantee that the result will be optimal
+	\item there is usually no objectively good benchmark instances for problems to which local search is applied
+	\item quality of the solution usually strongly depends on the amount of available computational power
+	\item nobody bothers to write a decent testing framework (since every local search implementation is different).
+		As a result tests are runned by hand, which makes testing prone to human errors (we can easily lose repetitiveness of the results).
+	\end{itemize}
+\item some parts of code are rewritten in every implementations:
+	\begin{itemize}
+	\item execution time control
+	\item main local search loop
+	\item fitness monitoring
+	\item step decision making strategy
+	\end{itemize}
+	Every single of them takes not much code which is hard to generalize anyway.
+	However, it is easy to make a bug in these places, which can stay unnoticed for a long time.
+\end{itemize}
+
+We've made an attempt to implement a C++ local search 
+framework addressing these issues.
+
+\section{General description}
+
+Local Search Framework is supposed to automatize the process of writing local searches with no execution overhead due to the framework code.
+Framework should be responsible for making consistent decisions about the issues that are not influencing the algorithm itself
+(for example results logging, repetitive testing, limiting execution time) and allow to avoid rewriting repetitive code.
+As the concept of local searches is really simple, our design has to be easily comprehensible and super intuitive.
+It definitely shouldn't force user to bend/hack the solution to fit the framework.
+
+We use templates and concepts to avoid any overhead in the execution time and allow maximum flexibility.
+
+[main function] search()
+
+Outer interface of the framework consists of a single template function search().
+Its code is explicitly stated in the design - user HAS TO KNOW this piece of code before using the framework.
+The order of actions performed is vital for utilization of the framework.
+Therefore search() has to be simple and readable for an average user.
+
+fitness - we assumed that fitness of the solution can be efficiently calculated and represented as a floating point number.
+We believe that imposing the fitness type across the framework is a useful simplification and prevents any type conversion problems in this context.
+In the current version fitness type is set to double which is disputable but convenient.
+
+On the top level of the framework, ie. search() and concepts it uses we don't know the nature of the problem.
+It is due to the fact that we wanted to extract problem independent components.
+
+[concept] Walker - only component which knows the nature of the problem.
+	It is not divided on this framework level, since if more components would know about the problem it would create cross dependencies.
+	In other words, such situation would inevitably make search() to transfer problem specific data between them.
+	Also many custom/intrusive optimization can be made at this point, so we believe that this is definitely a point at which we should allow user to plug in
+	his own code.
+
+[concept] PRNG (pseudorandom number generator) has to be shared, since only 1 seed is expected to be provided and using multiple PRNGs can cause conditional probabilities.
+
+[concept] ProgressCtrl (progress controller) - is usually implemented as a time/iteration limit or sufficiency threshold.
+None of these are problem dependent, hence this component can be effectively extracted from the design.
+
+[concept] StepCtrl (step controller) - component deciding whether to perform a step - represents the metaheuristic used.
+annealing and hill climb have easy/trivial implementations for this concept.
+
+\section{Main function}
+
+\begin{lstlisting}
+template<typename Walker, typename StepCtrl, typename ProgressCtrl,
+	typename Random, typename Logger>
+void search(Walker &walker, StepCtrl &step_ctrl, ProgressCtrl &progress_ctrl,
+	Random &random, Logger &logger)
+{
+	while(1)
+	{
+		double current_fitness = walker.current_fitness();
+		logger.log(current_fitness);
+		double progress = progress_ctrl.progress(current_fitness);
+		if(progress>=1) break;
+		walker.prepare_step(progress,random);
+		if(step_ctrl.step_decision(current_fitness,walker.next_fitness(),
+			progress,random)) walker.make_step();
+	}
+}
+\end{lstlisting}
+
+\section{Concepts}
+
+\subsection{Walker}
+
+\begin{lstlisting}
+concept Walker
+{
+	/*
+		Walker is the only object which actually knows the nature of the problem.
+		It is responsible for:
+			- maintaining the current solution
+			- preparing the proposition of the new step
+			- making the proposed step
+
+		It has to contain an initial solution before calling search().
+		Better solutions have lower fitness.
+
+		Input:
+			progress \in [0,1)
+			Random
+		Output:
+			current_fitness
+			next_fitness
+	*/
+
+	template<typename Random> void prepare_step(
+		double progress, Random &random);
+	/* 
+		Prepares a proposition of a single step (it doesn't change the current
+		solution). Let next solution be the solution after making step from
+		the current solution. Fitness of the next solution should be returned
+		by next_fitness(). search() provides that prepare_step() will be called
+		in each iteration exactly once.
+	*/
+
+	void make_step();
+	/*
+		Performs the step prepared by the last execution of prepare_step(),
+		i.e. the current solution shall change to the next solution.
+	*/
+	
+	double current_fitness();
+	/*
+		Returns fitness of the current solution.
+		It changes only during execution of make_step().
+	*/
+
+	double next_fitness();
+	/*
+		Returns fitness of the next solution (see prepare_step()).
+		Before the first call of prepare_step(), behaviour of next_fitness()
+		is undefined.
+	*/
+};
+\end{lstlisting}
+
+\subsection{StepCtrl}
+\begin{lstlisting}
+concept StepCtrl
+{
+	/*
+		StepCtrl (Step Controller) represents the metaheuristic chosen to
+		solve the problem. It is responsible for making decision whether to
+		make the step proposed by Walker.
+		
+		Input:
+			current_fitness
+			next_fitness
+			progress \in [0,1)
+			Random
+		Output:
+			step_decision
+	*/
+
+	template<typename Random> bool step_decision(double current_fitness,
+		double next_fitness double progress, Random &random);
+	/*
+		Returns true iff step proposed by the Walker should be made.
+		
+		examples:	
+			In annealing, the decision would be made according to the
+				fitness delta and the temperature schedule.
+			In hill climb, the decision would be solely based on fitness delta.
+			{ What should be done for tabu search? Do we really care? }
+	*/
+};
+\end{lstlisting}
+
+\subsection{ProgressCtrl}
+
+\begin{lstlisting}
+concept ProgressCtrl
+{
+	/*
+		ProgressCtrl (Progress Controller) controls the execution time of the
+		local search. It is responsible for estimation of the ratio: iterations
+		passed/iterations available.
+
+		Input:
+			current_fitness
+		Output:
+			progress \in [0;inf)
+	*/
+
+	double progress(double current_fitness);
+	/*
+		Returns non-negative value estimating the ratio described above. search()
+		provides that progress() will be called exatly once before every
+		iteration. Returning value >=1 will cause search() to exit without
+		performing the next iteration.
+
+		examples:
+			[iteration limit]
+				(iterations passed)/(predetermined number of iterations available)
+			[time limit] (time passed)/(predetermined time available)
+			[sufficiency treshold] (acceptable fitness)/best_fitness
+			[convergence treshold]
+				max(0,1+\epsilon-c*((best fitness x iterations ago)-best_fitness))
+	*/
+};
+\end{lstlisting}
+
+\subsection{Random}
+
+\begin{lstlisting}
+concept Random [c++11 RNG concept];
+/*
+	Generates random integer values.
+	It is explicitly shared between components of the search() for the following reasons:
+	- we assume that we receive only one seed from the outside
+	- using many generators at once (especially with the same seed) may create undesired conditional probabilities
+*/
+\end{lstlisting}
+
+\subsection{Logger}
+
+TODO: move it to algorithm framework
+
+\begin{lstlisting}
+concept Logger
+{
+	/*
+		It logs fitness over algorithm execution time/iterations.
+		{ To what extent does it overlap with the ProgressCtrl? Should it take progress argument? }
+
+		Input:
+				current_fitness
+	*/
+
+	void log(double current_fitness);
+	/*
+		It logs current fitness.
+		search() provides that log() will be called exactly once before every iteration once after the last one.
+	*/
+};
+\end{lstlisting}
+
+\section{Features for implemening Walker}
+[TO BE REMOVED]
+
+We have observed that sometimes it is possible to enhance the local search
+by making the neighbourhood size (from which we choose the step) progress dependent.
+In the euclidian TSP example, assuming that our step consists of reversing a segment of the cycle,
+it occurs to be profitable to decrease the expected length of that segment along the time
+(intuitively it is equivalent to untying smaller and smaller "knots" in our solution).
+We suspect that it can be generalized, therefore a StepSize concept has been introduced.
+We are going to implement a few potentially useful variants of StepSize,
+although the concept itself is not a part of the local search framework.
+
+\begin{lstlisting}
+concept StepSize
+{
+	/*
+		Hints a length of the step (neighbourhood ball radius) to generate.
+
+		Input:
+				Random
+				progress \in [0;1)
+		Output:
+				step_size
+	*/
+
+	uint32_t hint(double progress, Random &random); { Why uint32_t? }
+	/*
+		Returns the length of the step generated according to some progress dependent distribution.
+
+		examples:
+				TODO
+	*/
+};
+\end{lstlisting}
+
+\section{Reasoning}
+
+We have considered approaches alternative to the proposed design, they are
+worth studying in order to identify possible problems and why current design
+solves them in our opinion.
+
+\subsection{Abstract representation}
+It is helpful to express structure of local search framework in terms of a
+graph where each node represents a separated concept and an edge $A \to B$
+exists iff concept $A$ uses (e.g. calls, owns, reads data) concept $B$. First
+assumption was that resulting graph is compact, local search algorithm provided
+by the framework should be seen as one phase from the outside (e.g. invocation
+of one function, which takes input and returns result), so every concept in
+different connected component than the algorithm itself is useless. We will
+refer to described graph as the \emph{component graph}.
+
+\subsection{The way to the tree}
+We have eliminated all designs with cycles in component graph, the most
+important reason for this was that we could not find how we can benefit from
+allowing two way communication between components. Furthermore all concepts
+need to be initialized either by user or search procedure itself if they are
+completely algorithm independent (like statistics gathering) and every cycle
+makes initialization really complicated, there is no arbitrary choice of
+initialization order we could come up with in this case.
+
+Therefore we were free to choose either general DAG or a tree (we were aiming
+for the latter). To reduce both of them to the second one we can run
+depth-first search from algorithm's entry point (the search() procedure), which
+becomes a root of a depth-first spanning tree. The only difference between the
+graph being a general DAG and a tree is manifested by the presence of non-tree
+edges. Our graph is acyclic, so we will not find back edges.
+
+Please note that presence of back edges would mean that execution flow can be
+returned to caller for a moment and then returned back to the callee
+automatically - this can obviously be replaced by making communication
+passive, caller provides all data needed do execute call (query) and expects
+response, every query is initiated by caller and completed by callee using
+provided data.
+
+\subsection{Forward edges elimination}
+Any forward edge means that we are skipping many abstraction layers with an
+invocation. Obviously this can be avoided by passing a call through all layers
+that are bypassed by a forward edge. We replace forward edge with composition
+of facades. Modern C++ compilers can easily inline such constructions, so that
+the forward edge will not be present in design and C++ code, but will be
+generated by compiler for performance reasons.
+
+Moreover every forward edge means that at least two different concepts need to
+know (the same) type of called concept, we think it is less convenient during
+initialization, however in this specific case a concept can inherit type from
+its predecessor in the spanning tree (as long as the former is not initialized
+by a user).
+
+We have made an experiment with changing parts of an algorithm (namely
+underlying data structure) during algorithm execution. Obviously allowing
+forward edge in this case (calling specific data structure directly, skipping
+its owner) might invalidate algorithm. The real problem here is a stupid user
+who gave an ownership to the object being descendant of a caller while allowing
+forward edges in the component graph. Removing forward edge as described above
+forces every call to pass through data structure owner, which is less
+error-prone and simpler.
+
+We further assume that there is no forward edges in the graph.
+
+\subsection{Cross edges discussion}
+Consider the case where one concept $C$ is a child of two (or more) concepts
+$A$ and $B$ (assume $B \to C$ is a cross edge). Let $P$ be the lowest common
+ancestor of both $A$ and $B$ in depth-first spanning tree of the component
+graph. Described situation breaks composability of algorithm's design but one
+can easily come up with an example of a local search algorithm where such
+design is desired, we will discuss it later, for now let us assume that we do
+need communication between components as described above.
+
+If we disallow cross edges in our design we have to provide different mechanism
+of communication between $B$ and $C$. As the graph without cross edges is a
+tree we have to pass data back (query result) from $C$ to $P$ and provide $B$
+with it in separate call. The obvious problem here is that data format must be
+know to all concepts on paths from $B$ and $C$ do $P$ (including $P$) and data
+format type can (in most cases will) be domain dependant - therefore we are
+raising domain boundary up to lowest common ancestor of components that were
+connected by cross edge. This means that protocol common to $B$ and $C$ (which
+may change) must be propagated during initialization down in the tree starting
+from $P$.
+
+The obvious benefits from tree-like component graph is simple. In top-down
+initialization, we can assume that during construction of algorithm child being
+initialized is given an interface to obtain initialization data from parent
+according to its needs or this data is passed explicitly. Furthermore there is
+no problem with assigning an ownership of a concept. Tree design makes
+synchronization model extremely easy to implement in case one would like
+concepts to operate concurrently.
+
+There are more problems with cross edges. Initialization cannot be done
+top-down in described automatic fashion, ownership assignment just like the
+rest of the initialization procedure needs to be done by the user as hidden
+dependencies are not obvious to any automatic model. It is pretty obvious that
+the less constraints we put on algorithm's design the less we know and the more
+must be done manually.
+
+It turned out that in the case of local search framework both performance
+considerations and domain-dependency limiting required nearly the same
+transformations of components graph, which resulted in the graph becoming a
+tree. Cross edges were eliminated by encoding entire problem specific
+components in the Walker concept. Topologies of solution spaces implied by
+problems discussed when designing this framework vary considerably, we were
+unable to split this concept leaving complexity of single step unchanged for
+studied examples.
+
+\section{Framework supplied implementations}

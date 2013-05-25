@@ -1,0 +1,168 @@
+\documentclass[licencjacka]{pracamgr}
+
+\usepackage{polski}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{url}
+\usepackage{pgfplots}
+
+\usepackage{amssymb,amsmath,amsthm,amstext,amsopn,latexsym}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\newcommand{\code}[1]{\begin{ttfamily}#1\end{ttfamily}}
+
+\newcommand{\Oh}{\ensuremath{\mathcal{O}}}
+
+\lstset{
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize\ttfamily,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,                    % adds a frame around the code
+  keywordstyle=\color{blue},       % keyword style
+  language=C,                 % the language of the code
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stringstyle=\color{mymauve},     % string literal style
+  tabsize=2,                       % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+%Jesli uzywasz kodowania polskich znakow ISO-8859-2 nastepna linia powinna byc 
+%odkomentowana
+%\usepackage[latin2]{inputenc}
+%Jesli uzywasz kodowania polskich znakow CP-1250 to ta linia powinna byc 
+%odkomentowana
+%\usepackage[cp1250]{inputenc}
+\usepackage[utf8]{inputenc}
+
+% Dane magistranta:
+
+\author{Piotr Jaszkowski, Mateusz Machalica, Grzegorz Prusak, Łukasz Solak}
+
+\nralbumu{306249, 305678, 306538, 306462}
+
+\title{Practical Approximation Algorithms Library}
+\tytulang{Practical Approximation Algorithms Library}
+% Lukasz: potrzebujemy tego?
+%\tytulang{An implementation of a difference blabalizer based on the theory 
+%  of $\sigma$ -- $\rho$ phetors}
+
+%kierunek: Matematyka, Informatyka, ...
+\kierunek{Informatyka}
+
+% informatyka - nie okreslamy zakresu (opcja zakomentowana)
+% matematyka - zakres moze pozostac nieokreslony,
+% a jesli ma byc okreslony dla pracy mgr,
+% to przyjmuje jedna z wartosci:
+% {metod matematycznych w finansach}
+% {metod matematycznych w ubezpieczeniach}
+% {matematyki stosowanej}
+% {nauczania matematyki}
+% Dla pracy licencjackiej mamy natomiast
+% mozliwosc wpisania takiej wartosci zakresu:
+% {Jednoczesnych Studiow Ekonomiczno--Matematycznych}
+
+% \zakres{Tu wpisac, jesli trzeba, jedna z opcji podanych wyzej}
+
+% Praca wykonana pod kierunkiem:
+% (podaæ tytu³/stopieñ imiê i nazwisko opiekuna
+% Instytut
+% ew. Wydzia³ ew. Uczelnia (je¿eli nie MIM UW))
+\opiekun{Krzysztof Ciebiera\\
+  Instytut Informatyki\\
+  }
+
+% miesi¹c i~rok:
+\date{June 2013}
+
+%Podaæ dziedzinê wg klasyfikacji Socrates-Erasmus:
+\dziedzina{
+%11.0 Matematyka, Informatyka:\\ 
+%11.1 Matematyka\\ 
+%11.2 Statystyka\\ 
+11.3 Informatyka\\
+%11.4 Sztuczna inteligencja\\ 
+%11.5 Nauki aktuarialne\\
+%11.9 Inne nauki matematyczne i informatyczne
+}
+
+%Klasyfikacja tematyczna wedlug AMS (matematyka) lub ACM (informatyka)
+% Lukasz: moze cos jeszcze - nie wiem.
+\klasyfikacja{
+  F. Theory of Computation \\
+  F.2. Analysis of Algorithms and Problem Complexity \\
+  F.2.2  Nonnumerical Algorithms and Problems \\
+}
+
+% S³owa kluczowe:
+\keywords{approximation algorithm, C++, monte carlo tree search, local search, steiner forest problem, traveling salesman problem, uncapacitated facility location}
+
+% Tu jest dobre miejsce na Twoje w³asne makra i~rodowiska:
+\newtheorem{defi}{Definicja}[section]
+
+% Macro for problem definitions
+\newcommand{\defproblem}[3]{
+  \vspace{1mm}
+\noindent\fbox{
+  \begin{minipage}{0.96\textwidth}
+  #1 \\
+  {\bf{Input:}} #2  \\
+  {\bf{Question:}} #3
+  \end{minipage}
+  }
+}
+
+% koniec definicji
+
+\begin{document}
+\maketitle
+
+%tu idzie streszczenie na strone poczatkowa
+\begin{abstract}
+  We are presenting C++ frameworks for implementing Local Search
+  and Monte Carlo Tree Search algorithms. Their design is based
+  on 3 NPC use cases: metrical Travelling Salesman Problem,
+  Steiner Forest Problem and Uncapacitated Facility Location Problem.
+  All design decisions are thouroughly discussed. The resulting
+  algorithms written in our framework are being compared with
+  well known approximation algorithms as described by Vazirani \cite{Vazirani}.
+  Our implementations of these algorithms are also provided with the framework.
+\end{abstract}
+
+\tableofcontents
+%\listoffigures
+%\listoftables
+
+\include{local_search}
+\include{mcts}
+\include{algo_framework}
+\include{tsp}
+\include{steiner}
+\include{facility_location}
+
+\appendix
+
+\bibliographystyle{plain}
+\bibliography{paal}
+
+\end{document}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% coding: latin-2
+%%% End:

@@ -1,0 +1,112 @@
+\chapter{Metrical TSP algorithms}
+
+
+\section{Problem description}
+
+\defproblem{ Metrical Travelling Salesman Problem}
+{ Complete graph $G = (V,d)$, where $d:V \times V \to\mathbb{R}$ is a metric. }
+{ What is the shortest cycle in $G$ which comes through every vertex exactly once? }
+
+See link\footnote{\url{http://en.wikipedia.org/wiki/Travelling_salesman_problem}}
+for detailed description.
+
+\section{Christofides 1.5-apx}
+Christofides algorithm\footnote{\url{http://en.wikipedia.org/wiki/Christofides_algorithm}} is designed to work with instances of TSP whose edge
+weights satisfy triangle inequality. Let $G=(V, w)$ be an instance of TSP,
+the algorithm consists of four steps:
+\begin{enumerate}
+\item Create minimum spanning tree $T$ for graph $G$. \\
+Here we have implemented $\Oh(n^2)$ Prim's algorithm\footnote{\url{http://en.wikipedia.org/wiki/Prim's_algorithm}}.
+Although for Euclidean spaces there exists faster $\Oh(n\log(n))$ algorithm, the overall gain
+would be insignificant so we didn't use it.
+\item Let $O$ be a set of odd degree vertices in $T$.
+	  Find minimum perfect matching $M$ in complete graph over $O$. \\
+For this part we have used \emph{Blossom V}\footnote{\url{http://pub.ist.ac.at/~vnk/software.html}}
+implementation of Edmond's Blossom algorithm\footnote{\url{http://en.wikipedia.org/wiki/Blossom_algorithm}}.
+Worst case running time of this part is $\Oh(|O|^5)$ but in average case it behaves very well.
+\item Combine edges of $M$ and $T$ to form a multigraph $H$.
+\item Find Eulerian circuit $E$ in $H$. ($\Oh(|H|)$).
+\item Make $E$ Hamiltonian by shortcutting visited nodes. ($\Oh(|E|)$).
+\end{enumerate}
+Summing this up, our implementation in worst case needs $\Oh(|V|^5)$ time but generally
+is fast in comparison to our other techniques.
+
+\section{2opt Local Search}
+
+In 2-opt\footnote{\url{http://en.wikipedia.org/wiki/2-opt}} local search for TSP, a single step
+consists of reverting a segment of the current cycle. Intuitively, we find a point
+at which the route crosses over itself and reorder it so that is doesn't.
+
+Since in metrical TSP distance between a pair of points is the same for both directions,
+computing fitness of the new route simplifies to replacing a pair of edges and replacing it with another
+pair.
+
+We've tested 3 different structures for maintaining the current local search solution:
+\begin{itemize}
+\item array of vertices in order as they appear on the cycle.
+\item Reversible Segment List\footnote{\url{http://www.hars.us/Papers/revi.pdf}}
+\item Augmented splay tree.
+\end{itemize}
+
+\begin{tabular}{c|cc}
+& vertex read cost & reverse cost \\\hline
+array & $\Oh(1)$ & $\Oh(|V|)$ \\
+RSL & $\Oh(\sqrt{|V|})$ & $\Oh(\sqrt{|V|})$ amortized \\
+splay & $\Oh(\log(|V|)$ amortized & $\Oh(\log(|V|))$ amortized
+\end{tabular}
+
+In our implementation segment to reverse is selected with uniform probability,
+excluding the degenerated cases -- set of cycle edges has to actually change.
+Evaluating fitness of neighbouring solution drawn requires to read vertices
+on 4 positions in the cycle. The number of fitness evaluations dominates
+the number of the actual reverses in the long run due to the fact that it
+becomes harder and harder to find a neighbour with better fitness as we approach
+the local optimum. As a consequence we have empirically observed that out of
+3 data structure mentioned, the array performed best on TSPLIB (see Benchmarks)
+test cases.
+
+\section{Monte Carlo Tree Search}
+We will refer to the concepts and definitions introduced in MCTS design
+chapter. Let us remind that the only domain-dependent concepts in our MCTS
+framework are Move and State and the former is completely dependent on the
+latter.
+
+It is widely known from games solving applications of MCTS method that we
+should choose State concretization which minimizes branch factor of resulting
+search tree. For TSP problem we chose path building approach:
+\begin{itemize}
+  \item State is a path with well-defined end and start point (permutation of a
+    subset of all vertices)
+  \item initial State is an arbitrary chosen start vertex
+  \item Move represents choosing from remaining vertices the next one to be
+    added to the end of the path
+  \item terminal State is reached when all vertices are in the path
+  \item Fitness of terminal State is equal to cost of a Hamilton cycle, note
+    that path defines permutation of vertices and distance function is a proper
+    metric
+  \item Fitness estimate is a fitness of terminal state reached after applying
+    a sequence of random decisions
+\end{itemize}
+
+We have introduced two improvements to above schema. In order to reduce branch
+factor of resulting tree we have limited number of vertices taken into
+consideration when choosing next move. A good heuristics here is to choose from
+no more than $K$ vertices closest to the path's end.
+
+To improve accuracy of each sample we have decided to replace last $L$ random
+moves with exhaustive search, therefore Fitness estimate is set to minimum of
+fitnesses of all terminal states visited during this search. Typically $N$ is
+very small, for implementation described above we have determined that the best
+accuracy to performance ratio can be achieved when $N = 4$, it should be
+obvious that $N$ depends on the State implementation rather than size of the
+input graph. Note that this method works well with certain types of policies
+and statistics aggregation methods as discussed in results overview.
+
+\section{Benchmarks}
+To evaluate the algorithms quality we have used
+TSPLIB\footnote{\url{http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/}}
+symmetrical instances.
+
+\section{Results}
+
+

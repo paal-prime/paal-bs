@@ -1,0 +1,93 @@
+\chapter{Metrical Facility Location algorithms}
+
+\section{Problem description}
+
+Problem instance consists of a full bipartite graph $G = (F \cup C, F \times
+C)$, where elements of $F$ are called \emph{facilities} and those of $C$ are
+called \emph{cities}, $o : F \to \mathbb{R}$ being a cost function of opening
+single facility and $c : F \times C \to \mathbb{R}$ being a cost function of
+connecting facility with a city. The connection costs satisfy triangle
+inequality.
+
+The problem is to find a subset of facilities $O \subset F$ to be opened and an
+assignment of cities to opened facilities $a : C \to O$ in such a way that the
+total cost $\sum_{f \in O} o(f) + \sum_{c \in C} c(a(c), c)$ is minimized.
+
+\section{Primal-dual schema 3-apx}
+We have created efficient implementation of combinatoric approximation
+algorithm for the problem as a reference point for other discussed methods. The
+algorithm achieves a constant approximation factor of 3 and runs in $\Oh(|F||C|
+\log(|F||C|))$ time. It operates in primal-dual fashion trying to find feasible
+solution for dual problem with possibly the biggest cost. Detailed description
+can be found in TODO. % TODO vasirani
+
+We have introduced a slight modification to original algorithm due to Jain and
+Vasirani. Once the set of opened facilities is determined as in original
+algorithm we create optimal assignment in $\Oh(|F||C|)$ time by assigning each
+city to the closest facility. The assignment presented in original paper is
+useful for estimating approximation factor of the algorithm though.
+
+\section{Local Search 3-apx}
+
+Local search with the following properties
+guarantees\footnote{\url{http://www.cs.ucla.edu/~awm/papers/lsearch.ps}}
+3-apx at local optimum:
+\begin{itemize}
+\item Search space consists of all subsets of facilities.
+\item Fitness function is the same as in problem statement.
+\item Valid step is of one of the forms:
+	\begin{itemize}
+	\item insert one facility to the set
+	\item delete one facility from the set
+	\item swap one facility from the set with one from outside the set.
+	\end{itemize}
+\end{itemize}
+
+We have implemented 2 variants of Walkers (see: Local Search Framework design)
+for this algorithm:
+\begin{itemize}
+\item[LS1)] take a random valid step and calculate fitness: $\Oh(|F||C|)$ per iteration
+\item[LS2)] find the fittest step among the valid ones: $\Oh(|F|(|F|+|C|))$ per iteration
+\end{itemize}
+
+In both cases, time of single iteration is proportional to the problem
+instance size. It is therefore necessary to start the local search from
+the solution relatively close (in the topology described) to the local
+optimum. Intuitively the optimal solution will consist of a small number
+of facilities (especially for test cases with uniformly distributed facilities and cities),
+therefore the initial solution has been set to an empty set.
+
+\section{Monte Carlo Tree Search}
+
+Because MCTS involves selecting decisions step by step we decided to transform our
+standard Facility Location problem into Online Facility Location problem.
+The restriction of this approach is that $F = C$, of course one can set
+opening costs of some factories to $inf$ to prevent opening one there
+but it will be still considered as potential facility to open. \\
+Algorithm works as follows, first get the order in which facilities will be
+processed, then at each step decide to open or not open facility at given point. \\
+Function that estimates fitness of current state is based on
+Adam Meyerson's algorithm\footnote{\url{http://www.cs.ucla.edu/~awm/papers/ofl.pdf}},
+which is constant competitive for randomized input.
+
+\section{Random Search}
+
+As an additional benchmark for evaluating algorithms' performance, we've implemented
+random search, which simply samples solution space at random. Solutions are drawn as follows:
+\begin{itemize}
+\item draw with uniform distribution the solution size $n \in \{1..|F|\}$.
+\item draw $n$ times a facility with uniform distribution.
+\item solution is the set of facilities from the previous point.
+\end{itemize}
+
+We've empirically shown for the benchmark problem instances, that the near optimal
+solutions are small sets. This drawing algorithm is flexible enough to take it
+into consideration.
+
+\section{Benchmarks}
+To evaluate the algorithms quality we have used UflLib\footnote{\url{http://www.mpi-inf.mpg.de/departments/d1/projects/benchmarks/UflLib/Euklid.html}}
+and our "clustered tests". The need for "clustered tests" raised from observation that
+uniform distribution is not natural for many real-world situation like city placements
+e.g. normally cities are "clustered" around natural resources.
+
+\section{Results}
