@@ -35,6 +35,10 @@ namespace tsp
     Point operator-(const Point &b) const
     {
       return Point(x - b.x, y - b.y);
+	}
+    Point operator+(const Point &b) const
+    {
+      return Point(x + b.x, y + b.y);
     }
     /** @brief dot product with itself */
     double sqr() const

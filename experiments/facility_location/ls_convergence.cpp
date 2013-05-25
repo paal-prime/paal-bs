@@ -12,6 +12,8 @@
 #include "paal/StepCtrl.h"
 #include "paal/FIDiagram.h"
 
+#include "result_dir.h"
+
 typedef facility_location::SimpleFormat<double> Instance;
 
 struct FLAlgo
@@ -74,15 +76,32 @@ struct BestStepLS : FLAlgo
 
 int main(int argc, char **argv)
 {
-	assert(argc>1);
-	RandomSearch rs;
-	RandomStepLS rls;
-	BestStepLS bls;
-	Instance inst(argv[1]);
-	paal::FIDiagram dia(inst.optimal_cost());
-	rs.instance = rls.instance = bls.instance = &inst;
-	dia.test("Random Search",rs);
-	dia.test("Random Step LS",rls);
-	dia.test("Best Step LS",bls);
-	dia.dump(std::cout);
+	Dir dir(argc,argv);
+
+	std::vector<std::string> in = 
+	{
+		"UflLib/Euclid/1011EuclS.txt",
+		"FLClustered/test0.txt"
+	};
+
+	std::vector<std::string> out =
+	{
+		"ufl.tex",
+		"clustered.tex"
+	};
+	
+	for(size_t i=0; i<in.size(); ++i)
+	{
+		RandomSearch rs;
+		RandomStepLS rls;
+		BestStepLS bls;
+		Instance inst(in[i]);
+		paal::FIDiagram dia(inst.optimal_cost());
+		rs.instance = rls.instance = bls.instance = &inst;
+		dia.test("Random Search",rs);
+		dia.test("Random Step LS",rls);
+		dia.test("Best Step LS",bls);
+		std::ofstream tex(dir(out[i]));
+		dia.dump_tex(tex,in[i]);
+	}
 }
