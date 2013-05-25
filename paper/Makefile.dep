@@ -1,0 +1,23 @@
+TEX					:=	pdflatex -interaction=batchmode
+TEX_DRAFT		:=	$(TEX) -draft
+PAPER_MAIN	:=	paper/paal
+
+TEXT_FILES	:=	$(wildcard paper/*.tex)
+PAPER_FILE	:=	$(addsuffix .pdf, $(PAPER_MAIN))
+
+paper: $(PAPER_FILE)
+
+$(PAPER_FILE) : %.pdf : %.tex %.bib $(TEX_FILES)
+	cd $(<D); \
+		$(TEX_DRAFT) $(<F); \
+		bibtex $(<F:.tex=.aux); \
+		$(TEX_DRAFT) $(<F); \
+		$(TEX) $(<F); \
+
+clean-paper:
+	-rm -f paper/*.{aux,log,err,bbl,toc,blg}
+	-rm -f $(PAPER_FILE)
+
+clean: clean-paper
+
+.PHONY: clean-paper paper

@@ -37,8 +37,10 @@ CLEAN_DEPENDS := $(DEPENDS)
 
 ifneq "$(MAKECMDGOALS)" "clean"
 ifneq "$(MAKECMDGOALS)" "distclean"
+ifneq "$(MAKECMDGOALS)" "paper"
 # include submakefiles
 -include $(DEPENDS)
+endif
 endif
 endif
 
