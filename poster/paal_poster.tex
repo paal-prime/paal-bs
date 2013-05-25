@@ -5,6 +5,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{polski}
 \usepackage{amsmath,amsthm, amssymb, latexsym}
+\usepackage{graphicx}
+\usepackage{epstopdf}
 %\usepackage{times}\usefonttheme{professionalfonts}  % obsolete
 %\usefonttheme[onlymath]{serif}
 \boldmath
@@ -50,19 +52,32 @@
 
 	\begin{columns}
 		\begin{column}{.46\textwidth}
-			\begin{block}{Aproksymacja}
-				Aproksymacjami nazywamy algorytmy znajdujące
-				rozwiązania bliskie optymalnemu o gwarantowanym
-				współczynniku\\ przybliżenia.\\
-				Czy coś takiego...
+			\begin{block}{Algorytmy aproksymacyjne}
+				Algorytmy służące do znajdowania przybliżonych rozwiązań
+				problemów optymalizacyjnych. Stosuje się je zwykle do rozwiązywania
+				problemów, dla których nie są znane szybkie algorytmy znajdujące
+				rozwiązanie dokładne, na przykład dla problemów NP-zupełnych.
+				Istotą algorytmu aproksymacyjnego, tym co odróżnia go od
+				algorytmu heurystycznego, jest gwarantowany poziom przybliżenia
+				rozwiązania optymalnego, zwykle zadany przez pewien stały czynnik.
+				\vspace{5cm}
 			\end{block}
 		\end{column}
 		\begin{column}{.46\textwidth}
 			\begin{block}{Metaheurystyka}
-				Metaheurystyki traktują definicję problemu jako ,,czarną skrzynkę'',
-				która dostając propozycję rozwiązania mówi tylko na ile jest ono
-				dobre (tj. problem definiuje funkcję celu do zoptymalizowania).
-				Przykłady: local search,annealing, mcts, sieci neuronowe, etc.
+				Ogólny algorytm (heurystyka) do rozwiązywania problemów obliczeniowych,
+				naczęściej optymalizacyjnych -- definiujących pewną funkcję celu nad
+				przestrzenią rozwiązań. Poza tą funkcją, metaheurystyki nie korzystają
+				bezpośrednio ze szczególnych własności problemu, stąd łatwo je stosować
+				do szerokiej ich gamy. Do metaheurystyk zaliczamy m.in.:
+				\begin{itemize}
+				\item algorytmy typu Local Search - algorytmy ,,spacerujące'' po przestrzeni
+					rozwiązań zgodnie z pewną topologią w poszukiwaniu lepszych rozwiązań
+				\item algorytmy typu Monte Carlo Tree Search - uogólnione algorytmy zachłanne,
+					które do oceny decyzji częściowej używają losowych zejść w dół
+					drzewa decyzyjnego.
+				\end{itemize}
+			
 			\end{block}
 		\end{column}
 	\end{columns}
