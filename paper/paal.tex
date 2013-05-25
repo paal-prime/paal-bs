@@ -5,6 +5,7 @@
 \usepackage{color}
 \usepackage{url}
 \usepackage{pgfplots}
+\usepackage{array}
 
 \usepackage{amssymb,amsmath,amsthm,amstext,amsopn,latexsym}
 
@@ -13,8 +14,9 @@
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
 
 \newcommand{\code}[1]{\begin{ttfamily}#1\end{ttfamily}}
-
 \newcommand{\Oh}{\ensuremath{\mathcal{O}}}
+
+\newcolumntype{H}{>{\setbox0=\hbox\bgroup}c<{\egroup}@{}}
 
 \lstset{
   backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}

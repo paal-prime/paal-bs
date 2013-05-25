@@ -37,15 +37,13 @@ CLEAN_DEPENDS := $(DEPENDS)
 
 ifneq "$(MAKECMDGOALS)" "clean"
 ifneq "$(MAKECMDGOALS)" "distclean"
-ifneq "$(MAKECMDGOALS)" "paper"
 # include submakefiles
 -include $(DEPENDS)
 endif
 endif
-endif
 
 # create submakefiles
-$(CLEAN_DEPENDS) : %.d : %.cpp
+$(CLEAN_DEPENDS) : %.d : %.cpp Makefile
 	$(CXX) $(CXXFLAGS) -MT $(<:.cpp=.o) -MM $< > $@
 	@echo -e "\t"$(CXX) $(CXXFLAGS) -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@
 
@@ -61,11 +59,11 @@ docs: $(HEADERS)
 	doxygen doxygen.conf
 
 clean:
-	-rm -f $(ALLOBJECTS) $(DEPENDS)
-	-rm -f $(MAIN) $(GTEST)
+	-rm -f $(ALLOBJECTS) $(MAIN) $(GTEST)
 	-rm -rf $(DOCS_DIR)
 
 distclean: clean
+	-rm -f $(DEPENDS)
 
 .PHONY: clean distclean
 
