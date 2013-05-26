@@ -1,10 +1,8 @@
 EXPERIMENTS		:=	facility_location/ls_convergence facility_location/comparison tsp/mcts_policies_comparison
 RESULTS       :=	$(addprefix results/, $(EXPERIMENTS))
 
-$(RESULTS) : results/% : experiments/% results-tests
+$(RESULTS) : results/% : experiments/% UflLib TSPLIB FLClustered
 	$< $@
-
-results-tests: UflLib TSPLIB FLClustered
 
 clean-results:
 	rm -rf results/
