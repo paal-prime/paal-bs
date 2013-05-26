@@ -7,6 +7,7 @@
 \usepackage{amsmath,amsthm, amssymb, latexsym}
 \usepackage{graphicx}
 \usepackage{epstopdf}
+\usepackage{wrapfig}
 %\usepackage{times}\usefonttheme{professionalfonts}  % obsolete
 %\usefonttheme[onlymath]{serif}
 \boldmath
@@ -82,28 +83,54 @@
 		\end{column}
 	\end{columns}
 	
-	\begin{columns}		
-		\begin{column}{.96\textwidth}
-			\vspace{1cm}
-			\begin{center}
-			\veryHuge starcie nastąpi na następujących problemach
-			\end{center}
-			\vspace{1cm}
+  \begin{columns}		
+    \begin{column}{.96\textwidth}
+      \vspace{1cm}
+      \begin{center}
+        \veryHuge starcie nastąpi na następujących problemach
+      \end{center}
+      \vspace{1cm}
 
-			\begin{block}{Metrical Traveling Salesman Problem}
+      \begin{block}{Metrical Traveling Salesman Problem}
         Dla danego grafu pełnego i nieujemnej funkcji kosztu określonej na jego krawędziach, spełniającej nierówność trójkąta, należy znaleźć najtańszy cykl przechodzący przez każdy z wierzchołków dokładnie raz.
-			\end{block}
-			\begin{block}{Steiner Forest}
-        Dany jest graf nieskierowany $G = (V, E)$, funkcja kosztu $c: E \rightarrow Q^+$ oraz rodzina $S_1, \hdots, S_k$ podzbiorów rozłącznych $V$. Należy znaleźć podgraf $G$ o najmniejszym koszcie, w którym wierzchołki należące do tego samego zbioru są połączone.
-        \begin{figure}
-          \centering
-        \includegraphics[scale=0.5]{sf_poster.eps}
-        \end{figure}
-			\end{block}
-			\begin{block}{Metrical Uncapacitated Facility Location}
-				Niech $G$ będzie grafem dwudzielnym o zbiorze wierzchołków $(F, C)$, gdzie $F$ jest zbiorem obiektów, a $C$ zbiorem miast. Niech $f_i$ będzie kosztem otwarcia obiektu $i$, a $c_{ij}$ kosztem połaczenia masta $j$ z (otwartym) obiektem $i$. Koszty połączeń spełniają nierówność trójkąta. Należy znaleźć podzbiór $I \subseteq F$ obiektów, które zostaną otwarte, oraz funkcję $\phi : C \rightarrow I$, która każdemu miastu będzie przypisywała obiekt otwarty. Łączny koszt otwarcia obiektów i połączenia miast z obiektami powinien być jak najmniejszy.
-			\end{block}
-		\end{column}
+      \end{block}
+
+      \begin{block}{Steiner Forest}
+        \begin{minipage}{.48\linewidth}
+
+          \begin{columns}
+            \begin{column}{.58\linewidth}
+              Dany jest graf nieskierowany $G = (V, E)$, funkcja kosztu $c: E
+              \rightarrow Q^+$ oraz rodzina $S_1, \hdots, S_k$ podzbiorów
+              rozłącznych $V$. Należy znaleźć podgraf $G$ o najmniejszym
+              koszcie, w którym wierzchołki należące do tego samego zbioru są
+              połączone.
+            \end{column}
+
+            \begin{column}{.38\linewidth}
+              \begin{figure}
+                \centering
+                \includegraphics[height=.96\linewidth]{sf_poster.eps}
+              \end{figure}
+            \end{column}
+          \end{columns}
+
+        \end{minipage}
+      \end{block}
+
+      \begin{block}{Metrical Uncapacitated Facility Location}
+        Niech $G$ będzie grafem dwudzielnym o zbiorze wierzchołków $F \cup C$,
+        gdzie $F$ jest zbiorem obiektów, a $C$ zbiorem miast. Niech $f_i$
+        będzie kosztem otwarcia obiektu $i$, a $c_{ij}$ kosztem połaczenia
+        miasta $j$ z (otwartym) obiektem $i$. Koszty połączeń spełniają
+        nierówność trójkąta. Należy znaleźć podzbiór $I \subseteq F$ obiektów,
+        które zostaną otwarte, oraz funkcję $\phi : C \rightarrow I$, która
+        każdemu miastu będzie przypisywała obiekt otwarty. Łączny koszt
+        otwarcia obiektów i połączenia miast z obiektami powinien być jak
+        najmniejszy.
+      \end{block}
+
+    \end{column}
 	\end{columns}
   \vskip1ex
   %\tiny\hfill\textcolor{ta2gray}{Created with \LaTeX \texttt{beamerposter}  \url{http://www-i6.informatik.rwth-aachen.de/~dreuw/latexbeamerposter.php}}
