@@ -7,6 +7,7 @@
 \usepackage{amsmath,amsthm, amssymb, latexsym}
 \usepackage{graphicx}
 \usepackage{epstopdf}
+\epstopdfsetup{outdir=./}
 \usepackage{wrapfig}
 %\usepackage{times}\usefonttheme{professionalfonts}  % obsolete
 %\usefonttheme[onlymath]{serif}
@@ -41,6 +42,9 @@
 \begin{document}
 \begin{frame}
 
+  \begin{center}
+    \includegraphics[width=.25\linewidth]{unicorn}
+  \end{center}
 	\begin{columns}
 		\begin{column}{.96\textwidth}
 			\vspace{1cm}
@@ -90,6 +94,10 @@
         \begin{minipage}{\linewidth}
           \begin{columns}
             \begin{column}{.38\linewidth}
+              \begin{figure}
+                \centering
+                \includegraphics[width=0.9\linewidth]{stickman_salesman}
+              \end{figure}
               Dla danego grafu pełnego i nieujemnej funkcji kosztu określonej na jego krawędziach, spełniającej nierówność trójkąta, należy znaleźć najtańszy
               cykl przechodzący przez każdy z wierzchołków dokładnie raz.
             \end{column}
@@ -97,7 +105,7 @@
             \begin{column}{.58\linewidth}
               \begin{figure}
                 \centering
-                \includegraphics[width=0.8\linewidth]{poland_cities_cycle.eps}
+                \includegraphics[width=0.8\linewidth]{poland_cities_cycle}
               \end{figure}
             \end{column}
 
@@ -116,7 +124,7 @@
             \begin{column}{.38\linewidth}
               \begin{figure}
                 \centering
-                \includegraphics[height=.96\linewidth]{sf_poster.eps}
+                \includegraphics[height=.96\linewidth]{sf_poster}
               \end{figure}
             \end{column}
 
@@ -138,7 +146,7 @@
 
 				  \begin{figure}
 					\centering
-					\includegraphics[width=.8\linewidth]{facility_location.eps} % TODO FL picture
+					\includegraphics[width=.8\linewidth]{facility_location.eps}
 				  \end{figure}
 	          \end{column}
            \end{columns}
