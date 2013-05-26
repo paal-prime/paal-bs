@@ -1,18 +1,14 @@
-EXPERIMENTS		:=	facility_location/ls_convergence tsp/mcts_policies_comparison
-RESULTS_DIR		:=	results/
+EXPERIMENTS		:=	facility_location/ls_convergence facility_location/comparison tsp/mcts_policies_comparison
+RESULTS       :=	$(addprefix results/, $(EXPERIMENTS))
 
-RESULTS       :=	$(addprefix $(RESULTS_DIR), $(EXPERIMENTS))
-
-results: $(RESULTS)
-
-$(RESULTS) : $(RESULTS_DIR)% : experiments/% results-tests
+$(RESULTS) : results/% : experiments/% results-tests
 	$< $@
 
 results-tests: UflLib TSPLIB FLClustered
 
 clean-results:
-	rm -rf $(RESULTS_DIR)
+	rm -rf results/
 
 distclean: clean-results
 
-.PHONY: results clean-results
+.PHONY: clean-results

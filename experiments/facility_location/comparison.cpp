@@ -3,18 +3,19 @@
 #include <iostream>
 #include <limits>
 #include <random>
-#include <boost/filesystem.hpp>
 
 #include "facility_location/RandomStepWalker.h"
 #include "facility_location/BestStepWalker.h"
 #include "facility_location/SimpleFormat.h"
 #include "facility_location/PrimDualSchema.h"
 #include "facility_location/util.h"
-
 #include "paal/search.h"
 #include "paal/ProgressCtrl.h"
 #include "paal/StepCtrl.h"
 #include "paal/GridTable.h"
+
+#include <result_dir.h>
+#include <format.h>
 
 typedef facility_location::SimpleFormat<double> Instance;
 
@@ -95,31 +96,32 @@ struct FL3Apx
 
 int main(int argc, char **argv)
 {
-  const char *path = argc<2 ? "UflLib/Euclid/" : argv[1];
+  Dir resdir(argc, argv);
 
   RandomStepSearch ls;
   BestStepSearch ls2;
   FL3Apx apx;
   FLRandom rnd;
+
   paal::GridTable table;
   table.push_algo("optimum");
   table.push_algo("local search");
   table.push_algo("ls fast");
   table.push_algo("3 apx");
   table.push_algo("random");
-  for (boost::filesystem::directory_iterator it(path);
-       it != boost::filesystem::directory_iterator(); ++it)
-    if (it->path().extension().native() == ".txt")
-    {
-      Instance instance(it->path().native());
-      rnd.instance = ls2.instance = ls.instance = apx.instance = &instance;
-      table.records[0].results.push_back(instance.optimal_cost());
-      table.records[1].test(ls);
-      table.records[2].test(ls2);
-      table.records[3].test(apx);
-      table.records[4].test(rnd);
-      std::cout << "done " << it->path().native() << std::endl;
-    }
-  table.dump(std::cout);
+
+  for (auto gid : {"2511EuclS", "1811EuclS", "1211EuclS", "111EuclS",
+      "1911EuclS", "2711EuclS"}) {
+    Instance instance(format("UflLib/Euclid/%.txt", gid));
+    rnd.instance = ls2.instance = ls.instance = apx.instance = &instance;
+    table.columns.push_back(gid);
+    table.records[0].results.push_back(instance.optimal_cost());
+    table.records[1].test(ls);
+    table.records[2].test(ls2);
+    table.records[3].test(apx);
+    table.records[4].test(rnd);
+  }
+  std::ofstream tex(resdir(format("EuclS.tex")));
+  table.dump_tex(tex);
   return 0;
 }
