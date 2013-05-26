@@ -63,7 +63,7 @@ namespace steiner
   }
 
   /**
-   * @bref checks whether given solution is feasible.
+   * @brief checks whether given solution is feasible.
    * That means each pair of vertices belonging to the same set
    * is connected.
    */
@@ -321,6 +321,7 @@ namespace steiner
   /**
    * @brief Removes useless edges from given unpruned Steiner Forest.
    * @param vertices_count Number of vertices in graph.
+   * @param sets_count Number of vertices sets to connect.
    * @param vertex_set Array that says whether some vertex v belongs to
    * some set of terminals or not and if so to which one.
    * @param unpruned_forest_edges Edges of unpruned Steiner Forest.
@@ -414,7 +415,7 @@ namespace steiner
   /**
    * @brief Given set of unweighted edges retrives original weight for each edge
    * and store them in output parameter.
-   * @param Input weighted undirected graph.
+   * @param graph Input weighted undirected graph.
    * @param forest_edges Set of edges without weight information.
    * @param steiner_forest_edges Output array used to store result.
    * */

@@ -22,6 +22,7 @@ namespace steiner
    * @brief Finds unpruned Steiner Forest (forest that might contain useless
    * edges that will be removed (pruned) later.
    * @param graph Weighted undirected graph.
+   * @param sets_count Number of vertices sets to connect.
    * @param vertex_set Array that says whether given vertex v belongs to some
    * set of terminals or not and if so to which one.
    * @param unpruned_forest_edges Output parameter that will store edges of

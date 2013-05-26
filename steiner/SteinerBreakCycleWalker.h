@@ -37,8 +37,10 @@ namespace steiner
 
       /**
        * @brief finds any nontrivial cycle in graph starting in vertex v.
-       * @param v starting vertex
+       * @param v starting vertex.
+       * @param graph input graph.
        * @param visited array storing information which vertices where
+       * @param parent DFS parent array.
        * already visited.
        * @param cycle found cycle's edges.
        * @tparam GRAPH graph type.
