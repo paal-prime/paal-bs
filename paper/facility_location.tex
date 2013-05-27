@@ -59,16 +59,25 @@ therefore the initial solution has been set to an empty set.
 
 \section{Monte Carlo Tree Search}
 
+We will refer to the concepts and definitions introduced in MCTS design
+chapter. Let us remind that the only domain-dependent concepts in our MCTS
+framework are Move and State and the former is completely dependent on the
+latter.
+
 Because MCTS involves selecting decisions step by step we decided to transform our
 standard Facility Location problem into Online Facility Location problem.
-The restriction of this approach is that $F = C$, of course one can set
-opening costs of some factories to $inf$ to prevent opening one there
-but it will be still considered as potential facility to open. \\
-Algorithm works as follows, first get the order in which facilities will be
-processed, then at each step decide to open or not open facility at given point. \\
-Function that estimates fitness of current state is based on
-Adam Meyerson's algorithm\footnote{\url{http://www.cs.ucla.edu/~awm/papers/ofl.pdf}},
+\begin{itemize}
+\item State is a vector of already opened facilities and an ordering in which
+next facilities will be processed.
+\item Initial State is empty vector (opened facilities) and a permutation
+of $1,2,\dots, |F|$ (ordering).
+\item Move represent a choice if facility should be opened in given point or not.
+\item Terminal state is when all facilities have been processed (each one is
+considered only once).
+\item Fitness of terminal State is equal to sum of openning costs and connection costs.
+\item Fitness estimate is calculated using Adam Meyerson's algorithm\footnote{\url{http://www.cs.ucla.edu/~awm/papers/ofl.pdf}}
 which is constant competitive for randomized input.
+\end{itemize}
 
 \section{Random Search}
 
