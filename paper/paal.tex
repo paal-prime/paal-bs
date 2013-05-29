@@ -148,6 +148,18 @@
 %\listoffigures
 %\listoftables
 
+\section{Preliminaries}
+In this paper, terms listed below, should be interpreted in the following way:
+\begin{itemize}
+\item Concept\footnote{\url{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2005/n1758.pdf}}
+	-- an interface, which can be required from template arguments.
+	On the contrary to polymorphic interfaces, usage of interface elements is resolved at compilation time.
+\item Design Pattern\footnote{\url{http://en.wikipedia.org/wiki/Software_design_pattern}}
+	-- in our case, it is a weaker requirement than concept: design pattern has no interface,
+	it is just a general guidance about responibilities and expected behavior of the class
+	fulfilling it.
+\end{itemize}
+
 \include{local_search}
 \include{mcts}
 \include{algo_framework}

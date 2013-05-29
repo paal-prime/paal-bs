@@ -46,8 +46,8 @@ guarantees\footnote{\url{http://www.cs.ucla.edu/~awm/papers/lsearch.ps}}
 We have implemented 2 variants of Walkers (see: Local Search Framework design)
 for this algorithm:
 \begin{itemize}
-\item[LS1)] take a random valid step and calculate fitness: $\Oh(|F||C|)$ per iteration
-\item[LS2)] find the fittest step among the valid ones: $\Oh(|F|(|F|+|C|))$ per iteration
+\item RandomStepWalker: take a random valid step and calculate fitness: $\Oh(|F||C|)$ per iteration
+\item BestStepWalker: find the fittest step among the valid ones: $\Oh(|F|(|F|+|C|))$ per iteration
 \end{itemize}
 
 In both cases, time of single iteration is proportional to the problem

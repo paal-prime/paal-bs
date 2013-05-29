@@ -18,29 +18,50 @@ type of algorithm, we've obtained a framework which should allow anyone to
 repeat experiments written by other people in his own execution environment
 and plug in his own solution to make a reliable comparison.
 
-\section{General description}
+\section{Concepts \& design patterns}
 
-[design pattern] Table[/Report] - Impersonates any type of visual report.
-	It is responsible for running an algorithm (see Algorithm concept), providing
-	it with a logger (see Logger concept), processing logs and collecting human
-	readable data. It should be prepared to handle some user defined class of
-	algorithms. Intuitively, every diagram, table, grid with results, etc. should
-	have its own specialized Table. Table is only a design pattern, since is too
-	general to enforce any specific interface on it.
+\subsection{Table (design pattern)}
 
-[concept] Algorithm - Encapsulates an algorithm execution. It is responsible for
-	initialization of the specific algorithm (for example: obtaining seed, 
-	selecting problem instance, setting execution constants, selecting strategies,
-	etc.), running the algorithm itself, logging statistical data for Table
-	(or at least transfering down the logger) and collecting the results.
+Table impersonates any type of visual report.
+It is responsible for running an algorithm (see Algorithm concept), providing
+it with a logger (see Logger concept), processing logs and collecting human
+readable data. It should be prepared to handle some user defined class of
+algorithms. Intuitively, every diagram, table, grid with results, etc. should
+have its own specialized Table. Table is only a design pattern, since is too
+general to enforce any specific interface on it.
 
-[concept] Logger - it is supposed to effectively harvest the relevant information
-	about the performance basing on the fitness (assumed to be ultimate measure).
-	The actual behaviour of the Logger is chosen by Table instance, however
-	Logger's interface (consisting only of log() method) is fixed,
-	since similarly to PRNG it is propagated downward (i.e. it is intrusive).
+\subsection{Algorithm (concept)}
 
-\section{Concepts}
+Encapsulates an algorithm execution. It is responsible for
+initialization of the specific algorithm (for example: obtaining seed, 
+selecting problem instance, setting execution constants, selecting strategies,
+etc.), running the algorithm itself, logging statistical data for Table
+(or at least transfering down the logger) and collecting the results.
+
+\subsection{Logger (concept)}
+
+Logger is supposed to effectively harvest the relevant information
+about the performance basing on the fitness (assumed to be ultimate measure).
+The actual behaviour of the Logger is chosen by Table instance, however
+Logger's interface (consisting only of log() method) is fixed,
+since similarly to Random (see Local Search Framework) it is propagated downward
+(i.e. it is intrusive).
 
 \section{Framework supplied implementations}
+
+\subsection{GridTable}
+
+GridTable presents the final fitness of algorithms on a series of test cases.
+It outputs a tex table, in which columns correspond to the test cases and
+rows to the algorithms. It collects no data in the middle of the algorithm
+execution (algorithms receive a VoidLogger which does nothing).
+
+\subsection{FIDiagram}
+
+FIDiagram (fitness/iteration diagram) registers fitness over time,
+for a series of algorithms on the same test case.
+It outputs a line chart (in tex tikz) presenting the relation fitness/iteration
+for these algorithms. To collect data, FIDiagram provides algorithms with
+ImprovementLogger, which simply registers (fitness,iteration) pair every time the fitness
+improves. FIDiagram cooperates well with search() from the Local Search Framework.
 
