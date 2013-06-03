@@ -168,20 +168,36 @@ namespace steiner
           solution_vertex[current_solution_[i].target] = true;
         }
 
+        const size_t retry_limit = vertices_count_ * vertices_count_;
+        size_t try_number = 0;
         do
         {
+          try_number += 1;
+          if (try_number > retry_limit)
+          {
+            break;
+          }
           a = random() % vertices_count_;
           b = random() % vertices_count_;
+
         }
         while (a == b || !solution_vertex[a] || !solution_vertex[b]
                || !graph_.adjacent(a, b) || isIn(a, b, next_solution_));
 
-        next_solution_.push_back(typename G::weighted_edge_t(a, b,
-            graph_.edge(a, b).second));
-        try_to_remove_edge(next_solution_, a);
-        next_solution_ = prune_solution(graph_, vertex_set_.get(),
-            next_solution_);
-        next_fitness_ = fitness<G>(next_solution_);
+        if (try_number <= retry_limit)
+        {
+          next_solution_.push_back(typename G::weighted_edge_t(a, b,
+              graph_.edge(a, b).second));
+          try_to_remove_edge(next_solution_, a);
+          next_solution_ = prune_solution(graph_, vertex_set_.get(),
+              next_solution_);
+          next_fitness_ = fitness<G>(next_solution_);
+        }
+        else
+        {
+          next_solution_ = current_solution_;
+          next_fitness_ = current_fitness_;
+        }
       }
 
       void make_step()
