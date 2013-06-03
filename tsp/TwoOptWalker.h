@@ -34,10 +34,11 @@ namespace tsp
     private:
       const Matrix &matrix;
       double current_fitness_, next_fitness_;
-      std::vector<size_t> cycle;
       Split split;
 
     public:
+      std::vector<size_t> cycle;
+
       double current_fitness()
       {
         return current_fitness_;

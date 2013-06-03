@@ -44,6 +44,7 @@ namespace paal
 
     struct Record
     {
+      Record(){}
       Record(size_t _iteration, double _fitness) :
         iteration(_iteration), fitness(_fitness) {}
       size_t iteration;

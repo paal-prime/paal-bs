@@ -111,6 +111,31 @@ symmetrical instances.
 
 TODO
 
+\subsection { 2-opt hill climb \& simulated annealing }
+
+In this experiment we've shown that SA doesn't improve the results of the 2-opt.
+Initial temperature has been set to mean edge cost of the initial solution.
+Temperature falls geometrically over time reaching fixed final temperature at the last iteration.
+Diagrams 4.1-3 present SA with different final temperatures ($10^{-2}, 10^{-5}, 10^{-9}$) and
+pure hill climb strategy on sample TSPLIB test cases.
+
+\input{../results/tsp/ls_convergence/brazil58}
+\input{../results/tsp/ls_convergence/d15112}
+\input{../results/tsp/ls_convergence/ulysses22}
+
+First problem is that calculating temperature for boltzmann distribution is
+expensive compared to a single iteration. We've dealt with it by updating temperature
+only periodically. In our implementation mean SA iteration is about $30\%$ slower than
+hill climb iteration. This fact hadn't been depicted on the diagrams in any way.
+
+We can observe that hill climb converges strictly faster than any SA variant.
+Moreover, the fitness curve is smooth (even though the neighbourhood is being browsed at random),
+which means that not only 2-opt topology doesn't have many local optima but also that it has fitness
+is "continuous" in it.
+
+Basing on these observations, from this point we won't be considering 2-opt SA a
+suitable solution for TSP.
+
 \subsection{Monte Carlo Tree Search}
 
 TODO % TODO(stupaq)
