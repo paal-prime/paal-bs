@@ -81,10 +81,19 @@ int main(int argc, char **argv)
       randmean.state_ = epsmean.state_ = epsbest.state_ = musigma.state_ = &state;
       table.columns.push_back(format("%, limit %", gid, limit));
       table.records[0].results.push_back(dir.graphs[gid].optimal_fitness);
+      double start;
+      start = paal::realtime_sec();
       table.records[1].test(randmean);
+      std::cerr << "runtime " << paal::realtime_sec() - start << std::endl;
+      start = paal::realtime_sec();
       table.records[2].test(epsmean);
+      std::cerr << "runtime " << paal::realtime_sec() - start << std::endl;
+      start = paal::realtime_sec();
       table.records[3].test(epsbest);
+      std::cerr << "runtime " << paal::realtime_sec() - start << std::endl;
+      start = paal::realtime_sec();
       table.records[4].test(musigma);
+      std::cerr << "runtime " << paal::realtime_sec() - start << std::endl;
       std::cerr << "done " << gid << " / " << limit << std::endl;
     }
     std::ofstream tex(resdir(format("%.tex", gid)));

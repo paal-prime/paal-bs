@@ -47,10 +47,9 @@ problems may be encountered when implementing the algorithm.
 Proposed framework is our attempt to address these issues.
 
 \section{General description}
-% TODO brown_ieee12.pdf
-Nomenclature introduced in this section is adjacent to the one used in TODO.
-Let us recall the basic operation of MCTS algorithm, for more precise
-description please refer to mentioned publication.
+Nomenclature introduced in this section is adjacent to the one used in
+\cite{MCTSsurvey}.  Let us recall the basic operation of MCTS algorithm, for
+more precise description please refer to mentioned publication.
 
 MCTS method finds single near-optimal decisions from the current state (which
 will be sometimes called \emph{root state}) according to statistical
@@ -267,10 +266,10 @@ using inheritance.
 We provide only one strategy which allows expansion of a given node when the
 number of visits reaches some user-defined value. For problems where branch
 factor of the decision tree is well defined, the expansion threshold should be
-set to mean branch factor as described in TODO. % TODO gry.pdf
+set to the mean branch factor of the tree as described in \cite{Pawlewicz}.
 Too big values of the expansion threshold lead to small trees and disable add
 node selection logic, on the other hand too small values result in a huge tree
-cannot be stored in RAM.
+which cannot be stored in RAM.
 
 \subsection{Estimation and node selection strategies}
 
@@ -278,14 +277,15 @@ These include (we refer to the node chosen for next simulation as the most
 urgent node and to the node returned after all simulations are performed as the
 best node)
 \begin{itemize}
-  \item choosing node at random when finding the most urgent node, the best
-    node is the node with the lowest mean of collected estimates (for the state
-    in this node)
-  \item choosing node at random with probability $\epsilon$, otherwise choosing
-    currently the best node as the most urgent one, the best node is the one
-    with the lowest mean or minimum (two different policies) of collected
+  \item \emph{PolicyRandMean} -- choosing node at random when finding the most
+    urgent node, the best node is the node with the lowest mean of collected
     estimates
-  \item choosing node with the lowest mean + standard deviation of collected
-    estimates, this is the best node too
+  \item \emph{PolicyEpsMean} -- choosing node at random with probability
+    $\epsilon$, otherwise choosing currently the best node as the most urgent
+    one, the best node is the one with the lowest mean of collected estimates
+  \item \emph{PolicyEpsBest} -- as above but the best node is the one with the
+    lowest minimum of collected estimates
+  \item \emph{PolicyMuSigma} -- choosing node with the lowest mean + standard
+    deviation of collected estimates, this is the best node too
 \end{itemize}
 

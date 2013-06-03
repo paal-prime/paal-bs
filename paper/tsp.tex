@@ -72,11 +72,11 @@ framework are Move and State and the former is completely dependent on the
 latter.
 
 It is widely known from games solving applications of MCTS method that we
-should choose State concretization which minimizes branch factor of resulting
+should choose State implementation which minimizes branch factor of resulting
 search tree. For TSP problem we chose path building approach:
 \begin{itemize}
-  \item State is a path with well-defined end and start point (permutation of a
-    subset of all vertices)
+  \item State is a path with arbitrary start point (permutation of a subset of
+    all vertices)
   \item initial State is an arbitrary chosen start vertex
   \item Move represents choosing from remaining vertices the next one to be
     added to the end of the path
@@ -138,20 +138,88 @@ suitable solution for TSP.
 
 \subsection{Monte Carlo Tree Search}
 
-TODO % TODO(stupaq)
+TODO % TODO pompon's tests
 
 \subsubsection{Policies comparison}
 
-TODO % TODO(stupaq)
+Despite the poor performance of MCTS-based algorithms for TSP problem, we have
+compared policies described in previous sections on small instances from
+TSPLIB. The results are presented below. Each row corresponds to a single
+policy (for names explanation please refer to the proper chapter). Each column
+corresponds to the State representation being used. Column description has a
+format \verb+<graph name>, limit <moves limit>+ where \emph{moves limit} is
+the limit of the number of vertices taken into consideration when choosing next
+move as described before. Number in each cell is equal to the final solution's
+fitness.
+
+The rest of configuration of each algorithm is exactly the same. In each test
+run the algorithm preforms $500$ times the current number of vertices not in
+the path samples per single decision.
 
 \begin{figure}[ht]
+  \centering
   \input{../results/tsp/mcts_policies_comparison/eil51}
 \end{figure}
 
 \begin{figure}[ht]
+  \centering
   \input{../results/tsp/mcts_policies_comparison/eil76}
 \end{figure}
 
 \begin{figure}[ht]
+  \centering
   \input{../results/tsp/mcts_policies_comparison/eil101}
 \end{figure}
+
+Results of this comparison were used in choosing the best algorithm's
+configuration for other tests. We could also confirm a few observations made
+during the course of fine-tunning our implementation.
+
+Policies which choose the best node by minimizing expected fitness of a
+solution outperform ones which minimize the lowest observed fitness and the
+difference between them becomes smaller when the tree branch factor is being
+reduced by restricting moves considered at each step. This can be heuristically
+explained as a consequence of a performing exhaustive search when the size of
+reachable solution's space is small enough (that means a few decisions before
+reaching the terminal state). Once we are sure that after reaching a subtree
+which is small enough we will find an optimal solution reachable from its root,
+our objective is slightly different. Instead of looking for the best solution
+we look for a subtree with pretty low fitness of reachable solutions in hope
+that during the exhaustive search we will find better terminal state than we
+have seen anytime before. We have made another observation which confirms above
+conclusion. According to our tests the lowest fitness of any terminal state
+reached during random sampling procedure is $5\% - 20\%$ higher than fitness of
+the best state found during the final exhaustive search in the same run of an
+algorithm.
+
+Please note that the same pattern reproduces itself if one does not perform the
+final exhaustive search. The main reason is that when the algorithm descends
+into really small search subtree (say $6$ decisions before reaching the
+terminal state) and the tree itself is highly uniform (estimates for each
+children of a given node are roughly the same) all strategies reduce to picking
+random path to some terminal state. When the number of samples per decision
+exceeds the number of different terminal states the random sampling procedure
+will visit all of them with high probability. The sole purpose of introduced
+modification (the exhaustive search procedure) is to speed up entire process
+and make sure that no matter how unlucky we are, we will always find the best
+solution.
+
+One can easily see that as far as the choice of the next node in the sampling
+procedure is concerned there is no better strategy than uniform sampling. This
+method is also the fastest one and its performance does not degrades when the
+number of possible moves at each state (or a branch factor of the search tree)
+increases. When one develops an algorithm which has a lot of magic constants
+that affect its behaviour the problem of finding the best set of parameters
+becomes nontrivial, uniform sampling is superior in this case as it guarantees
+reasonable results without any fine tunning.
+
+Note that the policies which prefer so-far-the best subtree during the random
+sampling do not scale well when the branch factor of the search tree increases.
+We suspect that these policies are completely useless for approximating
+solution for instances with more than $100$ vertices as limiting the branch
+factor greatly reduces reachable search space. Dramatically bad performance of
+PolicyEpsBest can be easily explained given the previous observations.  This
+policy not only seeks for a single best solution, which we already investigated
+to be a bad idea, but also once a solution with low (but still far from
+optimal) fitness is found in one subtree, the algorithm tends to visit this
+subtree and greatly reduces chances of correcting this mistake.
