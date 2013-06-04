@@ -23,6 +23,62 @@ Note that it might happen that there is no feasible solution in $G'$. Therefore 
 
 \section{Benchmarks}
 To compare the algorithms we have used our randomly generated tests and a subset of SteinLib\footnote{\url{steinlib.zib.de}} tests for Steiner Tree Problem.
+TODO: opisac kodowanie nazwy testow
 
 \section{Results}
 WIP
+
+\subsection{Comparison of hill climbing and simulated annealing convergence}
+STUB text\\
+TODO: krotko napisac, ze SA dziala w CBC, ale nie w MSTAV i dlaczego\\
+dalej bede rozwazal CBC HillClimb + CBC SA 1e-5\\
+\input{../results/steiner/SteinerConvergence/CBC-01dEV100K30}
+\input{../results/steiner/SteinerConvergence/CBC-02dEV100K30}
+\input{../results/steiner/SteinerConvergence/CBC-alue2087}
+\input{../results/steiner/SteinerConvergence/CBC-berlin52}
+\input{../results/steiner/SteinerConvergence/CBC-brasil58}
+\input{../results/steiner/SteinerConvergence/CBC-c10}
+
+\input{../results/steiner/SteinerConvergence/MSTAV-01dEV100K30}
+\input{../results/steiner/SteinerConvergence/MSTAV-02dEV100K30}
+\input{../results/steiner/SteinerConvergence/MSTAV-alue2087}
+\input{../results/steiner/SteinerConvergence/MSTAV-berlin52}
+\input{../results/steiner/SteinerConvergence/MSTAV-brasil58}
+\input{../results/steiner/SteinerConvergence/MSTAV-c10}
+
+\subsection{CBC and MSTAV convergence comparison}
+STUB text\\
+TODO: napisac, ze MSTAV > CRC, zasugerowac dlaczego\\
+TODO: dodac CBC SA do analizy
+\input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-01sEV100K30}
+\input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-01sRV1000K150}
+\input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-d05}
+\input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-gap1307}
+
+\subsection{Comparison of found solutions' cost}
+STUB text
+TODO: napisac, ze na malych testach, praktycznie zawsze MSTAV jest bliski lub lepszy od apx,
+na srednich testach bywa roznie, ale zazwyczaj wciaz MSTAV daje rade,
+na duzych roznica jest zdecydowana
+TODO: na malych testach CBC radzi sobie dosc dobrze
+TODO: dodac CBC SA do analizy
+\begin{figure}[ht]
+  \centering
+  \input{../results/steiner/SteinerComparison/comparisonSmallerForestTests}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \input{../results/steiner/SteinerComparison/comparisonSmallerTreeTests}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \input{../results/steiner/SteinerComparison/comparisonLargerForestTests}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \input{../results/steiner/SteinerComparison/comparisonLargerTreeTests}
+\end{figure}
+

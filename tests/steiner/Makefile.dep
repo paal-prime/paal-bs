@@ -4,8 +4,7 @@ STEINER_TESTS_DIR = tests/steiner
 ARCHIVE_FILE=steiner_forest_tests.tar.gz
 TARGET_DIR=$(STEINER_TESTS_DIR)/$(PAAL_SF_TESTS_DIR)
 
-
-$(PAAL_SF_TESTS_DIR):
+$(TARGET_DIR):
 	wget $(PAAL_SF_TESTS_URL)
 	mkdir -p $(TARGET_DIR)
 	tar xf $(ARCHIVE_FILE) -C $(TARGET_DIR)

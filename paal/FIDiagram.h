@@ -1,6 +1,7 @@
 #ifndef PAAL_FIDIAGRAM_H_
 #define PAAL_FIDIAGRAM_H_
 
+#include <cassert>
 #include <vector>
 #include <ostream>  // NOLINT
 #include "format.h"
@@ -14,8 +15,6 @@ namespace paal
     double optimum;
     FIDiagram(double _optimum) : optimum(_optimum)
     {
-      //records.push_back(Record("optimum"));
-      //records.back().logger.log(1);
     }
 
     struct Record
@@ -88,7 +87,8 @@ namespace paal
       "   scale only axis,\n"
       "   xlabel=iteration,\n"
       "   ylabel=fitness,\n"
-      "   xmin=0,xmax=%]\n",test_name,test_name,it);
+      "   xmin=0,xmax=%,\n"
+      "   domain=0:%]\n",test_name,test_name,it,it);
     for (Record & r : records)
     {
       tex <<
@@ -100,6 +100,15 @@ namespace paal
       "   };\n"
       "   \\addlegendentry{%}\n",it,r.logger.records.back().fitness,r.name);
     }
+    if(optimum > 1e-7)
+    {
+      tex <<
+      "   \\addplot {";
+      tex << std::fixed << optimum;
+      tex << "};\n"
+      "   \\addlegendentry{optimum}\n";
+    }
+
     tex <<
       " \\end{axis}\n"
       " \\end{tikzpicture}\n"

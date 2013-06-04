@@ -1,9 +1,10 @@
-EXPERIMENTS		:=	facility_location/ls_convergence facility_location/comparison tsp/mcts_policies_comparison tsp/ls_convergence tsp/tsp_comparison
+EXPERIMENTS		:=	facility_location/ls_convergence facility_location/comparison tsp/mcts_policies_comparison tsp/ls_convergence tsp/tsp_comparison \
+									steiner/SteinerConvergence steiner/SteinerLSComparison steiner/SteinerComparison
 RESULTS       :=	$(addprefix results/, $(EXPERIMENTS))
 
 results: $(RESULTS)
 
-$(RESULTS) : results/% : experiments/% UflLib TSPLIB FLClustered
+$(RESULTS) : results/% : experiments/% UflLib TSPLIB FLClustered tests/steiner/paal_sf_tests
 	$< $@
 
 .PHONY: results
