@@ -104,3 +104,23 @@ e.g. normally cities are "clustered" around natural resources.
 \begin{figure}[ht]
   \input{../results/facility_location/comparison/EuclS}
 \end{figure}
+
+\subsection{MCTS}
+
+Columns are titled in format $<test\_name>$ / $<samples\_multiplayer>$.
+
+\begin{figure}[ht]
+  \input{../results/facility_location/mcts/1011EuclS.tex}
+\end{figure}
+
+\begin{figure}[ht]
+  \input{../results/facility_location/mcts/1111EuclS.tex}
+\end{figure}
+
+\begin{figure}[ht]
+  \input{../results/facility_location/mcts/2211EuclS.tex}
+\end{figure}
+
+As we can see raising $samples\_multiplayer$ doesn't improve quality of answer too much,
+on the other hand increasing $samples\_multiplayer$ by a factor of $k$ increases the
+running time by the same factor.
