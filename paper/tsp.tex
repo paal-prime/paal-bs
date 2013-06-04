@@ -109,7 +109,15 @@ symmetrical instances.
 
 \section{Results}
 
-TODO % TODO general tests
+TODO % TODO
+
+In each test run the hill climb local search algorithm was allowed to perform
+$10^6$ iterations, which took less than $0.1 s$, the MCTS computation took
+no more than $5 s$ (which means that number of samples per decision have been
+decreased with the instance size) and Christofides algorithm returned a
+solution in less than $0.1 s$. % TODO
+
+\input{../results/tsp/tsp_comparison/eil_graphs}
 
 \subsection { 2-opt hill climb \& simulated annealing }
 
@@ -144,13 +152,12 @@ MCTS algorithm for TSP performed poorly when compared to other implemented
 methods. Extensive comparison was unfortunately impossible due to extremely
 high computational cost of the tree search method for instances with
 significant number of vertices. Most of performed experiments used the smallest
-instances available in TSPLIB collection, \verb+eil*+ graphs with less than
-$102$ instances. The most efficient MCTS algorithm (see next section for model
-selection methodology) needed at least $2 s$ to find a solution which was
-$1.1$-approximation, while local search algorithms were able to find a
-$1.0001$-approximation within fraction of this time. Running the MCTS method
-for medium-sized instances is impractical, for graphs with more than $10000$
-vertices it is impossible.
+instances available in TSPLIB collection -- graphs with less than $300$
+vertices. The most efficient MCTS algorithm (see next section for model
+selection methodology) needed at least $5 s$ to find a solution which was
+$1.2$-approximation, while local search algorithms were able better solution
+fraction of this time. Running the MCTS method for medium-sized instances is
+impractical, for graphs with more than $10000$ vertices it is impossible.
 
 Poor overall performance of MCTS method in our tests is a bit surprising as
 travelling salesman problem variations are presented as a primary non-games

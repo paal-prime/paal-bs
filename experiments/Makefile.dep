@@ -1,5 +1,4 @@
-EXPERIMENTS := facility_location/ls_convergence facility_location/comparison tsp/mcts_policies_comparison
-EXPERIMENTS += tsp/ls_convergence
+EXPERIMENTS		:=	facility_location/ls_convergence facility_location/comparison tsp/mcts_policies_comparison tsp/ls_convergence tsp/tsp_comparison
 RESULTS       :=	$(addprefix results/, $(EXPERIMENTS))
 
 results: $(RESULTS)
