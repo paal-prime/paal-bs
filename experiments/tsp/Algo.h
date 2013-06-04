@@ -55,6 +55,24 @@ struct HillAlgo : LocalSearchAlgo
   }
 };
 
+struct HillTimeAlgo
+{
+  Matrix &matrix_;
+  double time_limit_;
+  HillTimeAlgo(Matrix &matrix, double time_limit) : matrix_(matrix), time_limit_(time_limit) {}
+
+  template<typename Logger> double run(Logger &logger) const
+  {
+    std::vector<size_t> cycle;
+    tsp::cycle_shuffle(cycle, matrix_.size1(), random_);
+    tsp::TwoOptWalker<Matrix> walker(matrix_, cycle);
+    paal::TimeAutoCtrl progress_ctrl(time_limit_);
+    paal::HillClimb step_ctrl;
+    paal::search(walker, random_, progress_ctrl, step_ctrl, logger);
+    return walker.current_fitness();
+  }
+};
+
 struct AnneAlgo : LocalSearchAlgo
 {
   AnneAlgo(Matrix &_matrix, size_t _it, double _t1) :
