@@ -16,7 +16,7 @@
 using namespace tsp;
 using namespace facility_location;
 
-std::mt19937 rnd(78682342);
+std::mt19937 rnd(8792342);
 
 double rnd_frac()
 { return double(rnd())/rnd.max(); }
@@ -49,7 +49,7 @@ struct TestSpec
 	Point dmax;
 
 
-	void gen(std::ofstream &txt, std::ofstream &tex)
+	void gen(std::ofstream &txt, std::ofstream &tex, std::string test_name)
 	{
 		SimpleFormat<> inst;
 		inst.optimal_cost_ = 1;
@@ -66,16 +66,18 @@ struct TestSpec
 			for(size_t c=0; c<cc; ++c)
 				inst.connecting_cost_(f,c) = sqrt((F[f]-C[c]).sqr());
 		txt << inst;
-		tex <<
+		tex << format(
+			"\\pgfsetplotmarksize{2pt}\n"  //http://tex.stackexchange.com/questions/97425/does-anyone-know-the-default-mark-size-for-a-circle-in-pgfplots
 			"\\begin{figure}\n"
 			"	\\centering\n"
+      " \\caption{\\label{%}%},\n"
 			"	\\begin{tikzpicture}\n"
 			"	\\begin{axis}[\n"
-			"		width=0.75\\textwidth,\n"
+			"		width=0.7\\textwidth,\n"
 			"		scale only axis,\n"
 			"		xmin=0,xmax=1,ymin=0,ymax=1,\n"
 			"		only marks]\n"
-			"		\\addplot coordinates {\n";
+			"		\\addplot coordinates {\n",test_name,test_name);
 		for(auto p : C) tex << format(
 			"			(%, %)\n", p.x, p.y);
 		tex <<
@@ -99,14 +101,16 @@ std::string dir_path = "FLClustered";
 
 std::vector<TestSpec> T =
 {
-	{ 100, 1000, 5, 20, 30, Point(.1,.1), Point(.1,.1) },
-	{ 100, 1000, 5, 20, 30, Point(.1,.1), Point(.1,.1) },
-	{ 100, 1000, 5, 20, 30, Point(.1,.1), Point(.1,.1) }
+	{ 100, 1000, 1, 2, 30, Point(.1,.1), Point(.1,.1) },
+	{ 100, 1000, 1, 2, 30, Point(.1,.1), Point(.2,.2) },
+	{ 100, 1000, 1, 2, 30, Point(.2,.2), Point(.2,.2) },
+	{ 100, 1000, 1, 2, 10, Point(.2,.2), Point(.3,.3) },
+	{ 100, 1000, 1, 2, 10, Point(.3,.2), Point(.3,.4) },
+	{ 100, 1000, 1, 2, 10, Point(.2,.2), Point(.4,.4) },
 };
 
 int main()
 {
-
 	boost::filesystem::remove_all(dir_path);
 	assert(boost::filesystem::create_directory(dir_path));
 	for(size_t i=0; i<T.size(); ++i)
@@ -115,7 +119,7 @@ int main()
 		std::ofstream txt(txt_path);
 		std::ofstream tex(dir_path+format("/test%.tex",i));
 		txt << format("FILE: %\n",txt_path);
-		T[i].gen(txt,tex);
+		T[i].gen(txt,tex,txt_path);
 	}
 	return 0;
 }
