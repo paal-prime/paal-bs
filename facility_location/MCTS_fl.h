@@ -135,8 +135,9 @@ namespace facility_location
         return {Move(false), Move(true)};
       }
 
-
       size_t moves_count() const { return ordering_.size() ? 2 : 0; }
+
+      size_t left_decisions() const { return ordering_.size(); }
   };
 }
 #endif  // FACILITY_LOCATION_MCTS_FL_H_

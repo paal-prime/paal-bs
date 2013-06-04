@@ -109,7 +109,15 @@ symmetrical instances.
 
 \section{Results}
 
-TODO
+TODO % TODO
+
+In each test run the hill climb local search algorithm was allowed to perform
+$10^6$ iterations, which took less than $0.1 s$, the MCTS computation took
+no more than $5 s$ (which means that number of samples per decision have been
+decreased with the instance size) and Christofides algorithm returned a
+solution in less than $0.1 s$. % TODO
+
+\input{../results/tsp/tsp_comparison/eil_graphs}
 
 \subsection { 2-opt hill climb \& simulated annealing }
 
@@ -138,7 +146,25 @@ suitable solution for TSP.
 
 \subsection{Monte Carlo Tree Search}
 
-TODO % TODO pompon's tests
+\subsubsection{Comparison with other methods}
+
+MCTS algorithm for TSP performed poorly when compared to other implemented
+methods. Extensive comparison was unfortunately impossible due to extremely
+high computational cost of the tree search method for instances with
+significant number of vertices. Most of performed experiments used the smallest
+instances available in TSPLIB collection -- graphs with less than $300$
+vertices. The most efficient MCTS algorithm (see next section for model
+selection methodology) needed at least $5 s$ to find a solution which was
+$1.2$-approximation, while local search algorithms were able better solution
+fraction of this time. Running the MCTS method for medium-sized instances is
+impractical, for graphs with more than $10000$ vertices it is impossible.
+
+Poor overall performance of MCTS method in our tests is a bit surprising as
+travelling salesman problem variations are presented as a primary non-games
+application of this approach (see \cite{MCTSsurvey} for details). We believe
+that just like in the case of SA, the search space is too ,,smooth'' and
+instead of refined decision process one should check as many points as possible
+within given time limit.
 
 \subsubsection{Policies comparison}
 
@@ -171,7 +197,7 @@ the path samples per single decision.
   \input{../results/tsp/mcts_policies_comparison/eil101}
 \end{figure}
 
-Results of this comparison were used in choosing the best algorithm's
+Results of this comparison were used while choosing the best algorithm's
 configuration for other tests. We could also confirm a few observations made
 during the course of fine-tunning our implementation.
 
@@ -218,8 +244,8 @@ sampling do not scale well when the branch factor of the search tree increases.
 We suspect that these policies are completely useless for approximating
 solution for instances with more than $100$ vertices as limiting the branch
 factor greatly reduces reachable search space. Dramatically bad performance of
-PolicyEpsBest can be easily explained given the previous observations.  This
-policy not only seeks for a single best solution, which we already investigated
-to be a bad idea, but also once a solution with low (but still far from
-optimal) fitness is found in one subtree, the algorithm tends to visit this
-subtree and greatly reduces chances of correcting this mistake.
+\emph{PolicyEpsBest} can be easily explained given the previous observations.
+This policy not only seeks for a single best solution, which we already
+investigated to be a bad idea, but also once a solution with low (but still far
+from optimal) fitness is found in one subtree, the algorithm tends to visit
+this subtree and greatly reduces chances of correcting this mistake.

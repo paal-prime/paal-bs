@@ -6,7 +6,7 @@ PAPER_MAIN	:=	paper/paal.pdf
 
 paper: $(PAPER_MAIN)
 
-$(PAPER_MAIN) : %.pdf : %.tex %.bib $(PAPER_FILES) $(RESULTS)
+$(PAPER_MAIN) : %.pdf : %.tex %.bib $(PAPER_FILES)
 	cd $(<D); \
 		$(PAPER_TEX_DRAFT) $(<F); \
 		bibtex $(<F:.tex=.aux); \
