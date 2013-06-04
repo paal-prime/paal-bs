@@ -38,7 +38,7 @@ consists of reverting a segment of the current cycle. Intuitively, we find a poi
 at which the route crosses over itself and reorder it so that is doesn't.
 
 Since in metrical TSP distance between a pair of points is the same for both directions,
-computing fitness of the new route simplifies to replacing a pair of edges and replacing it with another
+computing fitness of the new route simplifies to removing a pair of edges and replacing it with another
 pair.
 
 We've tested 3 different structures for maintaining the current local search solution:
@@ -163,7 +163,7 @@ pure hill climb strategy on sample TSPLIB test cases.
 \input{../results/tsp/ls_convergence/d15112}
 \input{../results/tsp/ls_convergence/ulysses22}
 
-First problem is that calculating temperature for boltzmann distribution is
+The first problem which have been observed is that calculating temperature for boltzmann distribution is
 expensive compared to a single iteration. We've dealt with it by updating temperature
 only periodically. In our implementation mean SA iteration is about $30\%$ slower than
 hill climb iteration. This fact hadn't been depicted on the diagrams in any way.
@@ -173,8 +173,8 @@ Moreover, the fitness curve is smooth (even though the neighbourhood is being br
 which means that not only 2-opt topology doesn't have many local optima but also that fitness function
 is "continuous" in it.
 
-Basing on these observations, from this point we won't be considering 2-opt SA a
-suitable solution for TSP.
+Basing on these observations, we are not considering 2-opt SA a
+suitable solution for TSP and have removed it from the general tsp comparison.
 
 \subsection{Monte Carlo Tree Search policies}
 
