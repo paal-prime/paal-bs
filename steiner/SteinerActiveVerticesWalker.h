@@ -75,13 +75,15 @@ namespace steiner
           }
         }
 
-        if (!points_active.empty() && (random() & 1))
+        int operation = random() % 3;
+
+        if (!points_active.empty() && (operation == 0 || operation == 1))
         {
           next_solution_points_[points_active[random() % points_active.size()]]
             = false;
         }
 
-        if (!points_inactive.empty() && (random() & 1))
+        if (!points_inactive.empty() && (operation == 0 || operation == 2))
         {
           size_t point_to_activate =
             points_inactive[random() % points_inactive.size()];
