@@ -5,6 +5,7 @@ BLOSSOM5_OBJECTS := $(filter-out $(MAINOBJECTS),$(subst .cpp,.o, $(BLOSSOM5_SOUR
 
 blossom5/example: $(BLOSSOM5_OBJECTS)
 experiments/tsp_christofides: $(BLOSSOM5_OBJECTS)
+experiments/tsp/tsp_comparison: $(BLOSSOM5_OBJECTS)
 $(GTEST): $(BLOSSOM5_OBJECTS)
 
 # Hack to ignore warnings in blossom5 files.

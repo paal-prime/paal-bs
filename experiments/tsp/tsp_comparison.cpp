@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 
   tsp::TSPLIB_Directory dir("./TSPLIB/symmetrical/");
   size_t it = 0;
-  std::vector<int> iterlimit = {1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 10000000, };
+  std::vector<int> iterlimit = {5000000, 5000000, 5000000, 5000000, 5000000, 5000000, 500000000, };
   std::vector<int> samplelimit = {1000, 400, 200, 70, 32, 11, 0};
   for (auto gid : {"eil51", "eil76", "eil101", "pr152", "d198", "a280", "brd14051", })
   {
@@ -36,6 +36,8 @@ int main(int argc, char **argv)
       PolicyRandMean<std::mt19937>(random_), samplelimit[it]);
     State state(matrix, matrix.size1() / 4);
     mctsalgo.state_ = &state;
+
+    ChristofidesAlgo christ(matrix);
 
     table.columns.push_back(format("%", gid));
     table.records[0].results.push_back(dir.graphs[gid].optimal_fitness);
@@ -52,7 +54,7 @@ int main(int argc, char **argv)
     std::cerr << "runtime " << paal::realtime_sec() - start << std::endl;
 
     start = paal::realtime_sec();
-    table.records[3].results.push_back(dir.graphs[gid].optimal_fitness);
+    table.records[3].test(christ);
     std::cerr << "runtime " << paal::realtime_sec() - start << std::endl;
 
     std::cerr << "done " << gid << std::endl;

@@ -11,6 +11,7 @@
 #include "paal/search.h"
 #include "paal/StepCtrl.h"
 #include "tsp/TwoOptWalker.h"
+#include "tsp/Christofides.h"
 #include "tsp/util.h"
 
 std::mt19937 random_(9823429);
@@ -100,6 +101,27 @@ template<typename Policy> struct MCTSAlgo
       }
     }
     return mct.root_state().cost_;
+  }
+};
+
+struct ChristofidesAlgo
+{
+  std::string ewt;
+  Matrix &mtx;
+
+  ChristofidesAlgo(Matrix &_mtx, std::string _ewt = "") : ewt(_ewt), mtx(_mtx) {}
+
+  template<typename Logger> double run(Logger &logger) const
+  {
+    std::vector<int> cycle;
+    cycle.resize(mtx.size1());
+    if (ewt == "EUC_2D" || ewt == "CEIL_2D" || ewt == "ATT") {
+      tsp::christofides<Matrix, std::vector<int> >(mtx, cycle, mtx.size1(), ewt,
+          &mtx.pos);
+    } else {
+      tsp::christofides<Matrix, std::vector<int> >(mtx, cycle, mtx.size1());
+    }
+    return tsp::fitness(mtx, cycle);
   }
 };
 

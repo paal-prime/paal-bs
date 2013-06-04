@@ -109,15 +109,47 @@ symmetrical instances.
 
 \section{Results}
 
-TODO % TODO
+We have selected the best local search algorithm to compare it against the best
+MCTS and Christofides implementations on a subset of TSPLIB instances.
+Additional experiments were performed to choose optimal configuration of a
+local search and tree search algorithms, results of these tests are presented
+later.
 
-In each test run the hill climb local search algorithm was allowed to perform
-$10^6$ iterations, which took less than $0.1 s$, the MCTS computation took
-no more than $5 s$ (which means that number of samples per decision have been
-decreased with the instance size) and Christofides algorithm returned a
-solution in less than $0.1 s$. % TODO
+If $T$ is the running time of Christofides algorithm for given test instance
+then the time limit for hill climb is set to $\max(T, 0.5 s)$ and for the tree
+search is set to $\max(T, 5 s)$.
 
-\input{../results/tsp/tsp_comparison/eil_graphs}
+An $\infty$ in some cell means that no result could be obtained for given
+instance using given algorithm within the time limit.
+
+\begin{figure}[ht]
+  \centering
+  \input{../results/tsp/tsp_comparison/eil_graphs}
+\end{figure}
+
+MCTS algorithm for TSP performed poorly when compared to other implemented
+methods. Extensive comparison was unfortunately impossible due to extremely
+high computational cost of the tree search method for instances with
+significant number of vertices. Most of performed experiments used the smallest
+instances available in TSPLIB collection -- graphs with less than $300$
+vertices. The most efficient MCTS algorithm (see next section for model
+selection methodology) needed at least $5 s$ to find a solution which was
+$1.2$-approximation, while local search algorithms were able better solution
+fraction of this time. Running the MCTS method for medium-sized instances is
+impractical, for graphs with more than $10000$ vertices it is impossible.
+
+Poor overall performance of MCTS method in our tests is a bit surprising as
+travelling salesman problem variations are presented as a primary non-games
+application of this approach (see \cite{MCTSsurvey} for details). We believe
+that just like in the case of SA, the search space is too ,,smooth'' and
+instead of making refined decisions one should check as many points as possible
+within given time limit.
+
+Our experiments showed that a simple hill climb local search heuristic performs
+as well as Christofides algorithm. Given the complexity level of the latter
+(finding a perfect matching with minimum weight) we can see no need to use
+anything more complicated than a hill climb method for the symmetric metrical
+TSP problem in practical applications.
 
 \subsection { 2-opt hill climb \& simulated annealing }
 
@@ -144,29 +176,7 @@ is "continuous" in it.
 Basing on these observations, from this point we won't be considering 2-opt SA a
 suitable solution for TSP.
 
-\subsection{Monte Carlo Tree Search}
-
-\subsubsection{Comparison with other methods}
-
-MCTS algorithm for TSP performed poorly when compared to other implemented
-methods. Extensive comparison was unfortunately impossible due to extremely
-high computational cost of the tree search method for instances with
-significant number of vertices. Most of performed experiments used the smallest
-instances available in TSPLIB collection -- graphs with less than $300$
-vertices. The most efficient MCTS algorithm (see next section for model
-selection methodology) needed at least $5 s$ to find a solution which was
-$1.2$-approximation, while local search algorithms were able better solution
-fraction of this time. Running the MCTS method for medium-sized instances is
-impractical, for graphs with more than $10000$ vertices it is impossible.
-
-Poor overall performance of MCTS method in our tests is a bit surprising as
-travelling salesman problem variations are presented as a primary non-games
-application of this approach (see \cite{MCTSsurvey} for details). We believe
-that just like in the case of SA, the search space is too ,,smooth'' and
-instead of refined decision process one should check as many points as possible
-within given time limit.
-
-\subsubsection{Policies comparison}
+\subsection{Monte Carlo Tree Search policies}
 
 Despite the poor performance of MCTS-based algorithms for TSP problem, we have
 compared policies described in previous sections on small instances from
