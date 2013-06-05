@@ -1,0 +1,17 @@
+PRESENTATION_TEX :=	pdflatex -interaction=batchmode
+PRESENTATION_FILES :=	$(wildcard presentation/*.tex)
+PRESENTATION_MAIN := presentation/presentation.pdf
+
+presentation: $(PRESENTATION_MAIN)
+
+$(PRESENTATION_MAIN) : %.pdf : %.tex $(PRESENTATION_FILES)
+	cd $(<D); \
+		$(PRESENTATION_TEX) $(<F); 
+
+clean-presentation:
+	-rm -f presentation/*.{aux,log,err,bbl,toc,blg}
+	-rm -f $(PRESENTATION_MAIN)
+
+clean: clean-presentation
+
+.PHONY: clean-presentation presentation
