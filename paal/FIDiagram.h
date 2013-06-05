@@ -84,7 +84,6 @@ namespace paal
     size_t it = records.back().logger.iterations;
     tex << format(
       "\\pgfsetplotmarksize{0pt}\n"
-      "\\begin{figure}\n"
       " \\centering\n"
       " \\caption{\\label{%}%},\n"
       " \\begin{tikzpicture}\n"
@@ -117,8 +116,7 @@ namespace paal
 
     tex <<
       " \\end{axis}\n"
-      " \\end{tikzpicture}\n"
-      "\\end{figure}\n";
+      " \\end{tikzpicture}\n";
   }
   };
 } // namespace paal
