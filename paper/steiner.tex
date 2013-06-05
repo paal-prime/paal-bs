@@ -79,28 +79,37 @@ TODO: napisac, ze MSTAV > CRC, zasugerowac dlaczego
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-gap1307}
 \end{figure}
 
-\subsection{Comparison of found solutions' cost}
-TODO: napisac, ze na malych testach, praktycznie zawsze MSTAV jest bliski lub lepszy od apx,
-na srednich testach bywa roznie, ale zazwyczaj wciaz MSTAV daje rade,
-na duzych roznica jest zdecydowana ; na malych testach CBC radzi sobie dosc dobrze
+\subsection{Comparison of found solutions' fitness}
+After testing presented algorithms we have made following observations:
+\begin{itemize}
+\item fitness of solutions found by 2-approximation algorithm is almost always less than 1.1 times optimum,
+\item local searches performed well on problem instances with less than thousand of vertices,
+\item MSTAV gives better results than CBC most of the time,
+\item MSTAV often finds better solutions than 2-approximation algorithm for problem instances with less than thousand of vertices,
+\item for graphs with thousands of vertices 2-approximation algorithm finds much better solutions than local seaches.
+\end{itemize}
 
 \begin{figure}[H]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonSmallerForestTests}
+  \caption{Results for sample of SFP tests for graphs with less than thousand vertices}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonSmallerTreeTests}
+  \caption{Results for sample of STP tests for graphs with less than thousand vertices}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonLargerForestTests}
+  \caption{Results for sample of SFP tests for graphs with at least thousand of vertices}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonLargerTreeTests}
+  \caption{Results for sample of STP tests for graphs with at least thousand of vertices}
 \end{figure}
 

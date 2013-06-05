@@ -76,17 +76,17 @@ int main(int argc, char **argv)
 
   std::vector<std::string> tree_smaller_tests =
   {
-    "alut2764", "b13", "berlin52", "diw0250", "msm3277", "d15"
+    "alut2764", "b13", "berlin52", "diw0250", "msm2000", "c14"
   };
 
   std::vector<std::string> forest_smaller_tests =
   {
-    "01dEV100K20", "01sEV1000K150", "01sEV100K20", "01dRV100K20",
+    "01dEV100K20", "01sEV100K20", "01dRV100K20", "01sRV100K30"
   };
 
   std::vector<std::string> tree_larger_tests =
   {
-    "alue2087", "d11", "diw0445", "e02", "taq0431", "msm3676",
+    "alue2087", "d11", "diw0445", "e02", "taq0431", "msm3277",
   };
 
   std::vector<std::string> forest_larger_tests =
