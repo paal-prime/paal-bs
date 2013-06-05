@@ -8,8 +8,12 @@ For $k = 1$ the problem is known as Steiner Tree Problem (STP).
 \section{Primal-Dual Method algorithm}
 Local searches written in our framework were compared to a 2-approximation algorithm described by Vazirani [Vazirani]. As far as we know, it's the best approximation algorithm for a SFP known to date.
 
+TODO: podac zlozonosc implementacji
+
 \section{Create and break cycle local search}
 Given some solution to Steiner Forest Problem ,,Create and break cycle'' (CBC) local search changes it by randomly adding edge between solution's vertices. If added edge created a cycle then the heaviest edge from this cycle is removed. It's obvious that obtained graph is still a feasible solution. After described operation it might happen that some edges are no longer needed like for example edges adjacent to leafs that don't belong to $S_i$ for any $i \in \{1, \dots k\}$. Therefore pruning procedure is used to ensure that only essential edges remains which might lead to further fitness improvement.
+
+TODO: podac zlozonosc implementacji
 
 \section{Minimum spanning tree of active vertices local search}
 ,,MST of active vertices'' (MSTAV) local search starts with some feasible solution of SFP. At each step a new solution is created by computing a pruned minimum spanning tree of $G'$ which is a subgraph of $G$ induced by some set of vertices $V'$ called active vertices. $V'$ is obtained from vertices belonging to the previous solution after randomly applying one of the following operations:
@@ -21,47 +25,42 @@ Given some solution to Steiner Forest Problem ,,Create and break cycle'' (CBC) l
 
 Note that it might happen that there is no feasible solution in $G'$. Therefore at the end of each step local search checks whether proposed solution is feasible and if it is not then it reverts any changes.
 
+TODO: podac zlozonosc implementacji
+
 \section{Benchmarks}
 To compare the algorithms we have used our randomly generated tests and a subset of SteinLib\footnote{\url{steinlib.zib.de}} tests for Steiner Tree Problem.
-TODO: opisac kodowanie nazwy testow
+
+TODO: opisac kodowanie nazwy testow i podac czym sa inicjalizowane local searche
 
 \section{Results}
 WIP
 
 \subsection{Comparison of hill climbing and simulated annealing convergence}
-STUB text\\
-TODO: krotko napisac, ze SA dziala w CBC, ale nie w MSTAV i dlaczego\\
-dalej bede rozwazal CBC HillClimb + CBC SA 1e-5\\
+TODO: krotko napisac, ze SA nie dziala i dlaczego ; dalej bede rozwazal tylko HillClimby
+
 \input{../results/steiner/SteinerConvergence/CBC-01dEV100K30}
 \input{../results/steiner/SteinerConvergence/CBC-02dEV100K30}
 \input{../results/steiner/SteinerConvergence/CBC-alue2087}
 \input{../results/steiner/SteinerConvergence/CBC-berlin52}
-\input{../results/steiner/SteinerConvergence/CBC-brasil58}
-\input{../results/steiner/SteinerConvergence/CBC-c10}
 
 \input{../results/steiner/SteinerConvergence/MSTAV-01dEV100K30}
 \input{../results/steiner/SteinerConvergence/MSTAV-02dEV100K30}
 \input{../results/steiner/SteinerConvergence/MSTAV-alue2087}
 \input{../results/steiner/SteinerConvergence/MSTAV-berlin52}
-\input{../results/steiner/SteinerConvergence/MSTAV-brasil58}
-\input{../results/steiner/SteinerConvergence/MSTAV-c10}
 
 \subsection{CBC and MSTAV convergence comparison}
-STUB text\\
-TODO: napisac, ze MSTAV > CRC, zasugerowac dlaczego\\
-TODO: dodac CBC SA do analizy
+TODO: napisac, ze MSTAV > CRC, zasugerowac dlaczego
+
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-01sEV100K30}
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-01sRV1000K150}
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-d05}
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-gap1307}
 
 \subsection{Comparison of found solutions' cost}
-STUB text
 TODO: napisac, ze na malych testach, praktycznie zawsze MSTAV jest bliski lub lepszy od apx,
 na srednich testach bywa roznie, ale zazwyczaj wciaz MSTAV daje rade,
-na duzych roznica jest zdecydowana
-TODO: na malych testach CBC radzi sobie dosc dobrze
-TODO: dodac CBC SA do analizy
+na duzych roznica jest zdecydowana ; na malych testach CBC radzi sobie dosc dobrze
+
 \begin{figure}[ht]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonSmallerForestTests}

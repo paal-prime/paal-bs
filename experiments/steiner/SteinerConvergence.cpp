@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 
   std::vector<std::string> tree_tests =
   {
-    "alue2087", "berlin52", "brasil58", "c10"
+    "alue2087", "berlin52",
   };
 
   std::vector<std::string> forest_tests =
