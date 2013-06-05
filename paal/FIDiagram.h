@@ -71,7 +71,13 @@ namespace paal
     }
   }
 
-  void dump_tex(std::ostream &tex, const std::string &test_name)
+  /**
+   * @brief dumps tex figure
+   * @param tex output stream
+   * @param caption figure caption
+   * @param caption tex figure label you can \ref
+   */
+  void dump_tex(std::ostream &tex, std::string caption, std::string label)
   {
     assert(records.size());
     for(Record & r : records) assert(r.logger.records.size());
@@ -83,12 +89,12 @@ namespace paal
       " \\caption{\\label{%}%},\n"
       " \\begin{tikzpicture}\n"
       " \\begin{axis}[\n"
-      "   width=0.75\\textwidth,\n"
+      "   width=0.7\\textwidth,\n"
       "   scale only axis,\n"
       "   xlabel=iteration,\n"
       "   ylabel=fitness,\n"
       "   xmin=0,xmax=%,\n"
-      "   domain=0:%]\n",test_name,test_name,it,it);
+      "   domain=0:%]\n",label,caption,it,it);
     for (Record & r : records)
     {
       tex <<

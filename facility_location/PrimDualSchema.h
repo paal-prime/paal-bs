@@ -3,6 +3,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/heap/fibonacci_heap.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 #include <vector>
 #include <algorithm>
 #include <functional>

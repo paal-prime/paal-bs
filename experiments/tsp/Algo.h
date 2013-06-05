@@ -11,6 +11,7 @@
 #include "paal/search.h"
 #include "paal/StepCtrl.h"
 #include "tsp/TwoOptWalker.h"
+#include "tsp/Christofides.h"
 #include "tsp/util.h"
 
 std::mt19937 random_(9823429);
@@ -51,6 +52,24 @@ struct HillAlgo : LocalSearchAlgo
     //std::cout << "initial cost: " << tsp::fitness(matrix,cycle) << std::endl;
     paal::HillClimb step_ctrl;
     return run_(logger, step_ctrl, cycle);
+  }
+};
+
+struct HillTimeAlgo
+{
+  Matrix &matrix_;
+  double time_limit_;
+  HillTimeAlgo(Matrix &matrix, double time_limit) : matrix_(matrix), time_limit_(time_limit) {}
+
+  template<typename Logger> double run(Logger &logger) const
+  {
+    std::vector<size_t> cycle;
+    tsp::cycle_shuffle(cycle, matrix_.size1(), random_);
+    tsp::TwoOptWalker<Matrix> walker(matrix_, cycle);
+    paal::TimeAutoCtrl progress_ctrl(time_limit_);
+    paal::HillClimb step_ctrl;
+    paal::search(walker, random_, progress_ctrl, step_ctrl, logger);
+    return walker.current_fitness();
   }
 };
 
@@ -100,6 +119,27 @@ template<typename Policy> struct MCTSAlgo
       }
     }
     return mct.root_state().cost_;
+  }
+};
+
+struct ChristofidesAlgo
+{
+  std::string ewt;
+  Matrix &mtx;
+
+  ChristofidesAlgo(Matrix &_mtx, std::string _ewt = "") : ewt(_ewt), mtx(_mtx) {}
+
+  template<typename Logger> double run(Logger &logger) const
+  {
+    std::vector<int> cycle;
+    cycle.resize(mtx.size1());
+    if (ewt == "EUC_2D" || ewt == "CEIL_2D" || ewt == "ATT") {
+      tsp::christofides<Matrix, std::vector<int> >(mtx, cycle, mtx.size1(), ewt,
+          &mtx.pos);
+    } else {
+      tsp::christofides<Matrix, std::vector<int> >(mtx, cycle, mtx.size1());
+    }
+    return tsp::fitness(mtx, cycle);
   }
 };
 

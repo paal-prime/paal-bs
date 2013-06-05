@@ -30,14 +30,14 @@ struct FLRandom
   template<typename Logger> double run(Logger &logger)
   {
     using namespace facility_location;
-	size_t n = instance->facilities_count();
+    size_t n = instance->facilities_count();
     paal::TimeAutoCtrl progress_ctrl(1.);
     double fitness_best = std::numeric_limits<double>::infinity();
     while (progress_ctrl.progress(fitness_best) < 1)
     {
       logger.log(fitness_best);
       std::vector<bool> fs(n);
-	  for(size_t size = random()%n; size--;) fs[random()%n] = 1;
+	    for(size_t size = random()%n; size--;) fs[random()%n] = 1;
       fitness_best = std::min(fitness_best, fitness(*instance, fs));
     }
     return fitness_best / instance->optimal_cost();
@@ -98,28 +98,25 @@ int main(int argc, char **argv)
 {
   Dir resdir(argc, argv);
 
-  RandomStepSearch ls;
-  BestStepSearch ls2;
+  BestStepSearch bls;
   FL3Apx apx;
   FLRandom rnd;
 
   paal::GridTable table;
   table.push_algo("optimum");
-  table.push_algo("local search");
-  table.push_algo("ls fast");
+  table.push_algo("best step ls");
   table.push_algo("3 apx");
   table.push_algo("random");
 
   for (auto gid : {"2511EuclS", "1811EuclS", "1211EuclS", "111EuclS",
       "1911EuclS", "2711EuclS"}) {
     Instance instance(format("UflLib/Euclid/%.txt", gid));
-    rnd.instance = ls2.instance = ls.instance = apx.instance = &instance;
+    rnd.instance = bls.instance = apx.instance = &instance;
     table.columns.push_back(gid);
     table.records[0].results.push_back(instance.optimal_cost());
-    table.records[1].test(ls);
-    table.records[2].test(ls2);
-    table.records[3].test(apx);
-    table.records[4].test(rnd);
+    table.records[1].test(bls);
+    table.records[2].test(apx);
+    table.records[3].test(rnd);
   }
   std::ofstream tex(resdir(format("EuclS.tex")));
   table.dump_tex(tex);

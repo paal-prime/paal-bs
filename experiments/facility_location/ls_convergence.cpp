@@ -2,6 +2,7 @@
 #include <iostream>
 #include <random>
 
+#include "facility_location/PrimDualSchema.h"
 #include "facility_location/RandomStepWalker.h"
 #include "facility_location/BestStepWalker.h"
 #include "facility_location/SimpleFormat.h"
@@ -13,6 +14,7 @@
 #include "paal/FIDiagram.h"
 
 #include "result_dir.h"
+#include "format.h"
 
 typedef facility_location::SimpleFormat<double> Instance;
 
@@ -74,34 +76,51 @@ struct BestStepLS : FLAlgo
   }
 };
 
+struct FL3Apx
+{
+  const Instance *instance;
+
+  template<typename Logger> double run(Logger &logger)
+  {
+    facility_location::PrimDualSchema<Instance> solver(*instance);
+    double result = solver().first;
+	logger.log(result);
+	return result;
+  }
+};
+
 int main(int argc, char **argv)
 {
 	Dir dir(argc,argv);
 
 	std::vector<std::string> in = 
 	{
-		"UflLib/Euclid/1011EuclS.txt",
-		"FLClustered/test0.txt"
+		"FLClustered/test0.txt",
+		"FLClustered/test1.txt",
+		"FLClustered/test2.txt",
+		"FLClustered/test3.txt",
+		"FLClustered/test4.txt",
+		"FLClustered/test5.txt",
+    "UflLib/Euclid/1011EuclS.txt",
+    "UflLib/Euclid/1111EuclS.txt",
+    "UflLib/Euclid/111EuclS.txt",
+    "UflLib/Euclid/1911EuclS.txt",
 	};
 
-	std::vector<std::string> out =
-	{
-		"ufl.tex",
-		"clustered.tex"
-	};
-	
+  RandomStepLS rls;
+	BestStepLS bls;
+	//FL3Apx apx;
 	for(size_t i=0; i<in.size(); ++i)
 	{
-		RandomSearch rs;
-		RandomStepLS rls;
-		BestStepLS bls;
+		paal::FIDiagram dia(0);
 		Instance inst(in[i]);
-		paal::FIDiagram dia(inst.optimal_cost());
-		rs.instance = rls.instance = bls.instance = &inst;
-		dia.test("Random Search",rs);
-		dia.test("Random Step LS",rls);
-		dia.test("Best Step LS",bls);
-		std::ofstream tex(dir(out[i]));
-		dia.dump_tex(tex,in[i]);
+		//apx.instance = &inst;
+		rls.instance = &inst;
+    bls.instance = &inst;
+		//dia.test("apx",apx);
+		dia.test("random step ls",rls);
+    dia.test("best step ls",bls);
+		std::ofstream tex(dir(format("c%.tex",i)));
+		dia.dump_tex(tex,in[i],format("fl_conv%",i));
 	}
 }

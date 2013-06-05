@@ -38,7 +38,7 @@ consists of reverting a segment of the current cycle. Intuitively, we find a poi
 at which the route crosses over itself and reorder it so that is doesn't.
 
 Since in metrical TSP distance between a pair of points is the same for both directions,
-computing fitness of the new route simplifies to replacing a pair of edges and replacing it with another
+computing fitness of the new route simplifies to removing a pair of edges and replacing it with another
 pair.
 
 We've tested 3 different structures for maintaining the current local search solution:
@@ -109,44 +109,23 @@ symmetrical instances.
 
 \section{Results}
 
-TODO % TODO
+We have selected the best local search algorithm to compare it against the best
+MCTS and Christofides implementations on a subset of TSPLIB instances.
+Additional experiments were performed to choose optimal configuration of a
+local search and tree search algorithms, results of these tests are presented
+later.
 
-In each test run the hill climb local search algorithm was allowed to perform
-$10^6$ iterations, which took less than $0.1 s$, the MCTS computation took
-no more than $5 s$ (which means that number of samples per decision have been
-decreased with the instance size) and Christofides algorithm returned a
-solution in less than $0.1 s$. % TODO
+If $T$ is the running time of Christofides algorithm for given test instance
+then the time limit for hill climb is set to $\max(T, 0.5 s)$ and for the tree
+search is set to $\max(T, 5 s)$.
 
-\input{../results/tsp/tsp_comparison/eil_graphs}
+An $\infty$ in some cell means that no result could be obtained for given
+instance using given algorithm within the time limit.
 
-\subsection { 2-opt hill climb \& simulated annealing }
-
-In this experiment we've shown that SA doesn't improve the results of the 2-opt.
-Initial temperature has been set to mean edge cost of the initial solution.
-Temperature falls geometrically over time reaching fixed final temperature at the last iteration.
-Diagrams 4.1-3 present SA with different final temperatures ($10^{-2}, 10^{-5}, 10^{-9}$) and
-pure hill climb strategy on sample TSPLIB test cases.
-
-\input{../results/tsp/ls_convergence/brazil58}
-\input{../results/tsp/ls_convergence/d15112}
-\input{../results/tsp/ls_convergence/ulysses22}
-
-First problem is that calculating temperature for boltzmann distribution is
-expensive compared to a single iteration. We've dealt with it by updating temperature
-only periodically. In our implementation mean SA iteration is about $30\%$ slower than
-hill climb iteration. This fact hadn't been depicted on the diagrams in any way.
-
-We can observe that hill climb converges strictly faster than any SA variant.
-Moreover, the fitness curve is smooth (even though the neighbourhood is being browsed at random),
-which means that not only 2-opt topology doesn't have many local optima but also that fitness function
-is "continuous" in it.
-
-Basing on these observations, from this point we won't be considering 2-opt SA a
-suitable solution for TSP.
-
-\subsection{Monte Carlo Tree Search}
-
-\subsubsection{Comparison with other methods}
+\begin{figure}[ht]
+  \centering
+  \input{../results/tsp/tsp_comparison/eil_graphs}
+\end{figure}
 
 MCTS algorithm for TSP performed poorly when compared to other implemented
 methods. Extensive comparison was unfortunately impossible due to extremely
@@ -163,10 +142,41 @@ Poor overall performance of MCTS method in our tests is a bit surprising as
 travelling salesman problem variations are presented as a primary non-games
 application of this approach (see \cite{MCTSsurvey} for details). We believe
 that just like in the case of SA, the search space is too ,,smooth'' and
-instead of refined decision process one should check as many points as possible
+instead of making refined decisions one should check as many points as possible
 within given time limit.
 
-\subsubsection{Policies comparison}
+Our experiments showed that a simple hill climb local search heuristic performs
+as well as Christofides algorithm. Given the complexity level of the latter
+(finding a perfect matching with minimum weight) we can see no need to use
+anything more complicated than a hill climb method for the symmetric metrical
+TSP problem in practical applications.
+
+\subsection { 2-opt hill climb \& simulated annealing }
+
+In this experiment we've shown that SA doesn't improve the results of the 2-opt.
+Initial temperature has been set to mean edge cost of the initial solution.
+Temperature falls geometrically over time reaching fixed final temperature at the last iteration.
+Diagrams 4.1-3 present SA with different final temperatures ($10^{-2}, 10^{-5}, 10^{-9}$) and
+pure hill climb strategy on sample TSPLIB test cases.
+
+\input{../results/tsp/ls_convergence/brazil58}
+\input{../results/tsp/ls_convergence/d15112}
+\input{../results/tsp/ls_convergence/ulysses22}
+
+The first problem which have been observed is that calculating temperature for boltzmann distribution is
+expensive compared to a single iteration. We've dealt with it by updating temperature
+only periodically. In our implementation mean SA iteration is about $30\%$ slower than
+hill climb iteration. This fact hadn't been depicted on the diagrams in any way.
+
+We can observe that hill climb converges strictly faster than any SA variant.
+Moreover, the fitness curve is smooth (even though the neighbourhood is being browsed at random),
+which means that not only 2-opt topology doesn't have many local optima but also that fitness function
+is "continuous" in it.
+
+Basing on these observations, we are not considering 2-opt SA a
+suitable solution for TSP and have removed it from the general tsp comparison.
+
+\subsection{Monte Carlo Tree Search policies}
 
 Despite the poor performance of MCTS-based algorithms for TSP problem, we have
 compared policies described in previous sections on small instances from

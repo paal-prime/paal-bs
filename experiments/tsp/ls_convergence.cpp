@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     dia.test("annealing 1e-2", AnneAlgo(matrix, it[i], 1e-2));
     std::ofstream f(out_dir(graph_ids[i] + ".tex"));
     dia.reduce(.01);
-    dia.dump_tex(f, graph_ids[i]);
+    dia.dump_tex(f, graph_ids[i], format("tsp_conv%",i));
     std::cout << graph_ids[i] << " done" << std::endl;
   }
   return 0;
