@@ -94,11 +94,23 @@ namespace steiner
         std::vector<bool> visited(vertices_count_, false);
 
         size_t seed;
+        const size_t retry_limit = vertices_count_;
+        size_t triesCount = 0;
         do
         {
+          triesCount++;
           seed = random() % vertices_count_;
         }
-        while (!next_solution_points_[seed] && vertex_set_[seed] == -1);
+        while (triesCount < retry_limit && !next_solution_points_[seed]
+          && vertex_set_[seed] == -1);
+
+        if (triesCount == retry_limit)
+        {
+          next_solution_ = current_solution_;
+          next_fitness_ = current_fitness_;
+          next_solution_points_ = current_solution_points_;
+          return;
+        }
 
         visited[seed] = true;
 
