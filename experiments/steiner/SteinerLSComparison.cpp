@@ -49,11 +49,12 @@ for (auto testName : testNames)
          initial_solution, iterations);
     dia.test("CBC HillClimb", CBCHillClimb);
 
+    std::string caption = "CBCvsMSTAV" + std::string("-") + testName;
     std::ofstream
-    f(out_dir("CBCvsMSTAV" + std::string("-") + testName + ".tex"));
+    f(out_dir(caption + ".tex"));
     dia.reduce(.01);
-    dia.dump_tex(f, "CBCvsMSTAV" + std::string("-") + testName);
-    std::cout << "CBCvsMSTAV" + std::string("-") + testName << " done";
+    dia.dump_tex(f, caption, caption);
+    std::cout << caption << " done";
     std::cout << std::endl;
   }
 }

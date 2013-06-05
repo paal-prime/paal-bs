@@ -63,10 +63,11 @@ for (auto testName : testNames)
            iterations, 1e-2);
     dia.test(algorithmName + " SA 1e-2", Annealing3);
 
-    std::ofstream f(out_dir(algorithmName + "-" + testName + ".tex"));
+    std::string caption = algorithmName + "-" + testName;
+    std::ofstream f(out_dir(caption + ".tex"));
     dia.reduce(.01);
-    dia.dump_tex(f, algorithmName + "-" + testName);
-    std::cout << algorithmName + "-" + testName << " done" << std::endl;
+    dia.dump_tex(f, caption, caption);
+    std::cout << caption << " done" << std::endl;
   }
 }
 
