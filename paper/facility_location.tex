@@ -169,7 +169,9 @@ and therefore only Best Step local search has been included to the general compa
 
 \subsection{MCTS}
 
-Columns are titled in format $<test\_name>$ / $<samples\_multiplayer>$.
+Columns are titled in format $<test\_name>$ / $<samples\_multiplayer>$. \\
+Number of iterations at each node of tree is $<samples\_multiplayer> \cdot <number_of_left_decisions>$.
+From this it clearly follows that running time is proportional to the $<samples\_multiplayer>$.
 
 \begin{figure}[ht]
   \input{../results/facility_location/mcts/1011EuclS.tex}
@@ -183,6 +185,5 @@ Columns are titled in format $<test\_name>$ / $<samples\_multiplayer>$.
   \input{../results/facility_location/mcts/2211EuclS.tex}
 \end{figure}
 
-As we can see raising $samples\_multiplayer$ doesn't improve quality of answer too much,
-on the other hand increasing $samples\_multiplayer$ by a factor of $k$ increases the
-running time by the same factor.
+As we can see raising $samples\_multiplayer$ doesn't affect answer significantly on the other hand
+it increases running time dramatically.
