@@ -1,6 +1,6 @@
 #include <vector>
-#include <iostream>
-#include <fstream>
+#include <iostream> // NOLINT
+#include <fstream> // NOLINT
 #include <string>
 #include <cstdlib>
 
@@ -18,14 +18,14 @@
 typedef graph::AdjacencyMatrix<graph::undirected, double> graph_t;
 
 void runTests(const std::vector<std::string>& testNames,
-  std::string TESTS_DIR, Dir& out_dir, int iterations,
-  bool loadOpts = false)
+    std::string TESTS_DIR, Dir& out_dir, int iterations,
+    bool loadOpts = false)
 {
-  for (auto testName : testNames)
+for (auto testName : testNames)
   {
     std::string inputFilepath = TESTS_DIR + testName + ".in";
     std::string optimumFilepath;
-    if(loadOpts)
+    if (loadOpts)
     {
       optimumFilepath = TESTS_DIR + testName + ".out";
     }
@@ -35,22 +35,26 @@ void runTests(const std::vector<std::string>& testNames,
 
     paal::FIDiagram dia(loadOpts ? instance.get_best_known_cost() : 0);
 
-    auto initial_solution = steiner::init_mst(instance.get_graph(), instance.get_vertex_set());
+    auto initial_solution = steiner::init_mst(instance.get_graph(),
+        instance.get_vertex_set());
 
-    auto MSTAVHillClimb = SFHillAlgo<graph_t, steiner::ActiveVerticesWalker<graph_t> >
+    auto MSTAVHillClimb =
+      SFHillAlgo<graph_t, steiner::ActiveVerticesWalker<graph_t> >
       (instance.get_graph(), instance.get_vertex_set(),
-      initial_solution, iterations);
+       initial_solution, iterations);
     dia.test("MSTAV HillClimb", MSTAVHillClimb);
 
     auto CBCHillClimb = SFHillAlgo<graph_t, steiner::BreakCycleWalker<graph_t> >
-      (instance.get_graph(), instance.get_vertex_set(),
-      initial_solution, iterations);
+        (instance.get_graph(), instance.get_vertex_set(),
+         initial_solution, iterations);
     dia.test("CBC HillClimb", CBCHillClimb);
 
-    std::ofstream f(out_dir("CBCvsMSTAV" + std::string("-") + testName + ".tex"));
+    std::ofstream
+    f(out_dir("CBCvsMSTAV" + std::string("-") + testName + ".tex"));
     dia.reduce(.01);
     dia.dump_tex(f, "CBCvsMSTAV" + std::string("-") + testName);
-    std::cout << "CBCvsMSTAV" + std::string("-") + testName << " done" << std::endl;
+    std::cout << "CBCvsMSTAV" + std::string("-") + testName << " done";
+    std::cout << std::endl;
   }
 }
 
@@ -58,11 +62,13 @@ int main(int argc, char **argv)
 {
   Dir out_dir(argc, argv);
 
-  std::vector<std::string> tree_tests = {
+  std::vector<std::string> tree_tests =
+  {
     "d05", "gap1307",
   };
 
-  std::vector<std::string> forest_tests = {
+  std::vector<std::string> forest_tests =
+  {
     "01sEV100K30", "01sRV1000K150",
   };
 

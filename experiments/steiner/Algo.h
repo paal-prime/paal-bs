@@ -3,6 +3,7 @@
 
 #include <random>
 #include <cstring>
+#include <vector>
 
 #include "graph/Graph.h"
 #include "graph/AdjacencyMatrix.h"
@@ -22,7 +23,8 @@ template <typename GRAPH>
 struct SFApxAlgo
 {
   typedef GRAPH graph_t;
-  SFApxAlgo(const graph_t& _graph, const int _vertex_set[]) : graph(_graph), vertex_set(_vertex_set)
+  SFApxAlgo(const graph_t& _graph, const int _vertex_set[])
+    : graph(_graph), vertex_set(_vertex_set)
   {
   }
 
@@ -44,8 +46,10 @@ struct SFLocalSearchAlgo
 {
   typedef GRAPH graph_t;
   SFLocalSearchAlgo(const graph_t& _graph, const int _vertex_set[],
-    std::vector<typename graph_t::weighted_edge_t>& _initial_solution, int _iterations)
-  : graph(_graph), vertex_set(_vertex_set), initial_solution(_initial_solution), iterations(_iterations)
+      std::vector<typename graph_t::weighted_edge_t>& _initial_solution,
+      int _iterations)
+    : graph(_graph), vertex_set(_vertex_set),
+      initial_solution(_initial_solution), iterations(_iterations)
   {
   }
   const graph_t &graph;
@@ -69,9 +73,10 @@ struct SFHillAlgo : SFLocalSearchAlgo<GRAPH, WALKER>
 {
   typedef GRAPH graph_t;
   SFHillAlgo(const graph_t& _graph, const int _vertex_set[],
-    std::vector<typename graph_t::weighted_edge_t> &_initial_solution,
-    int _iterations)
-  : SFLocalSearchAlgo<GRAPH, WALKER>(_graph, _vertex_set, _initial_solution, _iterations) {}
+      std::vector<typename graph_t::weighted_edge_t> &_initial_solution,
+      int _iterations)
+    : SFLocalSearchAlgo<GRAPH, WALKER>(_graph, _vertex_set, _initial_solution,
+        _iterations) {}
 
   template<typename Logger> double run(Logger &logger) const
   {
@@ -86,9 +91,10 @@ struct SFAnneAlgo : SFLocalSearchAlgo<GRAPH, WALKER>
 {
   typedef GRAPH graph_t;
   SFAnneAlgo(const graph_t& _graph, const int _vertex_set[],
-    std::vector<typename graph_t::weighted_edge_t> &_initial_solution,
-    int _iterations, double _t1)
-  : SFLocalSearchAlgo<GRAPH, WALKER>(_graph, _vertex_set, _initial_solution, _iterations), t1(_t1)
+      std::vector<typename graph_t::weighted_edge_t> &_initial_solution,
+      int _iterations, double _t1)
+    : SFLocalSearchAlgo<GRAPH, WALKER>(_graph, _vertex_set, _initial_solution,
+        _iterations), t1(_t1)
   {
   }
   double t1;
@@ -96,7 +102,9 @@ struct SFAnneAlgo : SFLocalSearchAlgo<GRAPH, WALKER>
   template<typename Logger> double run(Logger &logger) const
   {
     paal::Annealing step_ctrl(
-      steiner::fitness<graph_t>(SFLocalSearchAlgo<GRAPH, WALKER>::initial_solution) / SFLocalSearchAlgo<GRAPH, WALKER>::initial_solution.size(), t1);
+      steiner::fitness<graph_t>
+      (SFLocalSearchAlgo<GRAPH, WALKER>::initial_solution)
+      / SFLocalSearchAlgo<GRAPH, WALKER>::initial_solution.size(), t1);
     return SFLocalSearchAlgo<GRAPH, WALKER>::run_(logger, step_ctrl);
   }
 };

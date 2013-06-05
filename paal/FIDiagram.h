@@ -100,7 +100,7 @@ namespace paal
       "   };\n"
       "   \\addlegendentry{%}\n",it,r.logger.records.back().fitness,r.name);
     }
-    if(optimum > 1e-7)
+    if (optimum > 1e-7)
     {
       tex <<
       "   \\addplot {";
