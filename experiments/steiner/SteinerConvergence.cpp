@@ -45,20 +45,17 @@ for (auto testName : testNames)
         initial_solution, iterations);
     dia.test(algorithmName + " HillClimb", HillClimb);
 
-    auto Annealing = SFAnneAlgo < graph_t,
-         steiner::ActiveVerticesWalker<graph_t> > (
+    auto Annealing = SFAnneAlgo <graph_t, WALKER> (
            instance.get_graph(), instance.get_vertex_set(), initial_solution,
            iterations, 1e-9);
     dia.test(algorithmName + " SA 1e-9", Annealing);
 
-    auto Annealing2 = SFAnneAlgo < graph_t,
-         steiner::ActiveVerticesWalker<graph_t> > (
+    auto Annealing2 = SFAnneAlgo <graph_t, WALKER> (
            instance.get_graph(), instance.get_vertex_set(), initial_solution,
            iterations, 1e-5);
     dia.test(algorithmName + " SA 1e-5", Annealing2);
 
-    auto Annealing3 = SFAnneAlgo < graph_t,
-         steiner::ActiveVerticesWalker<graph_t> > (
+    auto Annealing3 = SFAnneAlgo <graph_t, WALKER> (
            instance.get_graph(), instance.get_vertex_set(), initial_solution,
            iterations, 1e-2);
     dia.test(algorithmName + " SA 1e-2", Annealing3);
