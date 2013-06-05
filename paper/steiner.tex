@@ -35,7 +35,9 @@ In every test Walker starts with a pruned MST as starting solution.
 \section{Results}
 
 \subsection{Comparison of hill climbing and simulated annealing convergence}
-TODO: krotko napisac, ze SA nie dziala i dlaczego ; dalej bede rozwazal tylko HillClimby
+Experimenting with Walkers utilizing StepCtrl that use hill climb and simulated annealing (SA) strategy we have noticed that simulated annealing does not improve fitness of found solutions.
+If we consider how presented local searches change depending on StepCtrl we can gain some insight why this happens.
+Note that CBC could benefit from SA strategy only when in consecutive iterations choosen edges would create a path leading to cycle creation. There is a little probability for such event a specially because solution is pruned every time edge creating cycle is found. As for MSTAV it allows for adding vertices that might not improve solution immediately which is exactly what we would expect from simulated annealing strategy.
 
 \begin{figure}[H]
 \input{../results/steiner/SteinerConvergence/CBC-01dEV100K30}
