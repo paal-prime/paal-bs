@@ -1,5 +1,4 @@
 \pgfsetplotmarksize{0pt}
-\begin{figure}
  \centering
  \caption{\label{tsp_conv1}d15112},
  \begin{tikzpicture}
@@ -8,7 +7,8 @@
    scale only axis,
    xlabel=iteration,
    ylabel=fitness,
-   xmin=0,xmax=1000000,ymin=0]
+   xmin=0,xmax=1000000,
+   domain=0:1000000]
    \addplot coordinates {
      (0,1.33636e+08)
      (10000,1.12488e+08)
@@ -427,4 +427,3 @@
    \addlegendentry{annealing 1e-2}
  \end{axis}
  \end{tikzpicture}
-\end{figure}
