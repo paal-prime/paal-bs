@@ -1,0 +1,44 @@
+Dzień dobry,
+tematem naszej pracy licencjackiej było zbadanie jak dobrze
+proste algorytmy metaheurystyczne są w stanie zastąpić zwykle skomplikowane
+i ciężkie obliczeniowo algorytmy aproksymacyjne dla klasycznych problemów
+NP zupełnych, takich jak TSP czy Facility location.
+
+Czym jest metaheurystyka? Metaheurystyka to algorytm który jest tak ogólny,
+że można go zastosować do praktycznie każdego problemu, pod warunkiem, że
+można go opisać za pomocą pewnego zbioru pojęć specyficznego dla danej heurystyki.
+
+Do wyjaśnienia, czym mogą być wspomniane pojęcia, posłużę się przykładem
+mojej ulubionej metaheurystyki local search.
+
+Wyobraźmy sobie zbiór dopuszczalnych rozwiązań pewnego problemu minimalizacyjnego.
+Innymi słowy, każdemu rozwiązaniu problem przypisuje pewien koszt (fitness) a naszym zadaniem
+jest znalezienie tego najtańszego. Gdyby dopuszczalych rozwiązań było mało,
+wystarczyłoby przejrzeć je wszystkie, policzyć koszty i zwrócić to najlepsze.
+Zdarza się jednak tak, że rozwiązań jest za dużo żeby je przejrzeć w sensownym czasie.
+
+Tu z pomocą przychodzi nam local search.
+Żeby go jednak użyć, musimy najpierw zdefiniować coś co nazywa się
+topologią przestrzeni rozwiązań.
+Mianowicie, chcielibyśmy wiedzieć dla każdego rozwiązania, które rozwiązania
+są do niego podobne, tj. mają podobną strukturę i niewiele różniącą się wartość
+funkcji kosztu. Zbiór takich podobnych rozwiązań nazywamy sąsiedztwem danego rozwiązania.
+
+Dobrym przykładem jest topologia 2-opt dla problemu TSP.
+Przestrzenią rozwiązań TSP jest po prostu zbiór cykli przechodzących przez wszystkie
+wierzchołki, a koszt to suma kosztów krawędzi cyklu.
+W topologii 2-opt dwa cykle są podobne jeśli jeden można uzyskać przez
+odwrócenie pewnego fragmentu drugiego. Jak widać na slajdzie w ten sposób
+dokładnie 2 krawędzie zostają zastąpione przez 2 inne, skąd intuicyjnie
+można wnioskować że zmiana kosztu będzie nieznaczna.
+
+Mając tak zdefiniowaną przestrzeń, local search działa następująco:
+zaczyna w dowolnym punkcie i patrzy na sąsiedztwo w poszukiwaniu lepszego rozwiązania.
+Jeśli takowe znajdzie to do niego przechodzi i znowu patrzy na sąsiedztwo.
+W przykładzie 2-opta, pojedyńczy krok odpowiada "odplątywaniu 1 supła" cyklu.
+Po wykonaniu serii takich kroków poprawiających rozwiązanie, można się
+spodziewać, że w końcu utknie w lokalnym optimum. Jeśli w całej przestrzeni jest tylko
+jeden taki punkt, to znaleźliśmy nasze rozwiązanie.
+Ponieważ za każdym razem patrzyliśmy tylko na sąsiedztwa bieżącego rozwiązania,
+to w sumie przejrzeliśmy tylko niewielką część całej przestrzeni.
+
