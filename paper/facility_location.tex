@@ -57,7 +57,7 @@ optimum. Intuitively the optimal solution will consist of a small number
 of facilities (especially for test cases with uniformly distributed facilities and cities),
 therefore the initial solution has been set to an empty set.
 
-\section{Monte Carlo Tree Search}
+\section{\label{MCTS_FL}Monte Carlo Tree Search}
 
 We will refer to the concepts and definitions introduced in MCTS design
 chapter. Let us remind that the only domain-dependent concepts in our MCTS
@@ -156,12 +156,10 @@ falls much faster than the fitness gradient at the current solution.
 Best Step finds better solutions than Random Step in every case and behaves more predictably,
 and therefore only Best Step local search has been included to the general comparison.
 
-%\begin{figure}
-%\input{../results/facility_location/ls_convergence/c0}
-%\end{figure}
-%\begin{figure}
-%\input{../results/facility_location/ls_convergence/c6}
-%\end{figure}
+\FloatBarrier
+\input{../results/facility_location/ls_convergence/c0}
+\input{../results/facility_location/ls_convergence/c6}
+\FloatBarrier
 
 \begin{figure}[ht]
   \input{../results/facility_location/comparison/EuclS}
@@ -169,24 +167,35 @@ and therefore only Best Step local search has been included to the general compa
 
 \subsection{MCTS}
 
-Columns are titled by $<samples\_multiplayer>$. \\
-Number of iterations at each node of tree is $<samples\_multiplayer> \cdot <number_of_left_decisions>$.
-From this it clearly follows that running time is proportional to the $<samples\_multiplayer>$.
+For the reference about row names and overall concept first look onto MCTS description in its own chapter.
+Columns are titled with $<samples\_multiplayer>$. \\
+Description of used algorithm can be found in \ref{MCTS_FL}. \\
+Number of iterations at each node of tree is $<samples\_multiplier> \cdot <number\_of\_left\_decisions>$.
+From this alone it clearly follows that running time is proportional to the $<samples\_multiplier>$.
 
-\begin{figure}
+\FloatBarrier
+\begin{figure}[ht]
   \input{../results/facility_location/mcts/1011EuclS.tex}
   \caption{Comparision of policies for 1011EuclS test case}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[ht]
   \input{../results/facility_location/mcts/1111EuclS.tex}
   \caption{Comparision of policies for 1111EuclS test case}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[ht]
   \input{../results/facility_location/mcts/2211EuclS.tex}
   \caption{Comparision of policies for 2211EuclS test case}
 \end{figure}
+\FloatBarrier
 
-As we can see raising $samples\_multiplayer$ doesn't affect answer significantly on the other hand
-it increases running time dramatically.
+From the numbers we can clearly see that $PolicyRandMean$ gives the best answer.
+This is not a surprise as our problem is kind of continous, so intuively it's better
+to go where we have a big chance of getting good answer instead of going in direction
+where we can get better result but with a much lower chance. \\
+As we can see raising $samples\_multiplier$ doesn't affect answer significantly on the other hand
+it increases running time dramatically. The running time of single testcase with $samples\_multiplier$
+set to 10 took around 1 second and when set to 5000 took about 500 seconds. \\
+From this we can see that best results are achieved with $PolicyRandMean$ with $samples\_multiplier$ set to low number. \\
+The conclusions here are very similar to the results in TSP chapter. 
