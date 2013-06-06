@@ -156,12 +156,12 @@ falls much faster than the fitness gradient at the current solution.
 Best Step finds better solutions than Random Step in every case and behaves more predictably,
 and therefore only Best Step local search has been included to the general comparison.
 
-\begin{figure}
-\input{../results/facility_location/ls_convergence/c0}
-\end{figure}
-\begin{figure}
-\input{../results/facility_location/ls_convergence/c6}
-\end{figure}
+%\begin{figure}
+%\input{../results/facility_location/ls_convergence/c0}
+%\end{figure}
+%\begin{figure}
+%\input{../results/facility_location/ls_convergence/c6}
+%\end{figure}
 
 \begin{figure}[ht]
   \input{../results/facility_location/comparison/EuclS}
@@ -169,20 +169,23 @@ and therefore only Best Step local search has been included to the general compa
 
 \subsection{MCTS}
 
-Columns are titled in format $<test\_name>$ / $<samples\_multiplayer>$. \\
+Columns are titled by $<samples\_multiplayer>$. \\
 Number of iterations at each node of tree is $<samples\_multiplayer> \cdot <number_of_left_decisions>$.
 From this it clearly follows that running time is proportional to the $<samples\_multiplayer>$.
 
-\begin{figure}[ht]
+\begin{figure}
   \input{../results/facility_location/mcts/1011EuclS.tex}
+  \caption{Comparision of policies for 1011EuclS test case}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
   \input{../results/facility_location/mcts/1111EuclS.tex}
+  \caption{Comparision of policies for 1111EuclS test case}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}
   \input{../results/facility_location/mcts/2211EuclS.tex}
+  \caption{Comparision of policies for 2211EuclS test case}
 \end{figure}
 
 As we can see raising $samples\_multiplayer$ doesn't affect answer significantly on the other hand

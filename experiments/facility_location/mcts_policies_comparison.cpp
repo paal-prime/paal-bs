@@ -66,11 +66,11 @@ int main(int argc, char **argv)
 
     Matrix matrix(src_dir + file + ".txt");
 
-    for(auto sampling : {10, 20, 50, 100}) {
+    for(auto sampling : {10, 20, 50, 100, 500, 1000, 5000}) {
       samples_ratio = sampling;
       State state(matrix, matrix(0), matrix.facilities_count(), matrix.cities_count());
       randmean.state_ = epsmean.state_ = epsbest.state_ = musigma.state_ = &state;
-      table.columns.push_back(format("% / %", file, sampling));
+      table.columns.push_back(format("%", sampling));
       table.records[0].results.push_back(matrix.optimal_cost());
       double start;
       start = paal::realtime_sec();
