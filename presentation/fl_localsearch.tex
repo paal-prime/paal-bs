@@ -1,0 +1,84 @@
+\begin{frame}{Metric Facility Location}
+  \begin{block}{Definicja problemu}
+    Mamy dane zbiory punktów $F$ - fabryk oraz $C$ - miast. \\
+    Funkcja kosztu otwarcia fabryki $o: F \rightarrow \mathbb{R}$. \\
+    Funkcja połączenia fabryki z miastem $c: (F \times C) \rightarrow \mathbb{R}$. \\
+    $c$ spełnia warunek trójkąta. \\
+    Cel: znaleźć taki podzbiór fabryk $F'$ i takie przypisanie $a$ fabryk do miast, aby
+    suma $\sum_{f \in F'}o(f) + \sum_{i \in C}c(a(i), i)$ była minimalna.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Metric Facility Location}
+  \begin{block}{Jak trudny jest ten problem?}
+    \pause
+    Odp: NP - trudny
+  \end{block}
+\end{frame}
+
+\begin{frame}{Metric Facility Location}
+  \begin{block}{Czego próbowaliśmy?}
+    \begin{itemize}
+      \item Metoda prymalno-dualna (programowanie liniowe) (3 - aproksymacja)
+      \item Losowe rozwiązanie. 
+      \item Local search (3 - aproksymacja)
+      \item MCTS (o tym później)
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Metric Facility Location}
+  \begin{block}{Metoda prymalno-dualna}
+    \begin{itemize}
+      \pause
+      \item Definiujemy problem jako zagadnienie programowania liniowego i je aproksymujemy.
+      \pause
+      \item Nam służy tylko jako referencja do naszych wyników.
+      \pause
+      \item Jain i Vasirani
+    \end{itemize}
+  \end{block}
+
+  \pause
+
+  \begin{block}{Losowe rozwiązanie}
+    \begin{itemize}
+      \item Zwykle jednostajne losowanie.
+      \item Tylko referencja.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Metric Facility Location}
+  \begin{block}{Local search}
+    \begin{itemize}
+      \pause
+      \item Przestrzeń rozwiązań - wszystkie podzbiory $F$. (dużo)
+      \pause
+      \item Poprawne ruchy:
+        \begin{itemize}
+          \item dołączamy fabrykę do zbioru otwartych fabryk
+          \item usuwamy fabrykę ze zbioru otwartych fabryk
+          \item usuwamy i dodajemy jedną fabrykę
+        \end{itemize}
+    \end{itemize}
+  \end{block}
+
+  \pause
+  \begin{block}{Local search - jak wybieramy poprawny ruch?}
+    Dwie strategie:
+    \begin{itemize}
+      \item Losowo - $O(|F|\cdot |C|)$
+      \item Najbardziej poprawiający wynik - $O(|F|(|F| + |C|))$
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+\input{c0}
+\end{frame}
+
+\begin{frame}
+\input{c6}
+\end{frame}
