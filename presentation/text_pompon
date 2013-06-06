@@ -1,44 +1,69 @@
 Dzień dobry,
 tematem naszej pracy licencjackiej było zbadanie jak dobrze
-proste algorytmy metaheurystyczne są w stanie zastąpić zwykle skomplikowane
+proste algorytmy metaheurystyczne są w stanie zastąpić skomplikowane
 i ciężkie obliczeniowo algorytmy aproksymacyjne dla klasycznych problemów
 NP zupełnych, takich jak TSP czy Facility location.
 
-Czym jest metaheurystyka? Metaheurystyka to algorytm który jest tak ogólny,
+---
+
+W ramach szybkiego wprowadzenia do tematu, wyjaśnię najpierw
+co to jest metaheurystyka: jest to algorytm, który jest tak ogólny,
 że można go zastosować do praktycznie każdego problemu, pod warunkiem, że
-można go opisać za pomocą pewnego zbioru pojęć specyficznego dla danej heurystyki.
+można go opisać za pomocą pewnych pojęć, które są specyficzne dla danej metaheurystyki.
 
-Do wyjaśnienia, czym mogą być wspomniane pojęcia, posłużę się przykładem
-mojej ulubionej metaheurystyki local search.
+Do wyjaśnienia o co chodzi czym mogą być te pojęcia
+posłużę się przykładem mojej ulubionej metaheurystyki local search.
 
-Wyobraźmy sobie zbiór dopuszczalnych rozwiązań pewnego problemu minimalizacyjnego.
-Innymi słowy, każdemu rozwiązaniu problem przypisuje pewien koszt (fitness) a naszym zadaniem
-jest znalezienie tego najtańszego. Gdyby dopuszczalych rozwiązań było mało,
-wystarczyłoby przejrzeć je wszystkie, policzyć koszty i zwrócić to najlepsze.
-Zdarza się jednak tak, że rozwiązań jest za dużo żeby je przejrzeć w sensownym czasie.
+-----
+
+Spójrzmy na dowolny problem minimalizacyjny.
+W ogólności taki problem definiuje zbiór rozwiązań dopuszczalnych i
+każdemu rozwiązaniu przypisuje pewien koszt.
+Zadaniem jest znalezienie tego najtańszego.
+Gdyby dopuszczalych rozwiązań było mało, wystarczyłoby
+na każde popatrzeć policzyć jego koszt i zwrócić to najlepsze.
+
+Z algorytmicznego punktu widzenia taka sytuacja jest nieciekawa,
+więc załóżmy, że rozwiązań jest dużo za dużo, żeby je wszystkie
+przejrzeć w sensownym czasie.
 
 Tu z pomocą przychodzi nam local search.
 Żeby go jednak użyć, musimy najpierw zdefiniować coś co nazywa się
 topologią przestrzeni rozwiązań.
 Mianowicie, chcielibyśmy wiedzieć dla każdego rozwiązania, które rozwiązania
-są do niego podobne, tj. mają podobną strukturę i niewiele różniącą się wartość
+są do niego podobne, tj. mają podobną strukturę i stąd niewiele różniącą się wartość
 funkcji kosztu. Zbiór takich podobnych rozwiązań nazywamy sąsiedztwem danego rozwiązania.
 
-Dobrym przykładem jest topologia 2-opt dla problemu TSP.
-Przestrzenią rozwiązań TSP jest po prostu zbiór cykli przechodzących przez wszystkie
-wierzchołki, a koszt to suma kosztów krawędzi cyklu.
-W topologii 2-opt dwa cykle są podobne jeśli jeden można uzyskać przez
-odwrócenie pewnego fragmentu drugiego. Jak widać na slajdzie w ten sposób
-dokładnie 2 krawędzie zostają zastąpione przez 2 inne, skąd intuicyjnie
-można wnioskować że zmiana kosztu będzie nieznaczna.
+----
 
 Mając tak zdefiniowaną przestrzeń, local search działa następująco:
 zaczyna w dowolnym punkcie i patrzy na sąsiedztwo w poszukiwaniu lepszego rozwiązania.
-Jeśli takowe znajdzie to do niego przechodzi i znowu patrzy na sąsiedztwo.
-W przykładzie 2-opta, pojedyńczy krok odpowiada "odplątywaniu 1 supła" cyklu.
-Po wykonaniu serii takich kroków poprawiających rozwiązanie, można się
-spodziewać, że w końcu utknie w lokalnym optimum. Jeśli w całej przestrzeni jest tylko
-jeden taki punkt, to znaleźliśmy nasze rozwiązanie.
+Gdy takie znajdzie to do niego przechodzi i następnie patrzy na nowe sąsiedztwo.
+I tyle. Wykonuje taki spacer po przestrzeni rozwiązań za każdym razem obniżając koszt
+rozwiązania na którym stoi.
+
+Jeśli pozwolimy local searchowi chodzić dostatecznie długo, to w końcu dotrze
+do lokalnego optimum i tam utknie, bo wszyscy sąsiedzi będą mieć koszt gorszy
+od niego. Wtedy zatrzymujemy algorytm i zwracamy bieżące rozwiązanie jako wynik local searcha.
+W ogólności lokalne minimum nie jest żadną gwarancją niskiego kosztu,
+dlatego konstruując local searcha należy zadbać żeby lokanych minimów
+albo wogóle nie było, albo żeby ich koszty niewiele różniły się
+od tego globalnego.
+
 Ponieważ za każdym razem patrzyliśmy tylko na sąsiedztwa bieżącego rozwiązania,
 to w sumie przejrzeliśmy tylko niewielką część całej przestrzeni.
+
+---
+
+Przykładem, który chciałbym tutaj podać i który również badaliśmy w naszej pracy
+jest topologia 2-opt dla problemu TSP, czyli problemu komiwojażera.
+
+Jak wszyscy pewnie wiecie w problemie TSP szukamy najtańszego cyklu Hamiltona
+w grafie pełnym.
+W topologii 2-opt mówimy że dwa cykle są podobne jeśli jeden można uzyskać przez
+odwrócenie pewnego fragmentu drugiego. Jak widać na slajdzie w ten sposób
+dokładnie 2 krawędzie zostają zastąpione przez 2 inne, skąd intuicyjnie
+można wnioskować że zmiana kosztu będzie nieznaczna.
+Intuicja jest taka, że 2-opt w pojedyńczym ruchu stara się odplątać
+pojedyńczy supeł w rozwiązaniu.
 
