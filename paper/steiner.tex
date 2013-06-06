@@ -35,53 +35,56 @@ In every test Walker starts with a pruned MST as starting solution.
 \section{Results}
 
 \subsection{Comparison of hill climbing and simulated annealing convergence}
+\FloatBarrier
 Experimenting with Walkers utilizing StepCtrl that use hill climb and simulated annealing (SA) strategy we have noticed that simulated annealing does not improve fitness of found solutions.
 If we consider how presented local searches change depending on StepCtrl we can gain some insight why this happens.
 Note that CBC could benefit from SA strategy only when in consecutive iterations choosen edges would create a path leading to cycle creation. There is a little probability for such event a specially because solution is pruned every time edge creating cycle is found. As for MSTAV it allows for adding vertices that might not improve solution immediately which is exactly what we would expect from simulated annealing strategy.
 
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/CBC-01dEV100K30}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/CBC-02dEV100K30}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/CBC-alue2087}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/CBC-berlin52}
 \end{figure}
-
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/MSTAV-01dEV100K30}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/MSTAV-02dEV100K30}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/MSTAV-alue2087}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/MSTAV-berlin52}
 \end{figure}
+\FloatBarrier
 
 \subsection{CBC and MSTAV convergence comparison}
-TODO: napisac, ze MSTAV > CRC, zasugerowac dlaczego
+\FloatBarrier
 
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-01sEV100K30}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-01sRV1000K150}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-d05}
 \end{figure}
-\begin{figure}[H]
+\begin{figure}[hb]
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-gap1307}
 \end{figure}
+\FloatBarrier
 
 \subsection{Comparison of found solutions' fitness}
+\FloatBarrier
 After testing presented algorithms we have made following observations:
 \begin{itemize}
 \item fitness of solutions found by 2-approximation algorithm is almost always less than 1.1 times optimum,
@@ -91,27 +94,27 @@ After testing presented algorithms we have made following observations:
 \item for graphs with thousands of vertices 2-approximation algorithm finds much better solutions than local seaches.
 \end{itemize}
 
-\begin{figure}[H]
+\begin{figure}[hb]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonSmallerForestTests}
   \caption{Results for sample of SFP tests for graphs with less than thousand vertices}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[hb]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonSmallerTreeTests}
   \caption{Results for sample of STP tests for graphs with less than thousand vertices}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[hb]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonLargerForestTests}
   \caption{Results for sample of SFP tests for graphs with at least thousand of vertices}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[hb]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonLargerTreeTests}
   \caption{Results for sample of STP tests for graphs with at least thousand of vertices}
 \end{figure}
-
+\FloatBarrier
