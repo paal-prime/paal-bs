@@ -47,14 +47,14 @@ We've tested 3 different structures for maintaining the current local search sol
 \item Reversible Segment List\footnote{\url{http://www.hars.us/Papers/revi.pdf}}
 \item Augmented splay tree.
 \end{itemize}
-
+\begin{figure}[!h]
 \begin{tabular}{c|cc}
 & vertex read cost & reverse cost \\\hline
 array & $\Oh(1)$ & $\Oh(|V|)$ \\
 RSL & $\Oh(\sqrt{|V|})$ & $\Oh(\sqrt{|V|})$ amortized \\
 splay & $\Oh(\log(|V|)$ amortized & $\Oh(\log(|V|))$ amortized
 \end{tabular}
-
+\end{figure}
 In our implementation segment to reverse is selected with uniform probability,
 excluding the degenerated cases -- set of cycle edges has to actually change.
 Evaluating fitness of neighbouring solution drawn requires to read vertices
@@ -72,7 +72,7 @@ framework are Move and State and the former is completely dependent on the
 latter.
 
 It is widely known from games solving applications of MCTS method that we
-should choose State implementation which minimizes branch factor of resulting
+should choose State implementation which minimizes branch factor of the resulting
 search tree. For TSP problem we chose path building approach:
 \begin{itemize}
   \item State is a path with arbitrary start point (permutation of a subset of
@@ -81,15 +81,15 @@ search tree. For TSP problem we chose path building approach:
   \item Move represents choosing from remaining vertices the next one to be
     added to the end of the path
   \item terminal State is reached when all vertices are in the path
-  \item Fitness of terminal State is equal to cost of a Hamilton cycle, note
-    that path defines permutation of vertices and distance function is a proper
+  \item Fitness of terminal State is equal to the cost of a Hamilton cycle, note
+    that path defines a permutation of vertices and distance function is a proper
     metric
   \item Fitness estimate is a fitness of terminal state reached after applying
     a sequence of random decisions
 \end{itemize}
 
 We have introduced two improvements to above schema. In order to reduce branch
-factor of resulting tree we have limited number of vertices taken into
+factor of resulting tree we have a limited number of vertices taken into
 consideration when choosing next move. A good heuristics here is to choose from
 no more than $K$ vertices closest to the path's end.
 
@@ -112,7 +112,7 @@ symmetrical instances.
 We have selected the best local search algorithm to compare it against the best
 MCTS and Christofides implementations on a subset of TSPLIB instances.
 Additional experiments were performed to choose optimal configuration of a
-local search and tree search algorithms, results of these tests are presented
+local search and tree search algorithms, the results of these tests are presented
 later.
 
 If $T$ is the running time of Christofides algorithm for given test instance
@@ -153,32 +153,33 @@ anything more complicated than a hill climb method for the symmetric metrical
 TSP problem in practical applications.
 
 \subsection { 2-opt hill climb \& simulated annealing }
-
 In this experiment we've shown that SA doesn't improve the results of the 2-opt.
 Initial temperature has been set to mean edge cost of the initial solution.
 Temperature falls geometrically over time reaching fixed final temperature at the last iteration.
 Diagrams 4.1-3 present SA with different final temperatures ($10^{-2}, 10^{-5}, 10^{-9}$) and
 pure hill climb strategy on sample TSPLIB test cases.
 
-\begin{figure}
+\FloatBarrier
+\begin{figure}[h]
 \input{../results/tsp/ls_convergence/brazil58}
 \end{figure}
-\begin{figure}
+\begin{figure}[h]
 \input{../results/tsp/ls_convergence/d15112}
 \end{figure}
-\begin{figure}
+\begin{figure}[h]
 \input{../results/tsp/ls_convergence/ulysses22}
 \end{figure}
+\FloatBarrier
 
-The first problem which have been observed is that calculating temperature for boltzmann distribution is
+The first problem which has been observed is that calculating temperature for Boltzmann distribution is
 expensive compared to a single iteration. We've dealt with it by updating temperature
 only periodically. In our implementation mean SA iteration is about $30\%$ slower than
-hill climb iteration. This fact hadn't been depicted on the diagrams in any way.
+hill climb iteration. This fact hadn't been depicted in the diagrams in any way.
 
 We can observe that hill climb converges strictly faster than any SA variant.
 Moreover, the fitness curve is smooth (even though the neighbourhood is being browsed at random),
-which means that not only 2-opt topology doesn't have many local optima but also that fitness function
-is "continuous" in it.
+which means that not only 2-opt topology doesn't have many local optima but also that the
+fitness function is "continuous" in it.
 
 Basing on these observations, we are not considering 2-opt SA a
 suitable solution for TSP and have removed it from the general tsp comparison.
@@ -186,7 +187,7 @@ suitable solution for TSP and have removed it from the general tsp comparison.
 \subsection{Monte Carlo Tree Search policies}
 
 Despite the poor performance of MCTS-based algorithms for TSP problem, we have
-compared policies described in previous sections on small instances from
+compared policies described in the previous sections on small instances from
 TSPLIB. The results are presented below. Each row corresponds to a single
 policy (for names explanation please refer to the proper chapter). Each column
 corresponds to the State representation being used. Column description has a
@@ -196,9 +197,10 @@ move as described before. Number in each cell is equal to the final solution's
 fitness.
 
 The rest of configuration of each algorithm is exactly the same. In each test
-run the algorithm preforms $500$ times the current number of vertices not in
+run the algorithm performs $500$ times the current number of vertices not in
 the path samples per single decision.
 
+\FloatBarrier
 \begin{figure}[ht]
   \centering
   \input{../results/tsp/mcts_policies_comparison/eil51}
@@ -216,8 +218,9 @@ the path samples per single decision.
   \input{../results/tsp/mcts_policies_comparison/eil101}
   \caption{Comparison of MCTS policies for TSP on eil101 instance.}
 \end{figure}
+\FloatBarrier
 
-Results of this comparison were used while choosing the best algorithm's
+The results of this comparison were used while choosing the best algorithm's
 configuration for other tests. We could also confirm a few observations made
 during the course of fine-tunning our implementation.
 
@@ -230,7 +233,7 @@ reachable solution's space is small enough (that means a few decisions before
 reaching the terminal state). Once we are sure that after reaching a subtree
 which is small enough we will find an optimal solution reachable from its root,
 our objective is slightly different. Instead of looking for the best solution
-we look for a subtree with pretty low fitness of reachable solutions in hope
+we look for a subtree with a pretty low fitness of reachable solutions in hope
 that during the exhaustive search we will find better terminal state than we
 have seen anytime before. We have made another observation which confirms above
 conclusion. According to our tests the lowest fitness of any terminal state
@@ -242,11 +245,11 @@ Please note that the same pattern reproduces itself if one does not perform the
 final exhaustive search. The main reason is that when the algorithm descends
 into really small search subtree (say $6$ decisions before reaching the
 terminal state) and the tree itself is highly uniform (estimates for each
-children of a given node are roughly the same) all strategies reduce to picking
+child of a given node are roughly the same) all strategies reduce to picking a
 random path to some terminal state. When the number of samples per decision
 exceeds the number of different terminal states the random sampling procedure
 will visit all of them with high probability. The sole purpose of introduced
-modification (the exhaustive search procedure) is to speed up entire process
+modification (the exhaustive search procedure) is to speed up the entire process
 and make sure that no matter how unlucky we are, we will always find the best
 solution.
 
@@ -257,7 +260,7 @@ number of possible moves at each state (or a branch factor of the search tree)
 increases. When one develops an algorithm which has a lot of magic constants
 that affect its behaviour the problem of finding the best set of parameters
 becomes nontrivial, uniform sampling is superior in this case as it guarantees
-reasonable results without any fine tunning.
+reasonable results without any fine tuning.
 
 Note that the policies which prefer so-far-the best subtree during the random
 sampling do not scale well when the branch factor of the search tree increases.

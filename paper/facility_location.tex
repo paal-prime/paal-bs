@@ -11,20 +11,20 @@ inequality.
 
 The problem is to find a subset of facilities $O \subset F$ to be opened and an
 assignment of cities to opened facilities $a : C \to O$ in such a way that the
-total cost $\sum_{f \in O} o(f) + \sum_{c \in C} c(a(c), c)$ is minimized.
+total cost $\sum_{f \in O} o(f) + \sum_{c \in C} c(a(c), c)$ is minimised.
 
 \section{Primal-dual schema 3-apx}
-We have created efficient implementation of combinatoric approximation
+We have created an efficient implementation of the combinatoric approximation
 algorithm for the problem as a reference point for other discussed methods. The
 algorithm achieves a constant approximation factor of 3 and runs in $\Oh(|F||C|
-\log(|F||C|))$ time. It operates in primal-dual fashion trying to find feasible
-solution for dual problem with possibly the biggest cost. Detailed description
+\log(|F||C|))$ time. It operates in primal-dual fashion trying to find a feasible
+solution for the dual problem with possibly the biggest cost. Detailed description
 can be found in \cite{Vazirani}.
 
 We have introduced a slight modification to original algorithm due to Jain and
-Vasirani. Once the set of opened facilities is determined as in original
-algorithm we create optimal assignment in $\Oh(|F||C|)$ time by assigning each
-city to the closest facility. The assignment presented in original paper is
+Vazirani. Once the set of opened facilities is determined as in original
+algorithm we create an optimal assignment in $\Oh(|F||C|)$ time by assigning each
+city to the closest facility. The assignment presented in the original paper is
 useful for estimating approximation factor of the algorithm though.
 
 \section{Local Search 3-apx}
@@ -33,13 +33,13 @@ Local search with the following properties
 guarantees\footnote{\url{http://www.cs.ucla.edu/~awm/papers/lsearch.ps}}
 3-apx at local optimum:
 \begin{itemize}
-\item Search space consists of all subsets of facilities.
-\item Fitness function is the same as in problem statement.
-\item Valid step is of one of the forms:
+\item search space consists of all subsets of facilities
+\item fitness function is the same as in problem statement
+\item valid step is of one of the forms:
 	\begin{itemize}
 	\item insert one facility to the set
 	\item delete one facility from the set
-	\item swap one facility from the set with one from outside the set.
+	\item swap one facility from the set with one from outside the set
 	\end{itemize}
 \end{itemize}
 
@@ -76,7 +76,7 @@ of $1,2,\dots, |F|$ (ordering).
 considered only once).
 \item Fitness of terminal State is equal to sum of opening costs and connection costs.
 \item Fitness estimate is calculated using Adam Meyerson's algorithm\footnote{\url{http://www.cs.ucla.edu/~awm/papers/ofl.pdf}}
-which is constant competitive for randomized input.
+which is constant competitive for randomised input.
 \end{itemize}
 
 \section{Random Search}
@@ -95,12 +95,12 @@ into consideration.
 
 \section{Benchmarks}
 To evaluate the algorithms quality we have used UflLib\footnote{\url{http://www.mpi-inf.mpg.de/departments/d1/projects/benchmarks/UflLib/Euklid.html}}
-and our "clustered tests". The need for "clustered tests" raised from observation that
+and our "clustered tests". The need for "clustered tests" raised from the observation that
 uniform distribution is not natural for many real-world situation like city placements
 e.g. normally cities are "clustered" around natural resources.
 
 \subsection{Clustered tests}
-
+\FloatBarrier
 Clustered tests are euclidean plane tests.
 All facilities and cities are placed in the $[0,1]^2$ square.
 Test generation begins with drawing the clusters.
@@ -110,11 +110,12 @@ Number of clusters is test specific (from 10 to 30). Clusters can overlap.
 Once the clusters are determined, facilities and cities are being drawn (their number is test specific; usually about ~100 facilities and ~1000 cities).
 For each facility/city the cluster it will fall in is drawn with uniform probability.
 The actual position is selected with uniform probability from the cluster rectangle.
-Sample tests are depicted on figures \ref{FLClustered/test2.txt}-\ref{FLClustered/test4.txt}.
+Sample tests are depicted in figures \ref{FLClustered/test2.txt}-\ref{FLClustered/test4.txt}.
 
 \input{../FLClustered/test0}
 \input{../FLClustered/test2}
 \input{../FLClustered/test4}
+\FloatBarrier
 
 \section{Results}
 
@@ -129,7 +130,7 @@ which suggests that is should be harder to get trapped at a local optimum.
 The problem is that recalculating fitness requires $O(|F||C|)$ time which
 seems to be much too much, considering that we modify not more than 2 
 facilities. It is simple to reduce the complexity to $O(|C|\log(|F|))$,
-but it would require to use heap (or any other collection with fast access
+but it would require to use the heap (or any other collection with fast access
 to the smallest element) but the constant factor overhead would definitely
 balance out the complexity gain, since number of facilities in our test
 cases is of the order of $100$.
@@ -139,9 +140,9 @@ another modification: it occurs that it is easy to browse all neighbouring
 solutions in basically the same amount of time. We've named this approach
 as Best Step local search. All in all a single iteration of our implementation
 of Best Step is about 3 times slower than the random step one.
-Code complexity is also higher since we have to smartly utilize the
+Code complexity is also higher since we have to smartly utilise the
 time to calculate all fitness changes at once.
-Moreover, best step strategy is deterministic once we select the initial
+Moreover, the best step strategy is deterministic once we select the initial
 solution.
 
 Comparison of convergence speed of both algorithms is presented on diagrams.
@@ -168,7 +169,7 @@ and therefore only Best Step local search has been included to the general compa
 \subsection{MCTS}
 
 For the reference about row names and overall concept first look onto MCTS description in its own chapter.
-Columns are titled with $<samples\_multiplayer>$. \\
+Columns are titled with $<samples\_multiplier>$. \\
 Description of used algorithm can be found in \ref{MCTS_FL}. \\
 Number of iterations at each node of tree is $<samples\_multiplier> \cdot <number\_of\_left\_decisions>$.
 From this alone it clearly follows that running time is proportional to the $<samples\_multiplier>$.
