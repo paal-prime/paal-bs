@@ -74,7 +74,7 @@ of $1,2,\dots, |F|$ (ordering).
 \item Move represent a choice if facility should be opened in given point or not.
 \item Terminal state is when all facilities have been processed (each one is
 considered only once).
-\item Fitness of terminal State is equal to sum of openning costs and connection costs.
+\item Fitness of terminal State is equal to sum of opening costs and connection costs.
 \item Fitness estimate is calculated using Adam Meyerson's algorithm\footnote{\url{http://www.cs.ucla.edu/~awm/papers/ofl.pdf}}
 which is constant competitive for randomized input.
 \end{itemize}
@@ -101,7 +101,7 @@ e.g. normally cities are "clustered" around natural resources.
 
 \subsection{Clustered tests}
 
-Clustered tests are euclidian plane tests.
+Clustered tests are euclidean plane tests.
 All facilities and cities are placed in the $[0,1]^2$ square.
 Test generation begins with drawing the clusters.
 Cluster is a rectangle, whose dimensions are drawn uniformly from the test case specific ranges (usually from $.1$ to $.4$).
@@ -139,7 +139,7 @@ another modification: it occurs that it is easy to browse all neighbouring
 solutions in basically the same amount of time. We've named this approach
 as Best Step local search. All in all a single iteration of our implementation
 of Best Step is about 3 times slower than the random step one.
-Code complexity is also higher since we have to smartly utilitize the
+Code complexity is also higher since we have to smartly utilize the
 time to calculate all fitness changes at once.
 Moreover, best step strategy is deterministic once we select the initial
 solution.
@@ -176,26 +176,26 @@ From this alone it clearly follows that running time is proportional to the $<sa
 \FloatBarrier
 \begin{figure}[ht]
   \input{../results/facility_location/mcts/1011EuclS.tex}
-  \caption{Comparision of policies for 1011EuclS test case}
+  \caption{Comparison of policies for 1011EuclS test case}
 \end{figure}
 
 \begin{figure}[ht]
   \input{../results/facility_location/mcts/1111EuclS.tex}
-  \caption{Comparision of policies for 1111EuclS test case}
+  \caption{Comparison of policies for 1111EuclS test case}
 \end{figure}
 
 \begin{figure}[ht]
   \input{../results/facility_location/mcts/2211EuclS.tex}
-  \caption{Comparision of policies for 2211EuclS test case}
+  \caption{Comparison of policies for 2211EuclS test case}
 \end{figure}
 \FloatBarrier
 
 From the numbers we can clearly see that $PolicyRandMean$ gives the best answer.
-This is not a surprise as our problem is kind of continous, so intuively it's better
+This is not a surprise as our problem is kind of continuous, so intuitively it's better
 to go where we have a big chance of getting good answer instead of going in direction
 where we can get better result but with a much lower chance. \\
 As we can see raising $samples\_multiplier$ doesn't affect answer significantly on the other hand
-it increases running time dramatically. The running time of single testcase with $samples\_multiplier$
+it increases running time dramatically. The running time of single test case with $samples\_multiplier$
 set to 10 took around 1 second and when set to 5000 took about 500 seconds. \\
 From this we can see that best results are achieved with $PolicyRandMean$ with $samples\_multiplier$ set to low number. \\
 The conclusions here are very similar to the results in TSP chapter. 
