@@ -72,11 +72,6 @@ int main(int argc, char **argv)
 {
   Dir out_dir(argc, argv);
 
-  std::vector<std::string> tree_tests =
-  {
-    "alue2087",
-  };
-
   std::vector<std::string> forest_tests =
   {
     "02dEV100K30",
@@ -89,12 +84,6 @@ int main(int argc, char **argv)
 
   runTests< steiner::BreakCycleWalker<graph_t> >("CBC", forest_tests,
       FOREST_TESTS_DIR, out_dir, iterations, false);
-
-  runTests< steiner::ActiveVerticesWalker<graph_t> >("MSTAV", tree_tests,
-      TREE_TESTS_DIR, out_dir, iterations, true);
-
-  runTests< steiner::BreakCycleWalker<graph_t> >("CBC", tree_tests,
-      TREE_TESTS_DIR, out_dir, iterations, true);
 
   return 0;
 }

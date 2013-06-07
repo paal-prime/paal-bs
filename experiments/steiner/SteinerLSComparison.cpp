@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
   std::vector<std::string> tree_tests =
   {
-    "d05", "gap1307",
+    "d05"
   };
 
   int iterations = 1000;
