@@ -48,9 +48,9 @@ Note that CBC could benefit from SA strategy only when in consecutive iterations
 \end{figure}
 \FloatBarrier
 
-\subsection{CBC and MSTAV convergence comparison}
+\subsection{CBC's and MSTAV's search space topology comparison}
 \FloatBarrier
-
+Benchmarks have shown that MSTAV local search performs definitely better than CBC. If we take a closer look on each algorithm's search space topology we might find what is the cause. What seems to be the key difference in MSTAV's and CBC's search space topology is existance of plateau areas. MSTAV's might add additional vertex to set of active vertices while keeping the same fitness because the pruned MST that is computed during each step may not include added vertex. On the other hand CBC with StepCtrl using hill climbing strategy makes step only if it finds strictly better solution. If we combine that with observation that only edges between vertices of current solution allows to create a cycle in a single step we can notice that solution's neighbourhood is pretty small and steepy. Which might be the reason why CBC get stuck in local optima more often than MSTAV.
 \begin{figure}[hb]
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-d05}
 \end{figure}
