@@ -2,10 +2,3 @@ FLCLUSTERED_DIR := FLClustered
 
 $(FLCLUSTERED_DIR): gen/gen
 	./gen/gen
-
-clean-flclustered:
-	rm -rf $(FLCLUSTERED_DIR)
-
-distclean: clean-flclustered
-
-.PHONY: clean-flclustered
