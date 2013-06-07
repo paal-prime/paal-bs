@@ -68,14 +68,7 @@ int main(int argc, char **argv)
     "d05", "gap1307",
   };
 
-  std::vector<std::string> forest_tests =
-  {
-    "01sEV100K30", "01sRV1000K150",
-  };
-
   int iterations = 1000;
-
-  runTests(forest_tests, FOREST_TESTS_DIR, out_dir, iterations, false);
 
   runTests(tree_tests, TREE_TESTS_DIR, out_dir, iterations, true);
 

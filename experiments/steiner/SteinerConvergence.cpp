@@ -74,12 +74,12 @@ int main(int argc, char **argv)
 
   std::vector<std::string> tree_tests =
   {
-    "alue2087", "berlin52",
+    "alue2087",
   };
 
   std::vector<std::string> forest_tests =
   {
-    "01dEV100K30", "02dEV100K30",
+    "02dEV100K30",
   };
 
   int iterations = 1000;

@@ -41,19 +41,10 @@ If we consider how presented local searches change depending on StepCtrl we can 
 Note that CBC could benefit from SA strategy only when in consecutive iterations choosen edges would create a path leading to cycle creation. There is a little probability for such event a specially because solution is pruned every time edge creating cycle is found. As for MSTAV it allows for adding vertices that might not improve solution immediately which is exactly what we would expect from simulated annealing strategy.
 
 \begin{figure}[hb]
-\input{../results/steiner/SteinerConvergence/CBC-01dEV100K30}
-\end{figure}
-\begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/CBC-02dEV100K30}
 \end{figure}
 \begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/CBC-alue2087}
-\end{figure}
-\begin{figure}[hb]
-\input{../results/steiner/SteinerConvergence/CBC-berlin52}
-\end{figure}
-\begin{figure}[hb]
-\input{../results/steiner/SteinerConvergence/MSTAV-01dEV100K30}
 \end{figure}
 \begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/MSTAV-02dEV100K30}
@@ -61,20 +52,11 @@ Note that CBC could benefit from SA strategy only when in consecutive iterations
 \begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/MSTAV-alue2087}
 \end{figure}
-\begin{figure}[hb]
-\input{../results/steiner/SteinerConvergence/MSTAV-berlin52}
-\end{figure}
 \FloatBarrier
 
 \subsection{CBC and MSTAV convergence comparison}
 \FloatBarrier
 
-\begin{figure}[hb]
-\input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-01sEV100K30}
-\end{figure}
-\begin{figure}[hb]
-\input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-01sRV1000K150}
-\end{figure}
 \begin{figure}[hb]
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-d05}
 \end{figure}
