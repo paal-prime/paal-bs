@@ -11,6 +11,7 @@ $(PRESENTATION_MAIN) : %.pdf : %.tex $(PRESENTATION_FILES)
 clean-presentation:
 	-rm -f presentation/*.{aux,log,err,bbl,toc,blg,nav,out,snm}
 	-rm -f $(PRESENTATION_MAIN)
+	-rm -f presentation/*-eps-converted-to.pdf
 
 clean: clean-presentation
 

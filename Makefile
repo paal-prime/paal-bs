@@ -61,9 +61,9 @@ docs: $(HEADERS)
 clean:
 	-rm -f $(ALLOBJECTS) $(MAIN) $(GTEST)
 	-rm -rf $(DOCS_DIR)
+	-rm -f $(DEPENDS)
 
 distclean: clean
-	-rm -f $(DEPENDS)
 
 .PHONY: clean distclean
 
