@@ -97,12 +97,12 @@ Imagine a problem where updating state after making a single decision is an
 expensive process, in such case the states-oriented implementation can improve
 performance of simulation -- we would save the cost of applying decision to the
 states placed near root node in the search tree.
-On the other hand computer a representation of an entire state tends to be much
+On the other hand computer representation of an entire state tends to be much
 larger than representation of a single decision, in such situations second
 approach can save us both time and memory.
 We could not come up with reasonable problem and solving strategy based on
 MCTS, where the first approach has any advantages over the second one. Therefore we
-provide a framework for building algorithms using the second approach only.
+provide the framework for building algorithms using the second approach only.
 
 There is a one (quite ugly) hack that can be done in order to implement search
 tree structure similar to the first approach using our framework. Since state
