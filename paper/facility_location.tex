@@ -119,6 +119,25 @@ Sample tests are depicted in figures \ref{FLClustered/test2.txt}-\ref{FLClustere
 
 \section{Results}
 
+We have selected best local search algorithm to compare it against the best MCTS,
+Primal-dual schema and random implementations on a subset of UflLib instances.
+Best local search algorithm and best MCTS policy were selected basing on
+results presented in further part of this section. \\
+$reference \ time$ is the execution time of the 3apx (Primal-dual schema) algorithm. \\
+Limit time for Best Step local search was set to $max(reference \ time, 0.01s)$. \\
+Limit time for MCTS was set to $max(reference \ time, 0.1s)$
+When time limits for local search and MCTS were set to $reference \ time$ their
+results were really bad that's why we have given them more time. \\
+
+\input{../results/facility_location/fl_comparision/FLcomp}
+\FloatBarrier
+
+We have concluded that Best Step local search is an overall winner as
+its implementation is much simpler than implementations of
+MCTS and 3apx algorithms and results are better.
+It can also be observed that MCTS algorithm doesn't perform as bad as in TSP case
+but still it's only better than a random one.
+
 \subsection{Best Step \& Random Step local searches}
 
 From the definition
