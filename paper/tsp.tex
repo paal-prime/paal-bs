@@ -21,7 +21,7 @@ Although for Euclidean spaces there exists faster $\Oh(n\log(n))$ algorithm, the
 would be insignificant so we didn't use it.
 \item Let $O$ be a set of odd degree vertices in $T$.
 	  Find minimum perfect matching $M$ in complete graph over $O$. \\
-For this part we have used \emph{Blossom V}\footnote{\url{http://pub.ist.ac.at/~vnk/software.html}}
+For this part we have used \emph{Blossom V} \cite{BlossomV}
 implementation of Edmond's Blossom algorithm\footnote{\url{http://en.wikipedia.org/wiki/Blossom_algorithm}}.
 Worst case running time of this part is $\Oh(|O|^5)$ but in average case it behaves very well.
 \item Combine edges of $M$ and $T$ to form a multigraph $H$.
