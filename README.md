@@ -11,6 +11,7 @@ environmental variables are properly set.
 + `boost 1.52`
 + `doxygen`
 + `pdflatex`
++ `gtest`
 + entire `texlive` distribution (for required packages see TeX sources)
 
 Compiling and running
