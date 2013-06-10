@@ -1,17 +1,16 @@
-PAAL_SF_TESTS_URL:= "http://students.mimuw.edu.pl/~ls306462/steiner_forest_tests.tar.gz"
 PAAL_SF_TESTS_DIR := paal_sf_tests
 STEINER_TESTS_DIR = tests/steiner
 ARCHIVE_FILE=steiner_forest_tests.tar.gz
 TARGET_DIR=$(STEINER_TESTS_DIR)/$(PAAL_SF_TESTS_DIR)
 
 $(TARGET_DIR):
-	wget $(PAAL_SF_TESTS_URL)
 	mkdir -p $(TARGET_DIR)
-	tar xf $(ARCHIVE_FILE) -C $(TARGET_DIR)
-	rm $(ARCHIVE_FILE)
+	tar xf $(STEINER_TESTS_DIR)/$(ARCHIVE_FILE) -C $(TARGET_DIR)
 
 clean-sf_tests:
-	rm -rf $(TARGET_DIR) $(ARCHIVE_FILE)
+	rm -rf $(TARGET_DIR)
+
+world: $(TARGET_DIR)
 
 distclean: clean-sf_tests
 
