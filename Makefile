@@ -28,10 +28,12 @@ OBJECTS := $(filter-out $(MAINOBJECTS) $(GTESTOBJECTS),$(ALLOBJECTS))
 EXPLICITDEPS := $(shell find -name "*.dep")
 # headers
 HEADERS := $(shell find -name "*.h")
+CLEAN_DEPENDS := $(DEPENDS)
 
 all: $(DEPENDS) $(MAIN) $(GTEST)
 
-CLEAN_DEPENDS := $(DEPENDS)
+world: all docs poster presentation paper
+
 # include explicit dependencies
 -include $(EXPLICITDEPS)
 

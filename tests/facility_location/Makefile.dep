@@ -8,6 +8,8 @@ $(UFLLIB_DIR):
 clean-ufllib:
 	rm -rf $(UFLLIB_DIR)
 
+world: UflLib
+
 distclean: clean-ufllib
 
 .PHONY: clean-ufllib
