@@ -1,4 +1,5 @@
 # NOTE: in order to exclusion rule work you have to use full path with leading './'
+BLOSSOM5_DIR := blossom5
 BLOSSOM5_SOURCES := $(shell find ./blossom5/ -name "*.cpp")
 BLOSSOM5_DEPENDS := $(subst .cpp,.d, $(BLOSSOM5_SOURCES))
 BLOSSOM5_OBJECTS := $(filter-out $(MAINOBJECTS),$(subst .cpp,.o, $(BLOSSOM5_SOURCES)))
@@ -12,6 +13,24 @@ $(GTEST): $(BLOSSOM5_OBJECTS)
 
 CLEAN_DEPENDS := $(filter-out $(BLOSSOM5_DEPENDS), $(CLEAN_DEPENDS))
 
+PREREQUISITES := $(PREREQUISITES) $(BLOSSOM5_DIR)
+
+$(BLOSSOM5_DIR):
+	wget http://pub.ist.ac.at/~vnk/software/blossom5-v2.04.src.tar.gz
+	tar -xzf blossom5-v2.04.src.tar.gz
+	mv blossom5-v2.04.src blossom5
+	rm -rf blossom5-v2.04.src.tar.gz
+	rm blossom5/example.cpp
+	cd blossom5; patch -p1 -i ../blossom5-gen/blossom.patch
+	wget http://www.netlib.org/voronoi/triangle.zip
+	unzip triangle.zip -d blossom5/GEOM/triangle
+	rm triangle.zip
+
 $(BLOSSOM5_DEPENDS) : %.d : %.cpp
 	$(CXX) $(CXXFLAGS) -MT $(<:.cpp=.o) -MM $< > $@
 	@echo -e "\t"$(CXX) -std=gnu++0x -w $(OPTIMIZATIONS) -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@
+
+clean-BlossomV:
+	rm -rf $(BLOSSOM5_DIR)
+
+distclean: clean-BlossomV

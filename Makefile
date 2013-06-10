@@ -29,7 +29,7 @@ EXPLICITDEPS := $(shell find -name "*.dep")
 # headers
 HEADERS := $(shell find -name "*.h")
 CLEAN_DEPENDS := $(DEPENDS)
-
+PREREQUISITES := 
 all: $(DEPENDS) $(MAIN) $(GTEST)
 
 world: all docs poster presentation paper
@@ -45,7 +45,7 @@ endif
 endif
 
 # create submakefiles
-$(CLEAN_DEPENDS) : %.d : %.cpp Makefile
+$(CLEAN_DEPENDS) : %.d : %.cpp Makefile $(PREREQUISITES)
 	$(CXX) $(CXXFLAGS) -MT $(<:.cpp=.o) -MM $< > $@
 	@echo -e "\t"$(CXX) $(CXXFLAGS) -c $(CFLAGS) $< -o $(<:.cpp=.o) >> $@
 
