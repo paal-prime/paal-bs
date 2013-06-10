@@ -149,7 +149,7 @@ which suggests that is should be harder to get trapped at a local optimum.
 The problem is that recalculating fitness requires $O(|F||C|)$ time which
 seems to be much too much, considering that we modify not more than 2 
 facilities. It is simple to reduce the complexity to $O(|C|\log(|F|))$,
-but it would require to use the heap (or any other collection with fast access
+but it would require to use a heap (or any other collection with fast access
 to the smallest element) but the constant factor overhead would definitely
 balance out the complexity gain, since number of facilities in our test
 cases is of the order of $100$.

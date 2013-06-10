@@ -97,7 +97,7 @@ Imagine a problem where updating state after making a single decision is an
 expensive process, in such case the states-oriented implementation can improve
 performance of simulation -- we would save the cost of applying decision to the
 states placed near root node in the search tree.
-On the other hand computer representation of an entire state tends to be much
+On the other hand representation of an entire state tends to be much
 larger than representation of a single decision, in such situations second
 approach can save us both time and memory.
 We could not come up with reasonable problem and solving strategy based on
@@ -174,7 +174,7 @@ Policy is also responsible for propagating consequences of making single
 sample in the tree. Its update procedure is issued for each node on the path
 from chosen node to the root (in this order).
 
-Once the algorithm reaches the most urgent node it has to decide whether to expand
+Once algorithm reaches the most urgent node it has to decide whether to expand
 it -- create child nodes for each state reachable by making a single decision.
 The Policy concept provides a predicate which answers this question based on
 reached node and its level in the tree (number of nodes on the path to tree's

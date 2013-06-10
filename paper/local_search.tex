@@ -127,7 +127,7 @@ It is explicitly shared between components of the search() for the following rea
 \section{Reasoning}
 
 We have considered approaches alternative to the proposed design, they are
-worth studying in order to identify possible problems and why the current design
+worth studying in order to identify possible problems and why current design
 solves them in our opinion.
 
 \subsection{Abstract representation}
@@ -224,7 +224,7 @@ the less constraints we put on algorithm's design the less we know and the more
 must be done manually.
 
 It turned out that in the case of local search framework both performance
-considerations and domain-dependency limiting required nearly the same
+considerations and limiting domain-dependency required nearly the same
 transformations of component graph, which resulted in the graph becoming a
 tree. Cross edges were eliminated by encoding entire problem specific
 components in the Walker concept. Topologies of solution spaces implied by
