@@ -226,7 +226,7 @@ namespace tsp {
    * @tparam Graph graph that implements part of boost::graph
    *         interface (num_edges, num_vertices, out_degree)
    * @param graph source graph that will be cleaned from edges
-   * @cycle CycleList array to store the found eulerian cycle
+   * @param cycle CycleList array to store the found eulerian cycle
    */
   template<typename Graph>
   void find_eulerian_cycle(Graph* graph, CycleList cycle[]) {

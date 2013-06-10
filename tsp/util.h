@@ -52,8 +52,8 @@ namespace tsp
 
   /**
    * @brief calculates cycle length
-   * @param matrix [implements Matrix] square matrix
-   * @param cycle [implelemts Cycle]
+   * @tparam Matrix [implements Matrix] square matrix
+   * @tparam Cycle [implelemts Cycle]
    * @return cycle length
    */
   template<typename Matrix, typename Cycle>
@@ -69,8 +69,8 @@ namespace tsp
 
   /**
    * @brief generates a random cycle from values [0,n)
-   * @param cycle [implements Cycle]
-   * @param Random [implements Random]
+   * @tparam Cycle [implements Cycle]
+   * @tparam Random [implements Random]
    */
   template<typename Cycle, typename Random>
   void cycle_shuffle(Cycle &cycle, size_t n, Random &random)

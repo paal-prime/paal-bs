@@ -15,7 +15,7 @@ namespace facility_location
   template<typename Instance> struct RandomStepWalker
   {
       /**
-         * @param instance [implements Instance] problem instance
+       * @param _instance [implements Instance] problem instance
        * @param fs [implements FacilitySet] initial solution
        */
       template<typename FacilitySet>

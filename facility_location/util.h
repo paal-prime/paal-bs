@@ -63,7 +63,7 @@ namespace facility_location
    * @brief generates a random facility set
    * @param instance [implements Instance]
    * @param fs [implements FacilitySet]
-   * @params random [implements paal::Random]
+   * @param random [implements paal::Random]
    */
   template<typename Instance, typename FacilitySet, typename Random>
   inline void random_facility_set(

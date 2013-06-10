@@ -107,9 +107,7 @@ namespace tsp
   };
 
   /**
-   * @brief represents TSPLIB/ test case directory filled by
-   *  ./download_TSPLIB.sh
-   *
+   * @brief represents TSPLIB/ test case directory created by `make TSPLIB`
    * see: http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/
    */
   struct TSPLIB_Directory

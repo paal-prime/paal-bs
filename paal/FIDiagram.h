@@ -75,7 +75,7 @@ namespace paal
    * @brief dumps tex figure
    * @param tex output stream
    * @param caption figure caption
-   * @param caption tex figure label you can \ref
+   * @param caption tex figure label you can `\ref`
    */
   void dump_tex(std::ostream &tex, std::string caption, std::string label)
   {

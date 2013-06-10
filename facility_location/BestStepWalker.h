@@ -19,7 +19,7 @@ namespace facility_location
     /**
      *  @param instance [implements facility_location::Instance] problem instance
      *  @param fs [implements facility_location::FacilitySet] selected facility set
-     *  @params city index of a city to search nearest facilities from
+     *  @param city index of a city to search nearest facilities from
      */
     Best2(const Instance &instance, const FacilitySet &fs, size_t city)
     {
