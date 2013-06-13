@@ -2,7 +2,7 @@
 
 \section{Preliminaries}
 Describing optimisation problem in terms of finding a sequence of decisions
-that result in optimal solution seems natural to humans. In the this chapter we
+that result in optimal solution seems natural to humans. In this chapter we
 will describe related approach used widely in combinatorial optimisation and
 artificial intelligence. We assume reader to be familiar with the concept of
 \emph{decision tree}
@@ -26,7 +26,7 @@ problems may be encountered when implementing the algorithm:
   \item maintaining and traversing tree structure requires plenty of tedious
     and error prone code, memory utilisation is a significant problem given the
     number of simulations that can be performed using modern computers
-  \item statistics gathering and utilisation code cannot be tested in any reasonable way
+  \item statistics gathering and utilisation code cannot be tested in any reasonable way:
     \begin{enumerate}
       \item correct implementation is, in most cases, not guaranteed to find the optimal solution
       \item errors can cause slight regression or improvement depending on test instances
@@ -35,7 +35,7 @@ problems may be encountered when implementing the algorithm:
     \end{enumerate}
   \item there is a number of components that are common or interchangeable
     amongst the majority of MCTS method implementations, each of these parts is
-    worth generalisation due to virtually no coupling with approximated problem
+    worth generalisation due to virtually no coupling with approximated problem:
     \begin{itemize}
       \item tree structure modifications and traversing
       \item time execution control
@@ -52,7 +52,7 @@ Nomenclature introduced in this section is similar to the one used in
 more precise description please refer to mentioned publication.
 
 MCTS method finds single near-optimal decisions from the current state (which
-will be sometimes called \emph{root state}) according to statistical
+will be sometimes called a \emph{root state}) according to statistical
 information gathered from a number of iterations. A single iteration can be
 divided into three phases.
 We start by choosing the most urgent node of a tree using \emph{tree policy}.
@@ -117,7 +117,7 @@ virtually no overhead. Therefore the chosen approach is at least as expressive
 proposed.
 
 \section{Domain dependency}
-Our goal was to limit a coupling between specific problem and our framework, we
+Our goal was to limit coupling between specific problem and our framework, we
 have decided to restrict domain-specific part of a MCTS-based algorithm to two
 components, namely State and Move. Referring to previously introduced
 nomenclature, States coincide with abstract states (nodes in the tree) and

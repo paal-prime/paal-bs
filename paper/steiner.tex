@@ -6,7 +6,7 @@ Given an undirected graph $G = (V, E)$, a cost function on edges $c : E \rightar
 For $k = 1$ the problem is known as Steiner Tree Problem (STP).
 
 \section{Primal-Dual Method algorithm}
-Local searches written in our framework were compared to a 2-approximation algorithm described by Vazirani [Vazirani]. As far as we know, it's the best approximation algorithm for a SFP known to date.
+Local searches written in our framework were compared to a 2-approximation algorithm described by Vazirani \cite{Vazirani}. As far as we know, it's the best approximation algorithm for a SFP known to date.
 
 The time complexity of provided implementation is $\Oh(S(E + V\alpha(V) + \log(S)))$ where $S = \sum_{i = 1}^{k}S_i$, $\alpha(V)$ is the inverse of the function $n = f(x) = A(x, x)$ and $A$ is Ackermann function.
 
@@ -90,4 +90,5 @@ After testing presented algorithms we have made the following observations:
   \input{../results/steiner/SteinerComparison/comparisonLargerTreeTests}
   \caption{Results for sample of STP tests for graphs with at least thousand of vertices}
 \end{figure}
+
 \FloatBarrier

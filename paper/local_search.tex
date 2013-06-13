@@ -3,7 +3,7 @@
 \section{Motivation}
 
 Local search\footnote{\url{http://en.wikipedia.org/wiki/Local_search_(optimization)}} is a metaheuristic for solving optimisation problems.
-It is especially useful when the fitness function's local optima have value close to the global one.
+It is especially useful when the fitness function's local optimums have value close to the global one.
 Once a decent topology on the solution space is defined, the algorithm itself is very easy to implement:
 you just make a walk in the solution space, choosing every step so that the next solution you move to has
 a better fitness than the previous one. The local search implementation has usually just a few dozens of lines and
@@ -84,17 +84,15 @@ void search(Walker &walker, StepCtrl &step_ctrl, ProgressCtrl &progress_ctrl,
 
 Walker is the only component which knows the nature of the problem.
 It is not divided on this framework level, since if more components would know about the problem it would create cross dependencies.
-In other words, such situation would inevitably make search() to transfer problem specific data between them.
+In other words, such situation would inevitably make search() transfer problem specific data between them.
 Also many custom/intrusive optimisation can be made at this point, so we believe that this is definitely a point at which we should allow the user to plug in
-his own code.
-
+his own code. \\
 Walker is responsible for:
 \begin{itemize}
 \item maintaining the current solution
-\item preparing the proposition of the new step
+\item preparing the proposition of a new step
 \item making the proposed step
 \end{itemize}
-
 It has to contain an initial solution before calling search().
 Better solutions have lower fitness.
 
@@ -126,7 +124,7 @@ It is explicitly shared between components of the search() for the following rea
 
 \section{Reasoning}
 
-We have considered approaches alternative to the proposed design, they are
+We have considered alternative approaches to the proposed design, they are
 worth studying in order to identify possible problems and why current design
 solves them in our opinion.
 
@@ -209,7 +207,7 @@ may change) must be propagated during initialisation down in the tree starting
 from $P$.
 
 The obvious benefits from treelike component graph is simple. In the top-down
-initialisation, we can assume that during construction of algorithm child being
+initialisation, we can assume that during construction of algorithm, child being
 initialised is given an interface to obtain initialisation data from parent
 according to its needs or this data is passed explicitly. Furthermore there is
 no problem with assigning an ownership of a concept. Tree design makes
@@ -250,7 +248,7 @@ studied examples.
 \begin{itemize}
 \item HillClimb - accepts a step if the next fitness is better than the current fitness.
 \item Annealing - makes a decision according to the temperature schedule defined by
-	Boltzmann distribution\footnote{\url{http://en.wikipedia.org/wiki/Boltzmann_distribution}}.
+	\mbox{Boltzmann} distribution\footnote{\url{http://en.wikipedia.org/wiki/Boltzmann_distribution}}.
 \end{itemize}
 
 \subsection{Walker implementations}

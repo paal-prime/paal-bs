@@ -35,7 +35,7 @@ is fast in comparison to our other techniques.
 
 In 2-opt\footnote{\url{http://en.wikipedia.org/wiki/2-opt}} local search for TSP, a single step
 consists of reverting a segment of the current cycle. Intuitively, we find a point
-at which the route crosses over itself and reorder it so that is doesn't.
+at which the route crosses over itself and reorder it so that it doesn't.
 
 Since in metrical TSP distance between a pair of points is the same for both directions,
 computing fitness of the new route simplifies to removing a pair of edges and replacing it with another
@@ -88,7 +88,7 @@ search tree. For TSP problem we chose path building approach:
     a sequence of random decisions
 \end{itemize}
 
-We have introduced two improvements to above schema. In order to reduce branch
+We have introduced two improvements to the above schema. In order to reduce branch
 factor of resulting tree we have a limited number of vertices taken into
 consideration when choosing next move. A good heuristics here is to choose from
 no more than $K$ vertices closest to the path's end.
@@ -135,7 +135,7 @@ significant number of vertices. Most of performed experiments used the smallest
 instances available in TSPLIB collection -- graphs with less than $300$
 vertices. The most efficient MCTS algorithm (see next section for model
 selection methodology) needed at least $5 s$ to find a solution which was
-$1.2$-approximation, while local search algorithms were able better solution
+$1.2$-approximation, while local search algorithms were able to best it in a
 fraction of this time. Running the MCTS method for medium-sized instances is
 impractical, for graphs with more than $10000$ vertices it is impossible.
 

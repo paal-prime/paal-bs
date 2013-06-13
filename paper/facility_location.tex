@@ -35,7 +35,7 @@ guarantees\cite{FacilityLS} %\footnote{\url{http://www.cs.ucla.edu/~awm/papers/l
 \begin{itemize}
 \item search space consists of all subsets of facilities
 \item fitness function is the same as in problem statement
-\item valid step is of one of the forms:
+\item valid step is one of:
 	\begin{itemize}
 	\item insert one facility to the set
 	\item delete one facility from the set
@@ -72,9 +72,9 @@ next facilities will be processed.
 \item Initial State is empty vector (opened facilities) and a permutation
 of $1,2,\dots, |F|$ (ordering).
 \item Move represent a choice if facility should be opened in given point or not.
-\item Terminal state is when all facilities have been processed (each one is
+\item State is terminal when all facilities have been processed (each one is
 considered only once).
-\item Fitness of terminal State is equal to sum of opening costs and connection costs.
+\item Fitness of terminal State is equal to the sum of opening costs and connection costs.
 \item Fitness estimate is calculated using Adam Meyerson's algorithm\footnote{\url{http://www.cs.ucla.edu/~awm/papers/ofl.pdf}}
 which is constant competitive for randomised input.
 \end{itemize}
@@ -119,7 +119,7 @@ Sample tests are depicted in figures \ref{FLClustered/test2.txt}-\ref{FLClustere
 
 \section{Results}
 
-We have selected best local search algorithm to compare it against the best MCTS,
+We have selected best local search algorithm to compare it against the best MCTS configuration,
 Primal-dual schema and random implementations on a subset of UflLib instances.
 Best local search algorithm and best MCTS policy were selected basing on
 results presented in further part of this section. \\
