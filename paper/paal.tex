@@ -53,6 +53,15 @@
 %\usepackage[cp1250]{inputenc}
 \usepackage[utf8]{inputenc}
 
+% squeeze figures a bit
+\renewcommand\floatpagefraction{.9}
+\renewcommand\topfraction{.9}
+\renewcommand\bottomfraction{.9}
+\renewcommand\textfraction{.1}
+\setcounter{totalnumber}{50}
+\setcounter{topnumber}{50}
+\setcounter{bottomnumber}{50}
+
 % Dane magistranta:
 
 \author{Piotr Jaszkowski, Mateusz Machalica, Grzegorz Prusak, Łukasz Solak}
@@ -168,11 +177,11 @@
 		\end{itemize}
 	\item[Grzegorz Prusak]
 		\begin{itemize}
-			\item Local Search Framework design & implementation
-			\item Algorithms' results presentation framework design & implementation
+			\item Local Search Framework design \& implementation
+			\item Algorithms' results presentation framework design \& implementation
 			\item MCTS framework co-designer
 			\item TSP 2-opt implementation
-			\item Facility Location local searches implementation & comparison
+			\item Facility Location local searches implementation \& comparison
 		\end{itemize}
 	\item[Łukasz Solak]
 		\begin{itemize}

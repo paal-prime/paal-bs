@@ -160,17 +160,18 @@ Temperature falls geometrically over time reaching fixed final temperature at th
 Diagrams 4.1-3 present SA with different final temperatures ($10^{-2}, 10^{-5}, 10^{-9}$) and
 pure hill climb strategy on sample TSPLIB test cases.
 
-\FloatBarrier
 \begin{figure}[h]
-\input{../results/tsp/ls_convergence/brazil58}
+  \centering
+  \input{../results/tsp/ls_convergence/brazil58}
 \end{figure}
 \begin{figure}[h]
-\input{../results/tsp/ls_convergence/d15112}
+  \centering
+  \input{../results/tsp/ls_convergence/d15112}
 \end{figure}
 \begin{figure}[h]
-\input{../results/tsp/ls_convergence/ulysses22}
+  \centering
+  \input{../results/tsp/ls_convergence/ulysses22}
 \end{figure}
-\FloatBarrier
 
 The first problem which has been observed is that calculating temperature for Boltzmann distribution is
 expensive compared to a single iteration. We've dealt with it by updating temperature
@@ -184,6 +185,8 @@ fitness function is ,,continuous'' in it.
 
 Basing on these observations, we are not considering 2-opt SA a
 suitable solution for TSP and have removed it from the general tsp comparison.
+
+\FloatBarrier
 
 \subsection{Monte Carlo Tree Search policies}
 

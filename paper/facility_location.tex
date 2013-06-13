@@ -171,17 +171,17 @@ Diagram \ref{fl_conv0} compares convergence of both algorithms on one of our clu
 and diagram \ref{fl_conv6} on a sample UflLib test case. Their behaviour on all UflLib Euclid
 tests and clustered tests is roughly the same.
 
+\FloatBarrier
+\input{../results/facility_location/ls_convergence/c0}
+\input{../results/facility_location/ls_convergence/c6}
+\FloatBarrier
+
 We can observe that both algorithms converge after about 30 iterations for test cases with
 100 facilities. Best Step has a smooth curve (fitness is "continuous" in topology used).
 Random Step curve is more rough - as the iterations pass, the fraction of neighbours with better fitness
 falls much faster than the fitness gradient at the current solution.
 Best Step finds better solutions than Random Step in every case and behaves more predictably,
 and therefore only Best Step local search has been included to the general comparison.
-
-\FloatBarrier
-\input{../results/facility_location/ls_convergence/c0}
-\input{../results/facility_location/ls_convergence/c6}
-\FloatBarrier
 
 \begin{figure}[ht]
   \input{../results/facility_location/comparison/EuclS}
