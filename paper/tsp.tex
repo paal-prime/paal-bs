@@ -135,9 +135,10 @@ significant number of vertices. Most of performed experiments used the smallest
 instances available in TSPLIB collection -- graphs with less than $300$
 vertices. The most efficient MCTS algorithm (see next section for model
 selection methodology) needed at least $5 s$ to find a solution which was
-$1.2$-approximation, while local search algorithms were able to best it in a
-fraction of this time. Running the MCTS method for medium-sized instances is
-impractical, for graphs with more than $10000$ vertices it is impossible.
+$1.2$-approximation, while local search algorithms were able to find a
+better solution in a fraction of this time. Running the MCTS method
+for medium-sized instances is impractical, for graphs with more than
+$10000$ vertices it is impossible.
 
 Poor overall performance of MCTS method in our tests is a bit surprising as
 travelling salesman problem variations are presented as a primary non-games
