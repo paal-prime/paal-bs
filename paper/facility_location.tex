@@ -15,10 +15,10 @@ total cost $\sum_{f \in O} o(f) + \sum_{c \in C} c(a(c), c)$ is minimised.
 
 \section{Primal-dual schema 3-apx}
 We have created an efficient implementation of the combinatoric approximation
-algorithm for the problem as a reference point for other discussed methods. The
-algorithm achieves a constant approximation factor of 3 and runs in $\Oh(|F||C|
+algorithm for the problem as a reference point for other methods discussed. The
+algorithm has a constant approximation factor of 3 and runs in $\Oh(|F||C|
 \log(|F||C|))$ time. It operates in primal-dual fashion trying to find a feasible
-solution for the dual problem with possibly the biggest cost. Detailed description
+solution for the dual problem with the biggest cost possible. Detailed description
 can be found in \cite{Vazirani}.
 
 We have introduced a slight modification to original algorithm due to Jain and
@@ -50,7 +50,7 @@ for this algorithm:
 \item BestStepWalker: find the fittest step among the valid ones: $\Oh(|F|(|F|+|C|))$ per iteration
 \end{itemize}
 
-In both cases, time of single iteration is proportional to the problem
+In both cases, time of a single iteration is proportional to the problem
 instance size. It is therefore necessary to start the local search from
 the solution relatively close (in the topology described) to the local
 optimum. Intuitively the optimal solution will consist of a small number
@@ -105,7 +105,7 @@ Clustered tests are euclidean plane tests.
 All facilities and cities are placed in the $[0,1]^2$ square.
 Test generation begins with drawing the clusters.
 Cluster is a rectangle, whose dimensions are drawn uniformly from the test case specific ranges (usually from $.1$ to $.4$).
-Cluster positions are drawn so that the whole cluster fits into the unit square.
+Cluster position is drawn so that the whole cluster fits into the unit square.
 Number of clusters is test specific (from 10 to 30). Clusters can overlap.
 Once the clusters are determined, facilities and cities are being drawn (their number is test specific; usually about ~100 facilities and ~1000 cities).
 For each facility/city the cluster it will fall in is drawn with uniform probability.
@@ -177,11 +177,11 @@ tests and clustered tests is roughly the same.
 \FloatBarrier
 
 We can observe that both algorithms converge after about 30 iterations for test cases with
-100 facilities. Best Step has a smooth curve (fitness is "continuous" in topology used).
-Random Step curve is more rough - as the iterations pass, the fraction of neighbours with better fitness
-falls much faster than the fitness gradient at the current solution.
+100 facilities. Best Step has a smooth curve (fitness is ,,continuous'' in topology used).
+Random Step curve is more rough - as the iterations pass, which means that the fraction of
+neighbours with better fitness falls much faster than the fitness gradient at the current solution.
 Best Step finds better solutions than Random Step in every case and behaves more predictably,
-and therefore only Best Step local search has been included to the general comparison.
+and therefore only Best Step local search has been included in the general comparison.
 
 \begin{figure}[ht]
   \input{../results/facility_location/comparison/EuclS}
@@ -189,11 +189,11 @@ and therefore only Best Step local search has been included to the general compa
 
 \subsection{MCTS}
 
-For the reference about row names and overall concept first look onto MCTS description in its own chapter.
+For the reference about row names and overall concept first take a look at MCTS description in its own chapter.
 Columns are titled with \verb+<samples_multiplier>+. \\
-Description of used algorithm can be found in \ref{MCTS_FL}. \\
-Number of iterations at each node of the tree is equal to the samples multiplier times the number of left decisions.
-From this alone it clearly follows that running time is proportional to the samples multiplier.
+Description of the algorithm used can be found in \ref{MCTS_FL}. \\
+Number of iterations at each node of the tree is equal to the samples multiplier times the number of decisions left.
+This means that the running time is proportional to the samples multiplier.
 
 \FloatBarrier
 \begin{figure}[ht]
@@ -215,9 +215,9 @@ From this alone it clearly follows that running time is proportional to the samp
 From the numbers we can clearly see that \emph{PolicyRandMean} gives the best answer.
 This is not a surprise as our problem is kind of continuous, so intuitively it's better
 to go where we have a big chance of getting good answer instead of going in direction
-where we can get better result but with a much lower chance. \\
-As we can see raising the value of samples multiplier does not affect answer significantly on the other hand
+where we can get better result but with a much lower chance.
+As we can see, raising the value of samples multiplier does not affect answer significantly. On the other hand
 it increases running time dramatically. Execution of a single test case when the samples multiplier
-was set to 10 took around 1 second but when the value was set to 5000 it took about 500 seconds. \\
-From this we can see that best results are achieved with \emph{PolicyRandMean} with samples multiplier set to low number. \\
-The conclusions here are very similar to the results in TSP chapter. 
+was set to 10 took around 1 second but when the value was set to 5000 it took about 500 seconds.
+Hence we can see that the best results are achieved with \emph{PolicyRandMean} with samples multiplier set to a low number.
+The conclusions here are very similar to the results in TSP chapter.

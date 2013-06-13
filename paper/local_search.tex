@@ -85,8 +85,8 @@ void search(Walker &walker, StepCtrl &step_ctrl, ProgressCtrl &progress_ctrl,
 Walker is the only component which knows the nature of the problem.
 It is not divided on this framework level, since if more components would know about the problem it would create cross dependencies.
 In other words, such situation would inevitably make search() transfer problem specific data between them.
-Also many custom/intrusive optimisation can be made at this point, so we believe that this is definitely a point at which we should allow the user to plug in
-his own code. \\
+Also many custom/intrusive optimisation can be made here,
+so we believe that this is definitely a point at which we should allow the user to plug in his own code. \\
 Walker is responsible for:
 \begin{itemize}
 \item maintaining the current solution
@@ -114,7 +114,7 @@ Simulated annealing and hill climb have easy/trivial implementations of this con
 
 \subsection{Random}
 
-It is just C++11 RNG (random nubmer generator) concept.
+It is just C++11 RNG (random number generator) concept.
 Random generates random integer values.
 It is explicitly shared between components of the search() for the following reasons:
 \begin{itemize}
@@ -124,27 +124,25 @@ It is explicitly shared between components of the search() for the following rea
 
 \section{Reasoning}
 
-We have considered alternative approaches to the proposed design, they are
-worth studying in order to identify possible problems and why current design
+We have considered alternative approaches to the proposed design. They are
+worth studying in order to identify possible problems and justify why current design
 solves them in our opinion.
 
 \subsection{Abstract representation}
 It is helpful to express structure of local search framework in terms of a
-graph where each node represents a separated concept and an edge $A \to B$
+graph whose each node represents a separated concept and an edge $A \to B$
 exists iff concept $A$ uses (e.g. calls, owns, reads data) concept $B$. First
-assumption was that resulting graph is compact, local search algorithm provided
-by the framework should be seen as one phase from the outside (e.g. invocation
-of one function, which takes input and returns result), so every concept in
-different connected component than the algorithm itself is useless. We will
-refer to described graph as the \emph{component graph}.
+assumption was that resulting graph is connected, so that a local search algorithm
+provided by the framework would be seen as a single function call from the outside.
+We will refer to described graph as the \emph{component graph}.
 
 \subsection{The way to the tree}
-We have eliminated all designs with cycles in component graph, the most
+We have eliminated all designs with cycles in component graph. The most
 important reason for this was that we could not find how we can benefit from
 allowing two way communication between components. Furthermore all concepts
 need to be initialised either by the user or search procedure itself if they are
 completely algorithm independent (like statistics gathering) and every cycle
-makes initialisation really complicated, there is no arbitrary choice of
+makes initialisation really complicated - there is no arbitrary choice of
 initialisation order we could come up with in this case.
 
 Therefore we were free to choose either general DAG or a tree. To reduce both
@@ -178,21 +176,19 @@ by a user).
 We have made an experiment with changing parts of an algorithm (namely
 underlying data structure) during algorithm execution. Obviously allowing
 forward edge in this case (calling specific data structure directly, skipping
-its owner) might invalidate algorithm. The real problem here is a careless user
-who gave an ownership to the object being descendant of a caller while allowing
-forward edges in the component graph. Removing forward edge as described above
-forces every call to pass through data structure owner, which is less
-error-prone and simpler.
+its owner) might invalidate an algorithm. The real problem here is that the owner
+of the object has to be aware that his ancestors can have forward edges to it.
+Removing forward edge as described above forces every call to pass through data structure owner,
+which is less error-prone and simpler.
 
 We further assume that there are no forward edges in the graph.
 
 \subsection{Cross edges discussion}
 Consider the case where one concept $C$ is a child of two (or more) concepts
 $A$ and $B$ (assume $B \to C$ is a cross edge). Let $P$ be the lowest common
-ancestor of both $A$ and $B$ in depth-first spanning tree of the component
-graph. Described situation breaks composability of algorithm's design but one
-can easily come up with an example of a local search algorithm where such
-design is desired, we will discuss it later, for now let us assume that we do
+ancestor of both $A$ and $B$ in DFS tree of the component graph.
+Described situation breaks compositionality of algorithm's design. Later
+we'll discuss when need of such design can arise. For now let us assume that we do
 need communication between components as described above.
 
 If we disallow cross edges in our design we have to provide a different mechanism
@@ -200,15 +196,15 @@ of communication between $B$ and $C$. As the graph without cross edges is a
 tree we have to pass data back (query result) from $C$ to $P$ and provide $B$
 with it in a separate call. The obvious problem here is that data format must be
 known to all concepts on paths from $B$ and $C$ do $P$ (including $P$) and data
-format type can (in most cases will) be domain dependant - therefore we are
+format type can (in most cases it will) be domain dependant - therefore we are
 raising domain boundary up to the lowest common ancestor of components that were
-connected by cross edge. This means that protocol common to $B$ and $C$
+connected by a cross edge. This means that protocol common to $B$ and $C$
 must be propagated during initialisation down in the tree starting
 from $P$.
 
 The obvious benefits from treelike component graph is simple. In the top-down
 initialisation, we can assume that during construction of algorithm, child being
-initialised is given an interface to obtain initialisation data from parent
+initialised either supplies an interface to obtain initialisation data from parent
 according to its needs or this data is passed explicitly. Furthermore there is
 no problem with assigning an ownership of a concept. Tree design makes
 synchronisation model extremely easy to implement in case one would like
@@ -216,7 +212,7 @@ concepts to operate concurrently.
 
 There are more problems with cross edges. Initialisation cannot be done
 top-down in described automatic fashion, ownership assignment just like the
-rest of the initialisation procedure needs to be done by the user as hidden
+rest of the initialisation procedure needs to be done by the user since the hidden
 dependencies are not obvious to any automatic model. It is pretty obvious that
 the less constraints we put on algorithm's design the less we know and the more
 must be done manually.
@@ -226,9 +222,9 @@ considerations and limiting domain-dependency required nearly the same
 transformations of component graph, which resulted in the graph becoming a
 tree. Cross edges were eliminated by encoding entire problem specific
 components in the Walker concept. Topologies of solution spaces implied by
-problems discussed when designing this framework vary considerably, we were
-unable to split this concept leaving the complexity of single step unchanged for
-studied examples.
+the problems discussed when designing this framework vary considerably and we were
+unable to split this concept any further. Therefore the complexity of implementing
+a single step has been left unchanged.
 
 \section{Framework supplied implementations}
 
@@ -236,7 +232,7 @@ studied examples.
 \begin{itemize}
 \item IterationCtrl - fixes the number of search iterations.
 \item TimeCtrl - fixes the time of search execution up to to the fixed granularity.
-	Granularity is the amount of iterations between the consecutive time checks.
+	Granularity is the number of iterations between the consecutive time checks.
 	Checking time every iteration is too expensive if expected single iteration time
 	is very short.
 \item TimeAutoCtrl - same as TimeCtrl but the granularity is being adjusted

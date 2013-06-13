@@ -12,9 +12,9 @@ artificial intelligence. We assume reader to be familiar with the concept of
 \emph{Monte Carlo Tree Search} (MCTS) is a metaheuristic for finding
 near-optimal decisions in the decision space by building the search tree and
 evaluating its nodes according to random simulations.
-MCTS is an iterative method, samples from many iterations are combined together
+MCTS is an iterative method - samples from many iterations are combined together
 so that the best (or rather the most promising) decision from the current state
-can be chosen based on aggregated statistics.
+can be chosen based on statistics aggregated.
 
 To implement MCTS-based approximation for given problem two domain-specific
 components must be defined: an evaluation function which gives a linear ordering
@@ -24,7 +24,7 @@ Both of these parts are usually simple, but MCTS algorithm itself is not. Many
 problems may be encountered when implementing the algorithm:
 \begin{itemize}
   \item maintaining and traversing tree structure requires plenty of tedious
-    and error prone code, memory utilisation is a significant problem given the
+    and error prone code; also memory utilisation is a significant problem given the
     number of simulations that can be performed using modern computers
   \item statistics gathering and utilisation code cannot be tested in any reasonable way:
     \begin{enumerate}
@@ -34,13 +34,13 @@ problems may be encountered when implementing the algorithm:
       problem that a few would expect from combinatorial optimisation algorithm
     \end{enumerate}
   \item there is a number of components that are common or interchangeable
-    amongst the majority of MCTS method implementations, each of these parts is
-    worth generalisation due to virtually no coupling with approximated problem:
+    among the majority of MCTS method implementations, each of these parts is
+    worth generalisation due to virtually no coupling with the approximated problem:
     \begin{itemize}
       \item tree structure modifications and traversing
       \item time execution control
       \item statistics aggregation and optimal decision extraction
-      \item efficient decision and state propagation
+      \item efficient decision making and state propagation
     \end{itemize}
 \end{itemize}
 
@@ -48,8 +48,8 @@ Proposed framework is our attempt to address these issues.
 
 \section{General description}
 Nomenclature introduced in this section is similar to the one used in
-\cite{MCTSsurvey}.  Let us recall the basic operation of MCTS algorithm, for
-more precise description please refer to mentioned publication.
+\cite{MCTSsurvey}.  Let us recall the basic operation of MCTS algorithm. For
+more precise description please refer to the publication mentioned.
 
 MCTS method finds single near-optimal decisions from the current state (which
 will be sometimes called a \emph{root state}) according to statistical
@@ -64,8 +64,8 @@ representing state which is not necessarily terminal, as we don't want to store
 entire tree in the memory. It is tree policy's responsibility to decide whether
 to expand this leaf by creating a new child node for each state which can be
 reached with a single decision.
-Starting from this node (state) we use \emph{default policy} to evaluate it, in
-the simplest case default policy will make a random sequence of moves until
+Starting from this node (state) we use \emph{default policy} to evaluate it.
+In the simplest case default policy will make a random sequence of moves until
 terminal state (which can be evaluated directly) is reached.
 The result of an evaluation is propagated backwards (up to the root) and statistics
 in each node are updated.
@@ -89,7 +89,7 @@ which we want to make a decision at the moment -- is represented by the root of
 the tree.
 
 The other approach would be to store initial state in the root, but instead of
-storing states one can store transitions between them -- possible decisions.
+storing states in all other nodes one can just store transitions between them -- possible decisions.
 
 Both ways may seem identical conceptually, but they are quite different from
 the algorithmic and technical points of view.
@@ -98,27 +98,27 @@ expensive process, in such case the states-oriented implementation can improve
 performance of simulation -- we would save the cost of applying decision to the
 states placed near root node in the search tree.
 On the other hand representation of an entire state tends to be much
-larger than representation of a single decision, in such situations second
+larger than representation of a single decision and in such situations second
 approach can save us both time and memory.
-We could not come up with reasonable problem and solving strategy based on
-MCTS, where the first approach has any advantages over the second one. Therefore we
-provide the framework for building algorithms using the second approach only.
+We were unable to come up with a reasonable problem and a solving strategy based on
+MCTS for which the first approach would have any advantages over the second one.
+Therefore we provide the framework for building algorithms using the second approach only.
 
-There is a one (quite ugly) hack that can be done in order to implement search
-tree structure similar to the first approach using our framework. Since state
-description, decision representation and aggregating function that applies
-decision to given state and produces new one are specified by user one can do
-things as follows: state would stay unchanged, decision will be described not
-by an incremental but as a full destination state and aggregation function
-should discard source state and return destination one encoded in 'decision'.
-If properly implemented by a user this can be used with our framework with
+There is a (quite ugly) hack that can be done in order to implement search
+tree structure similar to the first approach using our framework. Since both the
+state description, the decision representation and the aggregating function (that applies
+decision to given state and produces new one) are specified by the user, one can
+organize things as follows: state would stay unchanged, decision will be described not
+by an incremental but by a full destination state, and aggregation function
+should discard source state and return the destination encoded in the 'decision'.
+If properly implemented by a user this can be used within our framework with
 virtually no overhead. Therefore the chosen approach is at least as expressive
-(when memory and complexity constraints are taken into account) as each of
-proposed.
+(when memory and complexity constraints are taken into account) as each of the
+proposed ones.
 
 \section{Domain dependency}
-Our goal was to limit coupling between specific problem and our framework, we
-have decided to restrict domain-specific part of a MCTS-based algorithm to two
+Our goal was to limit coupling between specific problem and our framework.
+We have decided to restrict domain-specific part of a MCTS-based algorithm to two
 components, namely State and Move. Referring to previously introduced
 nomenclature, States coincide with abstract states (nodes in the tree) and
 Moves -- with decisions (edges in the tree).
@@ -129,25 +129,23 @@ precision issues, we found no drawbacks of this simplifying decision for any
 real life MCTS application.
 
 \section{Concepts}
-We have identified a few concrete components of MCTS algorithm, that are in our
+We have identified a few components of MCTS algorithm, that are in our
 opinion generically atomic.
 
 \subsection{Payload}
-The Payload concept maintains statistics describing single state, that are used
-by the Policy concept. The Policy is also the only component that can access, modify
-and understand information enclosed in Payload. Node, being only an owner of
-the payload object, indirectly stores the assignment between state and payload.
-
-Tree nodes are part of the tree while aggregated statistics are conceptually
-connected with tree policy, we could not store them in the nodes directly.
+Tree node contains 2 unrelated informations: the problem specific decision (Move)
+and the policy specific statistics (Payload).
+Payload is a passive structure which is being defined by the Policy
+and the Policy is the only component that can access,
+modify and understand information enclosed in Payload.
 
 \subsection{Policy}
 The Policy concept coincides with the tree policy described before.
 All examples discussed and implemented during the course of designing this
 framework reduced the problem of finding the most urgent node in entire tree to
 finding locally the most urgent child to descend into and in consequence
-finding a path to chosen node from the root. Therefore tree policy provides a
-function that given a node, a state reached in this node and its children
+finding a path to a chosen node from the root. Therefore tree policy provides a
+function that given a node, a state represented by this node and its children
 returns child that should be examined recursively. An alternative approach would
 involve passing the entire tree structure to the decisive function. By requesting
 local decisions we make this simple both conceptually and technically yet
@@ -159,7 +157,7 @@ a single simulation to a reasonable number of nodes, since after evaluating chos
 node we update all nodes on the path to the root and only them.
 
 Possible domain-dependency of the tree policy is theoretically allowed since
-local decision is made based on entire information stored in the node and the
+the local decision is based on the entire information stored in the node and the
 state reached by making decisions encoded in edges traversed during node
 selection.
 This possibility is usually ignored since it has been proven that MCTS
@@ -168,11 +166,11 @@ any knowledge about the problem other than default policy and some black-box
 algorithm to generate states reachable from given one by making a single
 decision. In such case tree policy makes a decision based on aggregated results
 of previous simulations only.
-This is also an approach that we choose for our framework.
+This is also an approach that we have chosen for our framework.
 
-Policy is also responsible for propagating consequences of making single
+Policy is also responsible for propagating consequences of making a single
 sample in the tree. Its update procedure is issued for each node on the path
-from chosen node to the root (in this order).
+from the chosen node to the root (in this order).
 
 Once algorithm reaches the most urgent node it has to decide whether to expand
 it -- create child nodes for each state reachable by making a single decision.
@@ -183,27 +181,27 @@ root).
 \subsection{Move}
 Move is an increment representing a single decision. It is stored in the search
 tree instead of full state and incrementally applied to the state when making
-simulations. Has no important role and is completely dependent on the State.
+simulations. It has no important role and is completely dependent on the State.
 
 \subsection{State}
 State is a main component that encodes specific problem in MCTS algorithm.  It
 is responsible for full implementation of the default policy, evaluation of Fitness
-for a given state, generating Moves that can be done from current state and
+for a given state, generating Moves that can be done from the current state and
 establishing connection between Move and itself.
 
 Note that from the framework's point of view there is no assumption about how
-default policy estimates state's Fitness, there is no need for the state to
+default policy estimates state's Fitness. As a result there is no need for the state to
 apply a random sequence of moves to itself in order to obtain terminal state
-which can be evaluated directly, this technique is pretty common though (and
-advised as a good starting point).
+which can be evaluated directly. This technique is pretty common though (and
+recommended as a good starting point).
 
-It is beneficial to walk through the process of choosing node by the Tree
+It is beneficial to walk through the process of choosing the node by the Tree
 (according to Policy component). We start at the root by copying initial state
 and then we feed the copy with Moves found on the edges traversed according to
-the decisions of the tree policy, therefore each time we need to provide some
+the decisions of the tree policy. Therefore each time we need to provide some
 component with the state of current node we can answer this request without
 storing state in each node. This also means that State must provide a procedure
-to modify itself based on provided Move.
+to modify itself basing on provided Move.
 
 \section{Possible modifications}
 In every experimental implementation we have created to test our design, we
@@ -217,33 +215,33 @@ intuition where to draw the line between domain dependent and independent
 parts. The design is very flexible and as it was said one can move this
 boundary making virtually everything domain-aware. It is obvious that State
 and Move components must be separated even thought they are strongly connected
-with each other, this separation must be visible from the Tree's point of view
+with each other. This separation must be visible from the Tree's point of view
 for efficiency purposes.
 Merging Payload with Tree (actually a node in the tree) would make most of the
-code dependent on Policy component or memory inefficient and harder to modify
-if node would store some predefined set of statistics.
+code Policy dependent or memory inefficient and harder to modify if the node
+would store just some predefined set of statistics.
 Policy component is critical -- it is domain-independent in most cases and
 there exist many implementations easily interchangeable between different
 problems.
 
 \section{Finding decision sequence}
 Our framework covers the problem of finding optimal decision given initial
-state. The natural extension to finding a feasible solution (which is hopefully
-near-optimal) or equivalently a sequence of decisions, can be done by
-iteratively finding and applying decision until terminal state (and therefore a
-feasible solution) is reached.
+state. The process of finding a feasible solution (which is hopefully
+near-optimal) can be decomposed into iterations consiting of finding and applying 
+a single decision until the terminal state
+(and therefore a feasible solution) is reached.
 
-The reason why we decided not to implement the additional loop should be
+The reason why we decided not to implement this external loop should be
 obvious. The simple loop approach is probably the worst one can come up with.
 
-As the number of decisions made increases the reachable state space shrinks (in
-most cases exponentially, otherwise our approximation is as slow as brute-force
+As the number of decisions made increases, the space of reachable states shrinks
+(in most cases exponentially, otherwise our approximation is as slow as brute-force
 algorithm) therefore it sounds reasonable to reduce the number of simulations
-per one decision.
+per one decision over time.
 
-For some problems we can approximate the size of the state space reachable from
-current state and if it is smaller than some problem and implementation
-dependent value it might be profitable to perform an exhaustive search instead
+For some problems we can estimate the size of the space of states reachable from
+the current state and if it is smaller than some problem and implementation
+specific value, it might be profitable to perform an exhaustive search instead
 of random sampling. This typically increases accuracy of the approximation and
 in some cases reduces the time and space cost as we have no overhead on maintaining
 the structure and meta data kept in the search tree. This approach has been proven
@@ -258,8 +256,8 @@ include tree policies widely used in games solving MCTS algorithms.
 
 In all cases expand decision and Fitness estimation are independent one from
 another. To avoid writing all possible combinations we created components which
-implement one or the other part of Policy's functionality, we put them together
-using inheritance.
+implement one or the other part of Policy's functionality and we've put them
+together using inheritance.
 
 \subsection{Expansion strategies}
 
@@ -277,15 +275,15 @@ These include (we refer to the node chosen for the next simulation as the most
 urgent node and to the node returned after all simulations are performed as the
 best node)
 \begin{itemize}
-  \item \emph{PolicyRandMean} -- choosing node at random when finding the most
+  \item \emph{PolicyRandMean} -- chooses node at random when finding the most
     urgent node, the best node is the node with the lowest mean of collected
     estimates
-  \item \emph{PolicyEpsMean} -- choosing node at random with probability
-    $\epsilon$, otherwise choosing currently the best node as the most urgent
+  \item \emph{PolicyEpsMean} -- chooses node at random with probability
+    $\epsilon$, otherwise chooses the currently best node as the most urgent
     one, the best node is the one with the lowest mean of collected estimates
-  \item \emph{PolicyEpsBest} -- as above but the best node is the one with the
+  \item \emph{PolicyEpsBest} -- same as above but the best node is the one with the
     lowest minimum of collected estimates
-  \item \emph{PolicyMuSigma} -- choosing node with the lowest mean + standard
+  \item \emph{PolicyMuSigma} -- chooses node with the lowest mean + standard
     deviation of collected estimates, this is the best node too
 \end{itemize}
 
