@@ -12,13 +12,13 @@ for detailed description.
 
 \section{Christofides 1.5-apx}
 Christofides algorithm\footnote{\url{http://en.wikipedia.org/wiki/Christofides_algorithm}} is designed to work with instances of TSP whose edge
-weights satisfy triangle inequality. Let $G=(V, w)$ be an instance of TSP,
-the algorithm consists of four steps:
+weights satisfy triangle inequality. Let $G=(V, w)$ be an instance of TSP.
+The algorithm consists of four steps:
 \begin{enumerate}
 \item Create minimum spanning tree $T$ for graph $G$. \\
 Here we have implemented $\Oh(n^2)$ Prim's algorithm\footnote{\url{http://en.wikipedia.org/wiki/Prim's_algorithm}}.
 Although for Euclidean spaces there exists faster $\Oh(n\log(n))$ algorithm, the overall gain
-would be insignificant so we didn't use it.
+would be insignificant so we haven't used it.
 \item Let $O$ be a set of odd degree vertices in $T$.
 	  Find minimum perfect matching $M$ in complete graph over $O$. \\
 For this part we have used \emph{Blossom V} \cite{BlossomV}
@@ -34,7 +34,7 @@ is fast in comparison to our other techniques.
 \section{2opt Local Search}
 
 In 2-opt\footnote{\url{http://en.wikipedia.org/wiki/2-opt}} local search for TSP, a single step
-consists of reverting a segment of the current cycle. Intuitively, we find a point
+consists of reversing a segment of the current cycle. Intuitively, we find a point
 at which the route crosses over itself and reorder it so that it doesn't.
 
 Since in metrical TSP distance between a pair of points is the same for both directions,
@@ -88,7 +88,7 @@ search tree. For TSP problem we chose path building approach:
     a sequence of random decisions
 \end{itemize}
 
-We have introduced two improvements to the above schema. In order to reduce branch
+We have introduced two improvements to the schema above. In order to reduce branch
 factor of resulting tree we have a limited number of vertices taken into
 consideration when choosing next move. A good heuristics here is to choose from
 no more than $K$ vertices closest to the path's end.
@@ -112,7 +112,7 @@ symmetrical instances.
 We have selected the best local search algorithm to compare it against the best
 MCTS and Christofides implementations on a subset of TSPLIB instances.
 Additional experiments were performed to choose optimal configuration of a
-local search and tree search algorithms, the results of these tests are presented
+local search and tree search algorithms. The results of these tests are presented
 later.
 
 If $T$ is the running time of Christofides algorithm for given test instance

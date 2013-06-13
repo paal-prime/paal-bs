@@ -8,12 +8,12 @@ For $k = 1$ the problem is known as Steiner Tree Problem (STP).
 \section{Primal-Dual Method algorithm}
 Local search algorithms implemented in our framework were compared to a 2-approximation algorithm described by Vazirani \cite{Vazirani}. As far as we know, it's the best approximation algorithm for a SFP known to date.
 
-The time complexity of provided implementation is $\Oh(S(E + V\alpha(V) + \log(S)))$ where $S = \sum_{i = 1}^{k}S_i$, $\alpha(V)$ is the inverse of the function $n = f(x) = A(x, x)$ and $A$ is Ackermann function.
+The time complexity of the provided implementation is $\Oh(S(E + V\alpha(V) + \log(S)))$ where $S = \sum_{i = 1}^{k}S_i$, $\alpha(V)$ is the inverse of the function $n = f(x) = A(x, x)$ and $A$ is Ackermann function.
 
 \section{Create and break cycle local search}
 Given some solution to Steiner Forest Problem ,,Create and break cycle'' (CBC) local search changes it by randomly adding edge between solution's vertices. If added edge created a cycle then the heaviest edge from this cycle is removed. It's obvious that obtained graph is still a feasible solution. After described operation it might happen that some edges are no longer needed like for example edges adjacent to leafs that don't belong to $S_i$ for any $i \in \{1, \dots k\}$. Therefore the pruning procedure is used to ensure that only essential edges remain which might lead to further fitness improvement.
 
-Provided Walker implementation takes $\Oh(V\log(V) + KV)$ time to prepare a step, where $K$ is a limit of attempts to choose a random edge with properties as described above. In practice the limit is hardly ever reached and preparing step takes $\Oh(V\log(V)$.
+Provided Walker implementation takes $\Oh(V\log(V) + KV)$ time to prepare a step, where $K$ is a limit of attempts to choose a random edge with properties as described above. In practice the limit is hardly ever reached and preparing step takes $\Oh(V\log(V))$.
 
 \section{Minimum spanning tree of active vertices local search}
 ,,MST of active vertices'' (MSTAV) local search starts with some feasible solution of SFP. At each step a new solution is created by computing a pruned minimum spanning tree of $G'$ which is a subgraph of $G$ induced by some set of vertices $V'$ called active vertices. $V'$ is obtained from vertices belonging to the previous solution after randomly applying one of the following operations:
@@ -23,7 +23,7 @@ Provided Walker implementation takes $\Oh(V\log(V) + KV)$ time to prepare a step
 \item do both operations described above
 \end{itemize}
 
-Note that it might happen that there is no feasible solution in $G'$. Therefore at the end of each step local search checks whether the proposed solution is feasible and if it is not then it reverts any changes.
+Note that it might happen that there is no feasible solution in $G'$. Therefore at the end of each step local search checks whether the proposed solution is feasible and reverts any changes if it is not.
 
 Provided Walker implementation takes $\Oh(E \log(V))$ time to prepare a step.
 
@@ -36,9 +36,10 @@ In every test Walker starts with a pruned MST as starting solution.
 
 \subsection{Comparison of hill climbing and simulated annealing convergence}
 \FloatBarrier
-Experimenting with Walkers utilising StepCtrl that use hill climb and simulated annealing (SA) strategy we have noticed that simulated annealing does not improve fitness of found solutions.
+Experimenting with Walkers utilising StepCtrl that use hill climb and simulated annealing (SA)
+strategy we have noticed that simulated annealing does not improve fitness of the solutions found.
 If we consider how presented local searches change depending on StepCtrl we can gain some insight why this happens.
-Note that CBC could benefit from SA strategy only when in consecutive iterations chosen edges would create a path leading to cycle creation. There is a little probability of such event especially because the solution is pruned every time edge creating cycle is found. As for MSTAV it allows for adding vertices that might not improve solution immediately even without using simulated annealing strategy therefore introducing this strategy doesn't change much.
+Note that CBC could benefit from SA strategy only when in consecutive iterations chosen edges would create a path leading to cycle creation. There is a little probability of such event, especially since the solution is pruned every time an edge creating cycle is found. As for MSTAV it allows for adding vertices that might not improve solution immediately even without using simulated annealing strategy therefore introducing this strategy doesn't change much.
 
 \begin{figure}[hb]
 \input{../results/steiner/SteinerConvergence/CBC-02dEV100K30}
@@ -50,21 +51,21 @@ Note that CBC could benefit from SA strategy only when in consecutive iterations
 
 \subsection{CBC's and MSTAV's search space topology comparison}
 \FloatBarrier
-Benchmarks have shown that MSTAV local search performs definitely better than CBC. If we take a closer look at each algorithm's search space topology we might find what is the cause. What seems to be the key difference in MSTAV's and CBC's search space topology is the existence of plateau areas. MSTAV's might add additional vertex to set of active vertices while keeping the same fitness because the pruned MST that is computed during each step may not include newly added vertex. On the other hand CBC with StepCtrl using hill climbing strategy makes step only if it finds strictly better solution. If we combine that with observation that only edges between vertices of current solution allows to create a cycle in a single step we can notice that solution's neighbourhood is pretty small and steep. Which might be the reason why CBC gets stuck in local optima more often than MSTAV.
+Benchmarks have shown that MSTAV local search performs definitely better than CBC. If we take a closer look at each algorithm's search space topology we might find what is the cause. What seems to be the key difference in MSTAV's and CBC's search space topology is the existence of plateau areas. MSTAV's might add additional vertex to set of active vertices while keeping the same fitness because the pruned MST that is computed during each step may not include newly added vertex. On the other hand CBC with StepCtrl using hill climbing strategy makes step only if it finds strictly better solution. If we combine that with observation that only edges between vertices of current solution allows to create a cycle in a single step we can notice that solution's neighbourhood is pretty small and steep, which might be the reason why CBC gets stuck in local optima more often than MSTAV.
 \begin{figure}[hb]
 \input{../results/steiner/SteinerLSComparison/CBCvsMSTAV-d05}
 \end{figure}
 \FloatBarrier
 
-\subsection{Comparison of found solutions' fitness}
+\subsection{General observations on the algorithms' perfomance}
 \FloatBarrier
 After testing presented algorithms we have made the following observations:
 \begin{itemize}
 \item fitness of solutions found by 2-approximation algorithm is almost always less than 1.1 times optimum
 \item local searches performed well on problem instances with less than thousand of vertices
 \item MSTAV gives better results than CBC most of the time
-\item MSTAV often finds better solutions than 2-approximation algorithm for problem instances with less than thousand of vertices
-\item for graphs with thousands of vertices 2-approximation algorithm finds much better solutions than local searches
+\item MSTAV often finds better solutions than 2-approximation algorithm for problem instances with less than thousand vertices
+\item for graphs with thousands vertices 2-approximation algorithm finds much better solutions than local searches
 \end{itemize}
 
 \begin{figure}[hb]
@@ -82,13 +83,13 @@ After testing presented algorithms we have made the following observations:
 \begin{figure}[hb]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonLargerForestTests}
-  \caption{Results for sample of SFP tests for graphs with at least thousand of vertices}
+  \caption{Results for sample of SFP tests for graphs with at least thousand vertices}
 \end{figure}
 
 \begin{figure}[hb]
   \centering
   \input{../results/steiner/SteinerComparison/comparisonLargerTreeTests}
-  \caption{Results for sample of STP tests for graphs with at least thousand of vertices}
+  \caption{Results for sample of STP tests for graphs with at least thousand vertices}
 \end{figure}
 
 \FloatBarrier
