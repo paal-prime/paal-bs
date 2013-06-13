@@ -95,9 +95,9 @@ into consideration.
 
 \section{Benchmarks}
 To evaluate the algorithms quality we have used UflLib\footnote{\url{http://www.mpi-inf.mpg.de/departments/d1/projects/benchmarks/UflLib/Euklid.html}}
-and our "clustered tests". The need for "clustered tests" raised from the observation that
+and our ,,clustered tests''. The need for ,,clustered tests'' raised from the observation that
 uniform distribution is not natural for many real-world situation like city placements
-e.g. normally cities are "clustered" around natural resources.
+e.g. normally cities are clustered around natural resources.
 
 \subsection{Clustered tests}
 \FloatBarrier
@@ -120,22 +120,24 @@ Sample tests are depicted in figures \ref{FLClustered/test2.txt}-\ref{FLClustere
 \section{Results}
 
 We have selected best local search algorithm to compare it against the best MCTS configuration,
-Primal-dual schema and random implementations on a subset of UflLib instances.
+primal-dual schema and random implementations on a subset of UflLib instances.
 Best local search algorithm and best MCTS policy were selected basing on
-results presented in further part of this section. \\
-$reference \ time$ is the execution time of the 3apx (Primal-dual schema) algorithm. \\
-Limit time for Best Step local search was set to $max(reference \ time, 0.01s)$. \\
-Limit time for MCTS was set to $max(reference \ time, 0.1s)$
-When time limits for local search and MCTS were set to $reference \ time$ their
-results were really bad that's why we have given them more time. \\
+results presented in the further part of this section.
+Let $T_r$ be the execution time of the 3-apx (primal-dual schema) algorithm.
+Time limit for Best Step local search was set to $\max(T_r, 0.01s)$ and for MCTS to $\max(T_r, 0.1s)$
+When the time limits for local search and MCTS were set to $T_r$ their
+results were really bad that's why we have given them more time.
 
-\input{../results/facility_location/fl_comparision/FLcomp}
+\begin{figure}[ht]
+  \centering
+  \input{../results/facility_location/fl_comparision/FLcomp}
+\end{figure}
 \FloatBarrier
 
 We have concluded that Best Step local search is an overall winner as
 its implementation is much simpler than implementations of
-MCTS and 3apx algorithms and results are better.
-It can also be observed that MCTS algorithm doesn't perform as bad as in TSP case
+MCTS and 3-apx algorithms and results are better.
+It can also be observed that MCTS algorithm does not perform as bad as in TSP case
 but still it's only better than a random one.
 
 \subsection{Best Step \& Random Step local searches}
@@ -188,10 +190,10 @@ and therefore only Best Step local search has been included to the general compa
 \subsection{MCTS}
 
 For the reference about row names and overall concept first look onto MCTS description in its own chapter.
-Columns are titled with $<samples\_multiplier>$. \\
+Columns are titled with \verb+<samples_multiplier>+. \\
 Description of used algorithm can be found in \ref{MCTS_FL}. \\
-Number of iterations at each node of tree is $<samples\_multiplier> \cdot <number\_of\_left\_decisions>$.
-From this alone it clearly follows that running time is proportional to the $<samples\_multiplier>$.
+Number of iterations at each node of the tree is equal to the samples multiplier times the number of left decisions.
+From this alone it clearly follows that running time is proportional to the samples multiplier.
 
 \FloatBarrier
 \begin{figure}[ht]
@@ -210,12 +212,12 @@ From this alone it clearly follows that running time is proportional to the $<sa
 \end{figure}
 \FloatBarrier
 
-From the numbers we can clearly see that $PolicyRandMean$ gives the best answer.
+From the numbers we can clearly see that \emph{PolicyRandMean} gives the best answer.
 This is not a surprise as our problem is kind of continuous, so intuitively it's better
 to go where we have a big chance of getting good answer instead of going in direction
 where we can get better result but with a much lower chance. \\
-As we can see raising $samples\_multiplier$ doesn't affect answer significantly on the other hand
-it increases running time dramatically. The running time of single test case with $samples\_multiplier$
-set to 10 took around 1 second and when set to 5000 took about 500 seconds. \\
-From this we can see that best results are achieved with $PolicyRandMean$ with $samples\_multiplier$ set to low number. \\
+As we can see raising the value of samples multiplier does not affect answer significantly on the other hand
+it increases running time dramatically. Execution of a single test case when the samples multiplier
+was set to 10 took around 1 second but when the value was set to 5000 it took about 500 seconds. \\
+From this we can see that best results are achieved with \emph{PolicyRandMean} with samples multiplier set to low number. \\
 The conclusions here are very similar to the results in TSP chapter. 
