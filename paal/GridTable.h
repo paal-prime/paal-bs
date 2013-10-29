@@ -11,6 +11,7 @@
 
 namespace paal
 {
+  /** @brief [implements Table] collects data for an algorithm/test case result table */
   struct GridTable
   {
     std::vector<std::string> columns;

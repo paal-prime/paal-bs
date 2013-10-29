@@ -8,6 +8,20 @@
 
 namespace paal
 {
+  /*
+  concept ProgressCtrl
+  {
+    / **
+      * @brief estimates fraction the remaining available execution time over the total available time.
+      * @param current_fitness (see Walker)
+      * @return value from [0;inf]
+      *
+      * progress()>=1 iff the time is up.
+      * /
+    double progress(double current_fitness);
+  };
+  */
+
   /** @brief [implements ProgressCtrl]
    * progress = iterations passed / iterations available
    */

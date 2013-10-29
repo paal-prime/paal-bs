@@ -6,6 +6,22 @@
 
 namespace paal
 {
+  /*
+  concept StepCtrl
+  {
+    / **
+      * @brief makes a decision whether the step prepared by Walker should be made.
+      * @param current_fitness (see Walker)
+      * @param next_fitness (see Walker)
+      * @param progress (see ProgressCtrl)
+      * @param random [implements Random]
+      * @return true iff the step should be made
+      * /
+    template<typename Random> bool step_decision(double current_fitness,
+        double next_fitness, double progress, Random &random)
+  };
+  */
+  
   /** @brief [implements StepCtrl] steps iff fitness is not worsening */
   struct HillClimb
   {

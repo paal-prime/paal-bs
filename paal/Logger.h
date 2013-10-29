@@ -6,6 +6,13 @@
 
 namespace paal
 {
+  /*
+  concept Logger
+  {
+    void log(double current_fitness);
+  };
+  */
+  
   /** @brief [implements Logger] logger that does nothing */
   struct VoidLogger
   {
